@@ -8,6 +8,7 @@ using namespace std;
 
 void testOrdersList()
 {
+    OrdersList *testList = new OrdersList();
 }
 
 int main()

@@ -9,11 +9,11 @@
 using namespace std;
 
 OrdersList::OrdersList()
-    : Orders{new list<Order>}
+    : Orders{new list<Order *>}
 {
 }
 
-int OrdersList::add(Order o)
+int OrdersList::add(Order *o)
 {
     Orders->insert(Orders->end(), o);
 

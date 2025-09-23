@@ -15,9 +15,9 @@ void testOrdersList()
     Order *order2 = new Order(2);
     Order *order3 = new Order(3);
 
-    testList->add(*order1);
-    testList->add(*order2);
-    testList->add(*order3);
+    testList->add(order1);
+    testList->add(order2);
+    testList->add(order3);
 
     delete order1;
     delete order2;

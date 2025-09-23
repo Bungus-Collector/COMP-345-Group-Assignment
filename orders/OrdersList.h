@@ -8,13 +8,15 @@
 
 class OrdersList
 {
-public:
-    list<Order> *Orders;
+private:
+    list<Order *> *Orders;
 
+public:
     OrdersList();
-    int add(Order);
+    int add(Order *);
     int move(int, int);
-    int remove(int);
+    int remove(int);     // Remove by ID
+    int remove(Order *); // Remove by pointer
 };
 
 #endif

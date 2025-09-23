@@ -8,14 +8,13 @@
 
 class OrdersList
 {
-private:
-    list<Order> Orders;
-
 public:
+    list<Order> *Orders;
+
     OrdersList();
-    ~OrdersList();
-    bool move(int, int);
-    bool remove(int);
+    int add(Order);
+    int move(int, int);
+    int remove(int);
 };
 
 #endif

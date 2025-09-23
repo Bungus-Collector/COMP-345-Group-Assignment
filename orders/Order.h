@@ -12,14 +12,14 @@ using namespace std;
 class Order
 {
 private:
-    int id;
+    int *id;
 
-public:
+public: // TODO: Copy constructor
     Order(int);
     ~Order();
     int getId();
-    bool validate();
-    bool execute();
+    virtual bool validate();
+    virtual int execute();
 };
 
 // DEPLOY
@@ -27,12 +27,14 @@ public:
 class Deploy : public Order
 {
 private:
-    int numTroops;
-    string targetTerritory; // Subject to change depending on how territories are identified
+    int *numTroops;
+    string *targetTerritory; // Subject to change depending on how territories are identified
 
 public:
     Deploy(int, int, string);
     ~Deploy();
+    bool validate() override;
+    int execute() override;
 };
 
 // ADVANCE
@@ -40,13 +42,15 @@ public:
 class Advance : public Order
 {
 private:
-    int numTroops;
-    string sourceTerritory;
-    string targetTerritory;
+    int *numTroops;
+    string *sourceTerritory;
+    string *targetTerritory;
 
 public:
     Advance(int, int, string, string);
     ~Advance();
+    bool validate() override;
+    int execute() override;
 };
 
 // LA BOMBA
@@ -54,11 +58,13 @@ public:
 class Bomb : public Order
 {
 private:
-    string targetTerritory;
+    string *targetTerritory;
 
 public:
     Bomb(int, string);
     ~Bomb();
+    bool validate() override;
+    int execute() override;
 };
 
 // BLOCKADE
@@ -66,11 +72,13 @@ public:
 class Blockade : public Order
 {
 private:
-    string targetTerritory;
+    string *targetTerritory;
 
 public:
     Blockade(int, string);
     ~Blockade();
+    bool validate() override;
+    int execute() override;
 };
 
 // AIRLIFT
@@ -78,13 +86,15 @@ public:
 class Airlift : public Order
 {
 private:
-    int numTroops;
-    string sourceTerritory;
-    string targetTerritory;
+    int *numTroops;
+    string *sourceTerritory;
+    string *targetTerritory;
 
 public:
     Airlift(int, int, string, string);
     ~Airlift();
+    bool validate() override;
+    int execute() override;
 };
 
 // NEGOTIATE
@@ -92,11 +102,13 @@ public:
 class Negotiate : public Order
 {
 private:
-    string targetPlayer;
+    string *targetPlayer;
 
 public:
     Negotiate(int, string);
     ~Negotiate();
+    bool validate() override;
+    int execute() override;
 };
 
 #endif

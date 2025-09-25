@@ -61,7 +61,6 @@ Deploy::Deploy(int i, int n, Territory *t)
 Deploy::~Deploy()
 {
   delete numTroops;
-  delete targetTerritory;
   numTroops = nullptr;
   targetTerritory = nullptr;
 }
@@ -99,8 +98,6 @@ Advance::Advance(int i, int n, Territory *s, Territory *t)
 Advance::~Advance()
 {
   delete numTroops;
-  delete sourceTerritory;
-  delete targetTerritory;
   numTroops = nullptr;
   sourceTerritory = nullptr;
   targetTerritory = nullptr;
@@ -133,7 +130,6 @@ Bomb::Bomb(int i, Territory *t)
 
 Bomb::~Bomb()
 {
-  delete targetTerritory;
   targetTerritory = nullptr;
 }
 
@@ -161,7 +157,6 @@ Blockade::Blockade(int i, Territory *t)
 
 Blockade::~Blockade()
 {
-  delete targetTerritory;
   targetTerritory = nullptr;
 }
 
@@ -192,8 +187,6 @@ Airlift::Airlift(int i, int n, Territory *s, Territory *t)
 Airlift::~Airlift()
 {
   delete numTroops;
-  delete sourceTerritory;
-  delete targetTerritory;
   numTroops = nullptr;
   sourceTerritory = nullptr;
   targetTerritory = nullptr;
@@ -226,7 +219,6 @@ Negotiate::Negotiate(int i, string p)
 
 Negotiate::~Negotiate()
 {
-  delete targetPlayer;
   targetPlayer = nullptr;
 }
 

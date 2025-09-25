@@ -6,3 +6,6 @@
 
 # VS Code
 .vscode/
+
+# Batch file I used for compilation
+compile.bat

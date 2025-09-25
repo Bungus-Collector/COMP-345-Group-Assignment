@@ -3,13 +3,21 @@
 #include <iostream>
 #include <string>
 #include "Order.h"
+#include "../Map/Map.h"
 
 using namespace std;
 
-// ORDER
+// Overloading the stream insertion operator
+std::ostream &operator<<(ostream &os, const Order &order)
+{
+  order.print(os);
+  return os;
+}
+
+// ======================== ORDER ======================== //
 
 Order::Order(int i)
-    : id{&i}
+    : id{new int(i)}
 {
 }
 
@@ -17,6 +25,11 @@ Order::~Order()
 {
   delete id;
   id = nullptr;
+}
+
+void Order::print(std::ostream &os) const
+{
+  os << "id: " << *id; // TODO: add player
 }
 
 int Order::getId()
@@ -36,12 +49,12 @@ int Order::execute()
   return 0;
 }
 
-// DEPLOY
+// ======================== DEPLOY ======================== //
 
-Deploy::Deploy(int i, int n, string t)
+Deploy::Deploy(int i, int n, Territory *t)
     : Order{i},
-      numTroops{&n},
-      targetTerritory{&t}
+      numTroops{new int(n)},
+      targetTerritory{t}
 {
 }
 
@@ -53,10 +66,17 @@ Deploy::~Deploy()
   targetTerritory = nullptr;
 }
 
+void Deploy::print(std::ostream &os) const
+{
+  Order::print(os);
+  os << " | numTroops: " << *numTroops << " | targetTerritory: " << targetTerritory->getName();
+}
+
 bool Deploy::validate()
 {
   // CHECKS:
   // numTroops <= # troops in reserve
+  // Player controls targetTerritory
   return 1;
 }
 
@@ -66,13 +86,13 @@ int Deploy::execute()
   return 0;
 }
 
-// ADVANCE
+// ======================== ADVANCE ======================== //
 
-Advance::Advance(int i, int n, string s, string t)
+Advance::Advance(int i, int n, Territory *s, Territory *t)
     : Order{i},
-      numTroops{&n},
-      sourceTerritory{&s},
-      targetTerritory{&t}
+      numTroops{new int(n)},
+      sourceTerritory{s},
+      targetTerritory{t}
 {
 }
 
@@ -103,11 +123,11 @@ int Advance::execute()
   return 0;
 }
 
-// BOMB
+// ======================== BOMB ======================== //
 
-Bomb::Bomb(int i, string t)
+Bomb::Bomb(int i, Territory *t)
     : Order{i},
-      targetTerritory{&t}
+      targetTerritory{t}
 {
 }
 
@@ -131,11 +151,11 @@ int Bomb::execute()
   return 0;
 }
 
-// BLOCKADE
+// ======================== BLOCKADE ======================== //
 
-Blockade::Blockade(int i, string t)
+Blockade::Blockade(int i, Territory *t)
     : Order{i},
-      targetTerritory{&t}
+      targetTerritory{t}
 {
 }
 
@@ -159,13 +179,13 @@ int Blockade::execute()
   return 0;
 }
 
-// AIRLIFT
+// ======================== AIRLIFT ======================== //
 
-Airlift::Airlift(int i, int n, string s, string t)
+Airlift::Airlift(int i, int n, Territory *s, Territory *t)
     : Order{i},
-      numTroops{&n},
-      sourceTerritory{&s},
-      targetTerritory{&t}
+      numTroops{new int(n)},
+      sourceTerritory{s},
+      targetTerritory{t}
 {
 }
 
@@ -196,11 +216,11 @@ int Airlift::execute()
   return 0;
 }
 
-// NEGOTIATE
+// ======================== NEGOTIATE ======================== //
 
 Negotiate::Negotiate(int i, string p)
     : Order{i},
-      targetPlayer{&p}
+      targetPlayer{&p} // TODO: change to player
 {
 }
 

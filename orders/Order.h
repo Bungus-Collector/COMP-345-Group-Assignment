@@ -4,6 +4,7 @@
 #define ORDER_H
 
 #include <string>
+#include "../Map/Map.h"
 
 using namespace std;
 
@@ -12,6 +13,8 @@ using namespace std;
 class Order
 {
 private:
+    // TODO: add initiating Player
+
     // Unique int identifier
     int *id;
 
@@ -20,23 +23,27 @@ public: // TODO: Copy constructors
     Order(int);
     ~Order();
 
+    // Print function and stream overloading function
+    virtual void print(std::ostream &) const;
+    friend std::ostream &operator<<(ostream &, const Order &);
+
     /**
-     * Accessor method for id
+     * @brief Accessor method for id
      *
      * @return id
      */
     int getId();
 
     /**
-     * Runs validation checks before an order
-     * can be executed.
+     * @brief Runs validation checks.
+     * Called before the order can be executed.
      *
      * @return false if a check fails, true otherwise
      */
     virtual bool validate();
 
     /**
-     * Executes an order
+     * @brief Executes an order
      *
      * @return 0 on success, 1 on failure
      */
@@ -49,12 +56,32 @@ class Deploy : public Order
 {
 private:
     int *numTroops;
-    string *targetTerritory; // TODO: Change to Territory pointer
+    Territory *targetTerritory;
 
 public:
-    Deploy(int, int, string);
+    // Constructor and destructor
+    Deploy(int, int, Territory *);
     ~Deploy();
+
+    // Print function
+    void print(std::ostream &) const override;
+
+    /**
+     * @brief Inherited from Order class: runs validation checks.
+     * CHECKS
+     * numTroops <= # troops in reserve.
+     * Player controls targetTerritory.
+     *
+     * @return false if a check fails, true otherwise
+     */
     bool validate() override;
+
+    /**
+     * @brief Inherited from Order class: executes the Deploy order.
+     * Increases the troops in targetTerritory by numTroops.
+     *
+     * @return 0 for success, 1 for failure
+     */
     int execute() override;
 };
 
@@ -64,13 +91,35 @@ class Advance : public Order
 {
 private:
     int *numTroops;
-    string *sourceTerritory;
-    string *targetTerritory;
+    Territory *sourceTerritory;
+    Territory *targetTerritory;
 
 public:
-    Advance(int, int, string, string);
+    // Constructor and destructor
+    Advance(int, int, Territory *, Territory *);
     ~Advance();
+
+    // Print function
+
+    /**
+     * @brief Inherited from Order class: runs validation checks.
+     * CHECKS
+     * numTroops <= # troops in reserve.
+     * sourceTerritory and targetTerritory are adjacent.
+     * Player controls targetTerritory.
+     * Controllers of sourceTerritory and targetTerritory must not be in Negotiation state.
+     *
+     * @return false if a check fails, true otherwise
+     */
     bool validate() override;
+
+    /**
+     * @brief Inherited from Order class: executes the Advance order.
+     * Move troops from sourceTerritory to targetTerritory.
+     * Run combat calculations if needed.
+     *
+     * @return 0 for success, 1 for failure
+     */
     int execute() override;
 };
 
@@ -79,12 +128,31 @@ public:
 class Bomb : public Order
 {
 private:
-    string *targetTerritory;
+    Territory *targetTerritory;
 
 public:
-    Bomb(int, string);
+    // Constructor and destructor
+    Bomb(int, Territory *);
     ~Bomb();
+
+    // Print function
+
+    /**
+     * @brief Inherited from Order class: runs validation checks.
+     * CHECKS
+     * Player must have a Bomb card in hand.
+     * Controller of targetTerritory and the current player must not be in Negotiation state.
+     *
+     * @return false if a check fails, true otherwise
+     */
     bool validate() override;
+
+    /**
+     * @brief Inherited from Order class: executes the Bomb order.
+     * Halve the number of troops in targetTerritory.
+     *
+     * @return 0 for success, 1 for failure
+     */
     int execute() override;
 };
 
@@ -93,12 +161,31 @@ public:
 class Blockade : public Order
 {
 private:
-    string *targetTerritory;
+    Territory *targetTerritory;
 
 public:
-    Blockade(int, string);
+    // Constructor and destructor
+    Blockade(int, Territory *);
     ~Blockade();
+
+    // Print function
+
+    /**
+     * @brief Inherited from Order class: runs validation checks.
+     * CHECKS
+     * Player must have a Blockade card in hand.
+     *
+     * @return false if a check fails, true otherwise
+     */
     bool validate() override;
+
+    /**
+     * @brief Inherited from Order class: executes the Blockade order.
+     * Triple the number of troops in targetTerritory.
+     * Set targetTerritory status to neutral.
+     *
+     * @return 0 for success, 1 for failure
+     */
     int execute() override;
 };
 
@@ -108,13 +195,35 @@ class Airlift : public Order
 {
 private:
     int *numTroops;
-    string *sourceTerritory;
-    string *targetTerritory;
+    Territory *sourceTerritory;
+    Territory *targetTerritory;
 
 public:
-    Airlift(int, int, string, string);
+    // Constructor and destructor
+    Airlift(int, int, Territory *, Territory *);
     ~Airlift();
+
+    // Print function
+
+    /**
+     * @brief Inherited from Order class: runs validation checks.
+     * CHECKS
+     * Player must have an Airlift card in hand.
+     * numTroops <= # troops in sourceTerritory.
+     * Player must control sourceTerritory.
+     * Controllers of sourceTerritory and targetTerritory must not be in Negotiation state.
+     *
+     * @return false if a check fails, true otherwise
+     */
     bool validate() override;
+
+    /**
+     * @brief Inherited from Order class: executes the Airlift order.
+     * Move numTroops from sourceTerritory to targetTerritory.
+     * Run combat calculations if needed.
+     *
+     * @return 0 for success, 1 for failure
+     */
     int execute() override;
 };
 
@@ -123,12 +232,30 @@ public:
 class Negotiate : public Order
 {
 private:
-    string *targetPlayer;
+    string *targetPlayer; // TODO: Change to player pointer
 
 public:
+    // Constructor and destructor
     Negotiate(int, string);
     ~Negotiate();
+
+    // Print function
+
+    /**
+     * @brief Inherited from Order class: runs validation checks.
+     * CHECKS
+     * Player must have a Negotiate card in hand.
+     *
+     * @return false if a check fails, true otherwise
+     */
     bool validate() override;
+
+    /**
+     * @brief Inherited from Order class: executes the Negotiate order.
+     * Impose Negotiation state between the current player and targetPlayer for one turn.
+     *
+     * @return 0 for success, 1 for failure
+     */
     int execute() override;
 };
 

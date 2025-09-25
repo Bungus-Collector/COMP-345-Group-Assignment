@@ -12,11 +12,44 @@ private:
     list<Order *> *Orders;
 
 public:
+    // Constructor and destructor
     OrdersList();
     ~OrdersList();
+
+    // Stream insertion operator
+    friend std::ostream &operator<<(std::ostream &os, const OrdersList &ordersList);
+
+    /**
+     * @brief Adds an order to the list.
+     *
+     * @param Order to be added
+     * @return 0 for success, 1 for failure
+     */
     int add(Order *);
-    int move(int, int);
-    int remove(int);     // Remove by ID
+
+    /**
+     * @brief Moves an order to a new position in the list.
+     *
+     * @param Order to be moved
+     * @param int position in list
+     * @return 0 for success, 1 for out of bounds
+     */
+    int move(Order *, int);
+
+    /**
+     * @brief Removes an order by ID.
+     *
+     * @param int id to be removed
+     * @return 0 for success, 1 for not found
+     */
+    int remove(int); // Remove by ID
+
+    /**
+     * @brief Removes an order by pointer.
+     *
+     * @param Order to be removed
+     * @return 0 for success, 1 for not found
+     */
     int remove(Order *); // Remove by pointer
 };
 

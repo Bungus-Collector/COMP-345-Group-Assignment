@@ -16,6 +16,7 @@ Order::Order(int i)
 Order::~Order()
 {
   delete id;
+  id = nullptr;
 }
 
 int Order::getId()
@@ -48,6 +49,8 @@ Deploy::~Deploy()
 {
   delete numTroops;
   delete targetTerritory;
+  numTroops = nullptr;
+  targetTerritory = nullptr;
 }
 
 bool Deploy::validate()
@@ -78,6 +81,9 @@ Advance::~Advance()
   delete numTroops;
   delete sourceTerritory;
   delete targetTerritory;
+  numTroops = nullptr;
+  sourceTerritory = nullptr;
+  targetTerritory = nullptr;
 }
 
 bool Advance::validate()
@@ -108,6 +114,7 @@ Bomb::Bomb(int i, string t)
 Bomb::~Bomb()
 {
   delete targetTerritory;
+  targetTerritory = nullptr;
 }
 
 bool Bomb::validate()
@@ -135,6 +142,7 @@ Blockade::Blockade(int i, string t)
 Blockade::~Blockade()
 {
   delete targetTerritory;
+  targetTerritory = nullptr;
 }
 
 bool Blockade::validate()
@@ -166,6 +174,9 @@ Airlift::~Airlift()
   delete numTroops;
   delete sourceTerritory;
   delete targetTerritory;
+  numTroops = nullptr;
+  sourceTerritory = nullptr;
+  targetTerritory = nullptr;
 }
 
 bool Airlift::validate()
@@ -196,6 +207,7 @@ Negotiate::Negotiate(int i, string p)
 Negotiate::~Negotiate()
 {
   delete targetPlayer;
+  targetPlayer = nullptr;
 }
 
 bool Negotiate::validate()

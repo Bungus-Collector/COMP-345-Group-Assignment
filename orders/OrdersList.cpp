@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <list>
-// #include <bits/stdc++.h>
+#include <algorithm>
 #include "OrdersList.h"
 
 using namespace std;
@@ -13,6 +13,17 @@ OrdersList::OrdersList()
 {
 }
 
+OrdersList::~OrdersList()
+{
+    for (Order *o : *Orders)
+    {
+        delete o;
+    }
+
+    delete Orders;
+    Orders = nullptr;
+}
+
 int OrdersList::add(Order *o)
 {
     Orders->insert(Orders->end(), o);
@@ -20,47 +31,30 @@ int OrdersList::add(Order *o)
     return 0;
 }
 
-// // To be tested
-// int OrdersList::move(int id, int toIndex)
-// {
-//     if (Orders.empty())
-//         return 0;
+int OrdersList::remove(int i)
+{
+    for (auto it = Orders->begin(); it != Orders->end(); ++i)
+    {
+        if ((*it)->getId() == i)
+        {
+            delete *it;
+            Orders->erase(it);
+            return 0; // Success
+        }
+    }
 
-//     // Find the iterator to the element with the given ID
-//     auto fromIt = std::find_if(Orders.begin(), Orders.end(), [id](Order &o)
-//                                { return o.getId() == id; });
+    return 1; // Not found
+}
 
-//     if (fromIt == Orders.end())
-//     {
-//         // Order ID not in list
-//         return 1;
-//     }
+int OrdersList::remove(Order *o)
+{
+    auto it = std::find(Orders->begin(), Orders->end(), o);
+    if (it != Orders->end())
+    {
+        delete *it;
+        Orders->erase(it);
+        return 0; // Success
+    }
 
-//     // Find current index of the element
-//     size_t fromIndex = std::distance(Orders.begin(), fromIt);
-
-//     if (fromIndex == toIndex)
-//     {
-//         // Order already in specified position
-//         return 0;
-//     }
-
-//     if (toIndex > Orders.size())
-//     {
-//         // Index out of range
-//         return 2;
-//     }
-
-//     // Get iterator to the target position
-//     auto toIt = Orders.begin();
-//     std::advance(toIt, toIndex);
-
-//     // If moving forward, need to increment target position because
-//     // `fromIt` will be removed before insert point
-//     if (fromIndex < toIndex)
-//     {
-//         ++toIt;
-//     }
-
-//     Orders.splice(toIt, Orders, fromIt);
-// }
+    return 1; // Not found
+}

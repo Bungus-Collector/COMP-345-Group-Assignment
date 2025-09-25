@@ -13,6 +13,7 @@ private:
 
 public:
     OrdersList();
+    ~OrdersList();
     int add(Order *);
     int move(int, int);
     int remove(int);     // Remove by ID

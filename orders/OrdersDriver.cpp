@@ -18,11 +18,6 @@ void testOrdersList()
     testList->add(order1);
     testList->add(order2);
     testList->add(order3);
-
-    delete order1;
-    delete order2;
-    delete order3;
-    delete testList;
 }
 
 int main()

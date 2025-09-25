@@ -7,28 +7,49 @@
 
 using namespace std;
 
-// ORDER
+// ======================== ORDER ======================== //
 
 class Order
 {
 private:
+    // Unique int identifier
     int *id;
 
-public: // TODO: Copy constructor
+public: // TODO: Copy constructors
+    // Constructor and destructor
     Order(int);
     ~Order();
+
+    /**
+     * Accessor method for id
+     *
+     * @return id
+     */
     int getId();
+
+    /**
+     * Runs validation checks before an order
+     * can be executed.
+     *
+     * @return false if a check fails, true otherwise
+     */
     virtual bool validate();
+
+    /**
+     * Executes an order
+     *
+     * @return 0 on success, 1 on failure
+     */
     virtual int execute();
 };
 
-// DEPLOY
+// ======================== DEPLOY ======================== //
 
 class Deploy : public Order
 {
 private:
     int *numTroops;
-    string *targetTerritory; // Subject to change depending on how territories are identified
+    string *targetTerritory; // TODO: Change to Territory pointer
 
 public:
     Deploy(int, int, string);
@@ -37,7 +58,7 @@ public:
     int execute() override;
 };
 
-// ADVANCE
+// ======================== ADVANCE ======================== //
 
 class Advance : public Order
 {
@@ -53,7 +74,7 @@ public:
     int execute() override;
 };
 
-// LA BOMBA
+// ======================== LA BOMBA ======================== //
 
 class Bomb : public Order
 {
@@ -67,7 +88,7 @@ public:
     int execute() override;
 };
 
-// BLOCKADE
+// ======================== BLOCKADE ======================== //
 
 class Blockade : public Order
 {
@@ -81,7 +102,7 @@ public:
     int execute() override;
 };
 
-// AIRLIFT
+// ======================== AIRLIFT ======================== //
 
 class Airlift : public Order
 {
@@ -97,7 +118,7 @@ public:
     int execute() override;
 };
 
-// NEGOTIATE
+// ======================== NEGOTIATE ======================== //
 
 class Negotiate : public Order
 {

@@ -1,0 +1,18 @@
+[Map]
+author=Jeff Mason
+image=map_image.bmp
+wrap=no
+scroll=none
+warn=yes
+
+[Continents]
+Continent A=2
+Continent B=2
+Isolated_Continent=1
+
+[Territories]
+Territory_A1,100,100,Continent A,Territory_A2
+Territory_A2,150,150,Continent A,Territory_A1,Territory_B1
+Territory_B1,300,300,Continent B,Territory_B2,Territory_A2
+Territory_B2,350,350,Continent B,Territory_B1
+Territory_C1,500,500,Isolated_Continent

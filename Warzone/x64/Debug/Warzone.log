@@ -1,7 +1,0 @@
-﻿  Map.cpp
-C:\Users\Elian\source\repos\Warzone\Warzone\Map.cpp(320,18): warning C4101: 'equals': unreferenced local variable
-  MapDriver.cpp
-  Generating Code...
-  Warzone.vcxproj -> C:\Users\Elian\source\repos\Warzone\x64\Debug\Warzone.exe
-  'pwsh.exe' is not recognized as an internal or external command,
-  operable program or batch file.

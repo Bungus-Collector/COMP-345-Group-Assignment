@@ -1,8 +1,0 @@
-# Compiled objects
-*.obj
-
-# Executables
-*.exe
-
-# VS Code
-.vscode/

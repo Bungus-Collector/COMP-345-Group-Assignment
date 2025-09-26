@@ -8,24 +8,6 @@
 
 using namespace std;
 
-// Overloading the stream insertion operator
-std::ostream &operator<<(ostream &os, const OrdersList &ordersList)
-{
-    os << "Orders List:\n";
-    for (Order *o : *ordersList.Orders)
-    {
-        if (o) // Check for null pointers
-        {
-            os << *o << "\n";
-        }
-        else
-        {
-            os << "NULL\n";
-        }
-    }
-    return os;
-}
-
 OrdersList::OrdersList()
     : Orders{new list<Order *>}
 {
@@ -33,17 +15,13 @@ OrdersList::OrdersList()
 
 OrdersList::OrdersList(const OrdersList &other)
 {
-    list<Order *> *newOrders = new list<Order *>();
+    Orders = new list<Order *>();
 
     for (Order *o : *other.Orders)
     {
-        if (o) // Check for null pointers
+        if (o)
         {
-            newOrders->push_back(new Order(*o));
-        }
-        else
-        {
-            newOrders->push_back(nullptr); // Preserve null pointers
+            Orders->push_back(new Order(*o));
         }
     }
 }
@@ -57,6 +35,45 @@ OrdersList::~OrdersList()
 
     delete Orders;
     Orders = nullptr;
+}
+
+std::ostream &operator<<(ostream &os, const OrdersList &ordersList)
+{
+    os << "Orders List:\n";
+    for (Order *o : *ordersList.Orders)
+    {
+        if (o)
+        {
+            os << *o << "\n";
+        }
+    }
+    return os;
+}
+
+OrdersList &OrdersList::operator=(const OrdersList &other)
+{
+    if (this == &other)
+    {
+        return *this;
+    }
+
+    for (Order *o : *Orders)
+    {
+        delete o;
+    }
+    Orders->clear();
+
+    for (Order *o : *other.Orders)
+    {
+        this->Orders->push_back(new Order(*o));
+    }
+
+    return *this;
+}
+
+list<Order *> *OrdersList::getOrders()
+{
+    return Orders;
 }
 
 int OrdersList::add(Order *o)

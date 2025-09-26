@@ -37,6 +37,19 @@ void Order::print(std::ostream &os) const
   os << "id: " << *id; // TODO: add player
 }
 
+Order &Order::operator=(const Order &other)
+{
+  if (this == &other)
+  {
+    return *this;
+  }
+
+  delete id;
+
+  this->id = new int(*other.id);
+  return *this;
+}
+
 int Order::getId()
 {
   return *id;
@@ -80,6 +93,22 @@ void Deploy::print(std::ostream &os) const
 {
   Order::print(os);
   os << " | numTroops: " << *numTroops << " | targetTerritory: " << targetTerritory->getName();
+}
+
+Deploy &Deploy::operator=(const Deploy &other)
+{
+  if (this == &other)
+  {
+    return *this;
+  }
+
+  Order::operator=(other);
+  delete numTroops;
+  delete targetTerritory;
+
+  this->numTroops = new int(*other.numTroops);
+  this->targetTerritory = new Territory(*other.targetTerritory);
+  return *this;
 }
 
 bool Deploy::validate()
@@ -129,6 +158,24 @@ void Advance::print(std::ostream &os) const
      << " | targetTerritory: " << targetTerritory->getName();
 }
 
+Advance &Advance::operator=(const Advance &other)
+{
+  if (this == &other)
+  {
+    return *this;
+  }
+
+  Order::operator=(other);
+  delete numTroops;
+  delete sourceTerritory;
+  delete targetTerritory;
+
+  this->numTroops = new int(*other.numTroops);
+  this->sourceTerritory = new Territory(*other.sourceTerritory);
+  this->targetTerritory = new Territory(*other.targetTerritory);
+  return *this;
+}
+
 bool Advance::validate()
 {
   // CHECKS:
@@ -170,6 +217,20 @@ void Bomb::print(std::ostream &os) const
   os << " | targetTerritory: " << targetTerritory->getName();
 }
 
+Bomb &Bomb::operator=(const Bomb &other)
+{
+  if (this == &other)
+  {
+    return *this;
+  }
+
+  Order::operator=(other);
+  delete targetTerritory;
+
+  this->targetTerritory = new Territory(*other.targetTerritory);
+  return *this;
+}
+
 bool Bomb::validate()
 {
   // CHECKS:
@@ -206,6 +267,20 @@ void Blockade::print(std::ostream &os) const
 {
   Order::print(os);
   os << " | targetTerritory: " << targetTerritory->getName();
+}
+
+Blockade &Blockade::operator=(const Blockade &other)
+{
+  if (this == &other)
+  {
+    return *this;
+  }
+
+  Order::operator=(other);
+  delete targetTerritory;
+
+  this->targetTerritory = new Territory(*other.targetTerritory);
+  return *this;
 }
 
 bool Blockade::validate()
@@ -255,6 +330,24 @@ void Airlift::print(std::ostream &os) const
      << " | targetTerritory: " << targetTerritory->getName();
 }
 
+Airlift &Airlift::operator=(const Airlift &other)
+{
+  if (this == &other)
+  {
+    return *this;
+  }
+
+  Order::operator=(other);
+  delete numTroops;
+  delete sourceTerritory;
+  delete targetTerritory;
+
+  this->numTroops = new int(*other.numTroops);
+  this->sourceTerritory = new Territory(*other.sourceTerritory);
+  this->targetTerritory = new Territory(*other.targetTerritory);
+  return *this;
+}
+
 bool Airlift::validate()
 {
   // CHECKS:
@@ -294,6 +387,20 @@ void Negotiate::print(std::ostream &os) const
 {
   Order::print(os);
   os << " | numTroops: " << *targetPlayer;
+}
+
+Negotiate &Negotiate::operator=(const Negotiate &other)
+{
+  if (this == &other)
+  {
+    return *this;
+  }
+
+  Order::operator=(other);
+  delete targetPlayer;
+
+  this->targetPlayer = new string(*other.targetPlayer);
+  return *this;
 }
 
 bool Negotiate::validate()

@@ -28,6 +28,9 @@ public:
     virtual void print(std::ostream &) const;
     friend std::ostream &operator<<(ostream &, const Order &);
 
+    // Overloading assignment operator
+    Order &operator=(const Order &);
+
     /**
      * @brief Accessor method for id
      *
@@ -68,6 +71,9 @@ public:
     // Print function
     void print(std::ostream &) const override;
 
+    // Overloading assignment operator
+    Deploy &operator=(const Deploy &);
+
     /**
      * @brief Inherited from Order class: runs validation checks.
      * CHECKS
@@ -104,6 +110,9 @@ public:
 
     // Print function
     void print(std::ostream &) const override;
+
+    // Overloading assignment operator
+    Advance &operator=(const Advance &);
 
     /**
      * @brief Inherited from Order class: runs validation checks.
@@ -143,6 +152,9 @@ public:
     // Print function
     void print(std::ostream &) const override;
 
+    // Overloading assignment operator
+    Bomb &operator=(const Bomb &);
+
     /**
      * @brief Inherited from Order class: runs validation checks.
      * CHECKS
@@ -177,6 +189,9 @@ public:
 
     // Print function
     void print(std::ostream &) const override;
+
+    // Overloading assignment operator
+    Blockade &operator=(const Blockade &);
 
     /**
      * @brief Inherited from Order class: runs validation checks.
@@ -215,6 +230,9 @@ public:
     // Print function
     void print(std::ostream &) const override;
 
+    // Overloading assignment operator
+    Airlift &operator=(const Airlift &);
+
     /**
      * @brief Inherited from Order class: runs validation checks.
      * CHECKS
@@ -252,6 +270,9 @@ public:
 
     // Print function
     void print(std::ostream &) const override;
+
+    // Overloading assignment operator
+    Negotiate &operator=(const Negotiate &);
 
     /**
      * @brief Inherited from Order class: runs validation checks.

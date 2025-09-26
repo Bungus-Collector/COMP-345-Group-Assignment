@@ -20,6 +20,16 @@ public:
     // Stream insertion operator
     friend std::ostream &operator<<(std::ostream &os, const OrdersList &ordersList);
 
+    // Overloading assignment operator
+    OrdersList &operator=(const OrdersList &);
+
+    /**
+     * @brief Returns the list of Orders.
+     *
+     * @return Orders
+     */
+    list<Order *> *getOrders();
+
     /**
      * @brief Adds an order to the list.
      *

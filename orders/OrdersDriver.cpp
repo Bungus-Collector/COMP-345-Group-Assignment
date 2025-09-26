@@ -24,6 +24,18 @@ void testOrdersList()
     testList1->add(order4);
     testList1->add(order5);
 
+    cout << *testList1 << endl;
+    cout << "\n"
+         << *order1 << endl;
+
+    testList1->remove(order1);
+
+    cout << *testList1 << endl;
+    cout << "\n"
+         << *order1 << endl;
+
+    return;
+
     OrdersList testList2 = *testList1;
 
     list<Order *> *list1 = testList1->getOrders();
@@ -43,15 +55,9 @@ void testOrdersList()
     }
     cout << endl;
 
-    // cout << *testList << endl;
+    Order order6 = *order1;
 
-    // cout << *order1 << endl;
-    // cout << *order3 << endl;
-    // cout << order1->getId() << endl;
-    // cout << *order4 << endl;
-    // cout << *order5 << endl;
-
-    // cout << order3 << " " << order5 << endl;
+    cout << order1 << " " << &order6 << endl;
 }
 
 int main()

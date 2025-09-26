@@ -89,7 +89,7 @@ int OrdersList::remove(int i)
     {
         if ((*it)->getId() == i)
         {
-            delete *it;
+            // delete *it;
             Orders->erase(it);
             return 0; // Success
         }
@@ -103,7 +103,7 @@ int OrdersList::remove(Order *o)
     auto it = std::find(Orders->begin(), Orders->end(), o);
     if (it != Orders->end())
     {
-        delete *it;
+        // delete *it;
         Orders->erase(it);
         return 0; // Success
     }

@@ -5,6 +5,7 @@
 #include <list>
 #include <algorithm>
 #include "OrdersList.h"
+#include "OrdersErrorCodes.h"
 
 using namespace std;
 
@@ -78,9 +79,40 @@ list<Order *> *OrdersList::getOrders()
 
 int OrdersList::add(Order *o)
 {
+    if (!o)
+    {
+        return INVALID_INPUT;
+    }
+
     Orders->insert(Orders->end(), o);
 
-    return 0;
+    return SUCCESS;
+}
+
+int OrdersList::move(Order *o, int pos)
+{
+    if (!o || !Orders)
+    {
+        return INVALID_INPUT;
+    }
+
+    if (pos < 0 || pos > static_cast<int>(Orders->size()))
+    {
+        return OUT_OF_BOUNDS;
+    }
+
+    auto it = std::find(Orders->begin(), Orders->end(), o);
+    if (it == Orders->end())
+    {
+        return NOT_FOUND;
+    }
+
+    Orders->erase(it);
+    auto insertIt = Orders->begin();
+    std::advance(insertIt, pos);
+    Orders->insert(insertIt, o);
+
+    return SUCCESS;
 }
 
 int OrdersList::remove(int i)
@@ -89,24 +121,27 @@ int OrdersList::remove(int i)
     {
         if ((*it)->getId() == i)
         {
-            // delete *it;
             Orders->erase(it);
-            return 0; // Success
+            return SUCCESS;
         }
     }
 
-    return 1; // Not found
+    return NOT_FOUND;
 }
 
 int OrdersList::remove(Order *o)
 {
+    if (!o)
+    {
+        return INVALID_INPUT;
+    }
+
     auto it = std::find(Orders->begin(), Orders->end(), o);
     if (it != Orders->end())
     {
-        // delete *it;
         Orders->erase(it);
-        return 0; // Success
+        return SUCCESS;
     }
 
-    return 1; // Not found
+    return NOT_FOUND;
 }

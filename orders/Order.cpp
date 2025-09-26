@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include "Order.h"
+#include "OrdersErrorCodes.h"
 #include "../Map/Map.h"
 
 using namespace std;
@@ -58,13 +59,13 @@ int Order::getId()
 bool Order::validate()
 {
   cout << "Validating generic order... ID = " << *id << endl;
-  return 1;
+  return true;
 }
 
 int Order::execute()
 {
   cout << "Executing generic order... ID = " << *id << endl;
-  return 0;
+  return SUCCESS;
 }
 
 // ======================== DEPLOY ======================== //
@@ -116,13 +117,13 @@ bool Deploy::validate()
   // CHECKS:
   // numTroops <= # troops in reserve
   // Player controls targetTerritory
-  return 1;
+  return true;
 }
 
 int Deploy::execute()
 {
   // Add numTroops to targetTerritory
-  return 0;
+  return SUCCESS;
 }
 
 // ======================== ADVANCE ======================== //
@@ -183,14 +184,14 @@ bool Advance::validate()
   // sourceTerritory and targetTerritory are adjacent
   // Player must control sourceTerritory
   // Controllers of sourceTerritory and targetTerritory must not be in Negotiation state
-  return 1;
+  return true;
 }
 
 int Advance::execute()
 {
   // Move troops from sourceTerritory to targetTerritory
   // Run combat calculations if needed
-  return 0;
+  return SUCCESS;
 }
 
 // ======================== BOMB ======================== //
@@ -236,13 +237,13 @@ bool Bomb::validate()
   // CHECKS:
   // Player must have a Bomb card in hand
   // Controller of targetTerritory and the current player must not be in Negotiation state
-  return 1;
+  return true;
 }
 
 int Bomb::execute()
 {
   // Halve the number of troops in targetTerritory
-  return 0;
+  return SUCCESS;
 }
 
 // ======================== BLOCKADE ======================== //
@@ -287,14 +288,14 @@ bool Blockade::validate()
 {
   // CHECKS:
   // Player must have a Blockade card in hand
-  return 1;
+  return true;
 }
 
 int Blockade::execute()
 {
   // Triple the number of troops in targetTerritory
   // Set targetTerritory status to neutral
-  return 0;
+  return SUCCESS;
 }
 
 // ======================== AIRLIFT ======================== //
@@ -355,14 +356,14 @@ bool Airlift::validate()
   // numTroops <= # troops in sourceTerritory
   // Player must control sourceTerritory
   // Controllers of sourceTerritory and targetTerritory must not be in Negotiation state
-  return 1;
+  return true;
 }
 
 int Airlift::execute()
 {
   // Move numTroops from sourceTerritory to targetTerritory
   // Run combat calculations if needed
-  return 0;
+  return SUCCESS;
 }
 
 // ======================== NEGOTIATE ======================== //
@@ -407,11 +408,11 @@ bool Negotiate::validate()
 {
   // CHECKS:
   // Player must have a Negotiate card in hand
-  return 1;
+  return true;
 }
 
 int Negotiate::execute()
 {
   // Impose Negotiation state between the current player and targetPlayer for one turn
-  return 0;
+  return SUCCESS;
 }

@@ -12,7 +12,7 @@ private:
     list<Order *> *Orders;
 
 public:
-    // Constructor and destructor
+    // Constructors and destructor
     OrdersList();
     OrdersList(const OrdersList &);
     ~OrdersList();
@@ -34,7 +34,7 @@ public:
      * @brief Adds an order to the list.
      *
      * @param Order to be added
-     * @return 0 for success, 1 for failure
+     * @return 0 for success, error code otherwise
      */
     int add(Order *);
 
@@ -43,15 +43,16 @@ public:
      *
      * @param Order to be moved
      * @param int position in list
-     * @return 0 for success, 1 for out of bounds
+     * @return 0 for success, error code otherwise
      */
     int move(Order *, int);
 
     /**
      * @brief Removes an order by ID.
      *
-     * @param int id to be removed
-     * @return 0 for success, 1 for not found
+     * @param Order to be moved
+     * @param int new position
+     * @return 0 for success, error code otherwise
      */
     int remove(int); // Remove by ID
 
@@ -59,7 +60,7 @@ public:
      * @brief Removes an order by pointer.
      *
      * @param Order to be removed
-     * @return 0 for success, 1 for not found
+     * @return 0 for success, error code otherwise
      */
     int remove(Order *); // Remove by pointer
 };

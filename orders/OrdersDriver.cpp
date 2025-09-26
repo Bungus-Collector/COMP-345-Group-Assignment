@@ -24,6 +24,8 @@ void testOrdersList()
     testList1->add(order4);
     testList1->add(order5);
 
+    testList1->move(order1, 2);
+
     cout << *testList1 << endl;
     cout << "\n"
          << *order1 << endl;

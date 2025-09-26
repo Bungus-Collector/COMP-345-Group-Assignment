@@ -49,7 +49,7 @@ public:
     /**
      * @brief Executes an order
      *
-     * @return 0 on success, 1 on failure
+     * @return 0 on success, error code otherwise
      */
     virtual int execute();
 };
@@ -88,7 +88,7 @@ public:
      * @brief Inherited from Order class: executes the Deploy order.
      * Increases the troops in targetTerritory by numTroops.
      *
-     * @return 0 for success, 1 for failure
+     * @return 0 for success, error code otherwise
      */
     int execute() override;
 };
@@ -131,7 +131,7 @@ public:
      * Move troops from sourceTerritory to targetTerritory.
      * Run combat calculations if needed.
      *
-     * @return 0 for success, 1 for failure
+     * @return 0 for success, error code otherwise
      */
     int execute() override;
 };
@@ -169,7 +169,7 @@ public:
      * @brief Inherited from Order class: executes the Bomb order.
      * Halve the number of troops in targetTerritory.
      *
-     * @return 0 for success, 1 for failure
+     * @return 0 for success, error code otherwise
      */
     int execute() override;
 };
@@ -207,7 +207,7 @@ public:
      * Triple the number of troops in targetTerritory.
      * Set targetTerritory status to neutral.
      *
-     * @return 0 for success, 1 for failure
+     * @return 0 for success, error code otherwise
      */
     int execute() override;
 };
@@ -250,7 +250,7 @@ public:
      * Move numTroops from sourceTerritory to targetTerritory.
      * Run combat calculations if needed.
      *
-     * @return 0 for success, 1 for failure
+     * @return 0 for success, error code otherwise
      */
     int execute() override;
 };
@@ -287,7 +287,7 @@ public:
      * @brief Inherited from Order class: executes the Negotiate order.
      * Impose Negotiation state between the current player and targetPlayer for one turn.
      *
-     * @return 0 for success, 1 for failure
+     * @return 0 for success, error code otherwise
      */
     int execute() override;
 };

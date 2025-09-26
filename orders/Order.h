@@ -18,9 +18,10 @@ private:
     // Unique int identifier
     int *id;
 
-public: // TODO: Copy constructors
-    // Constructor and destructor
+public:
+    // Constructors and destructor
     Order(int);
+    Order(const Order &other);
     ~Order();
 
     // Print function and stream overloading function
@@ -59,8 +60,9 @@ private:
     Territory *targetTerritory;
 
 public:
-    // Constructor and destructor
+    // Constructors and destructor
     Deploy(int, int, Territory *);
+    Deploy(const Deploy &other);
     ~Deploy();
 
     // Print function
@@ -97,9 +99,11 @@ private:
 public:
     // Constructor and destructor
     Advance(int, int, Territory *, Territory *);
+    Advance(const Advance &other);
     ~Advance();
 
     // Print function
+    void print(std::ostream &) const override;
 
     /**
      * @brief Inherited from Order class: runs validation checks.
@@ -133,9 +137,11 @@ private:
 public:
     // Constructor and destructor
     Bomb(int, Territory *);
+    Bomb(const Bomb &other);
     ~Bomb();
 
     // Print function
+    void print(std::ostream &) const override;
 
     /**
      * @brief Inherited from Order class: runs validation checks.
@@ -166,9 +172,11 @@ private:
 public:
     // Constructor and destructor
     Blockade(int, Territory *);
+    Blockade(const Blockade &other);
     ~Blockade();
 
     // Print function
+    void print(std::ostream &) const override;
 
     /**
      * @brief Inherited from Order class: runs validation checks.
@@ -201,9 +209,11 @@ private:
 public:
     // Constructor and destructor
     Airlift(int, int, Territory *, Territory *);
+    Airlift(const Airlift &other);
     ~Airlift();
 
     // Print function
+    void print(std::ostream &) const override;
 
     /**
      * @brief Inherited from Order class: runs validation checks.
@@ -237,9 +247,11 @@ private:
 public:
     // Constructor and destructor
     Negotiate(int, string);
+    Negotiate(const Negotiate &other);
     ~Negotiate();
 
     // Print function
+    void print(std::ostream &) const override;
 
     /**
      * @brief Inherited from Order class: runs validation checks.

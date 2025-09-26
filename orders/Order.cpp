@@ -21,6 +21,11 @@ Order::Order(int i)
 {
 }
 
+Order::Order(const Order &other)
+{
+  this->id = new int(*other.id);
+}
+
 Order::~Order()
 {
   delete id;
@@ -56,6 +61,12 @@ Deploy::Deploy(int i, int n, Territory *t)
       numTroops{new int(n)},
       targetTerritory{t}
 {
+}
+
+Deploy::Deploy(const Deploy &other) : Order(other)
+{
+  this->numTroops = new int(*other.numTroops);
+  this->targetTerritory = new Territory(*other.targetTerritory);
 }
 
 Deploy::~Deploy()
@@ -95,12 +106,27 @@ Advance::Advance(int i, int n, Territory *s, Territory *t)
 {
 }
 
+Advance::Advance(const Advance &other) : Order(other)
+{
+  this->numTroops = new int(*other.numTroops);
+  this->sourceTerritory = new Territory(*other.sourceTerritory);
+  this->targetTerritory = new Territory(*other.targetTerritory);
+}
+
 Advance::~Advance()
 {
   delete numTroops;
   numTroops = nullptr;
   sourceTerritory = nullptr;
   targetTerritory = nullptr;
+}
+
+void Advance::print(std::ostream &os) const
+{
+  Order::print(os);
+  os << " | numTroops: " << *numTroops
+     << " | sourceTerritory: " << sourceTerritory->getName()
+     << " | targetTerritory: " << targetTerritory->getName();
 }
 
 bool Advance::validate()
@@ -128,9 +154,20 @@ Bomb::Bomb(int i, Territory *t)
 {
 }
 
+Bomb::Bomb(const Bomb &other) : Order(other)
+{
+  this->targetTerritory = new Territory(*other.targetTerritory);
+}
+
 Bomb::~Bomb()
 {
   targetTerritory = nullptr;
+}
+
+void Bomb::print(std::ostream &os) const
+{
+  Order::print(os);
+  os << " | targetTerritory: " << targetTerritory->getName();
 }
 
 bool Bomb::validate()
@@ -155,9 +192,20 @@ Blockade::Blockade(int i, Territory *t)
 {
 }
 
+Blockade::Blockade(const Blockade &other) : Order(other)
+{
+  this->targetTerritory = new Territory(*other.targetTerritory);
+}
+
 Blockade::~Blockade()
 {
   targetTerritory = nullptr;
+}
+
+void Blockade::print(std::ostream &os) const
+{
+  Order::print(os);
+  os << " | targetTerritory: " << targetTerritory->getName();
 }
 
 bool Blockade::validate()
@@ -184,12 +232,27 @@ Airlift::Airlift(int i, int n, Territory *s, Territory *t)
 {
 }
 
+Airlift::Airlift(const Airlift &other) : Order(other)
+{
+  this->numTroops = new int(*other.numTroops);
+  this->sourceTerritory = new Territory(*other.sourceTerritory);
+  this->targetTerritory = new Territory(*other.targetTerritory);
+}
+
 Airlift::~Airlift()
 {
   delete numTroops;
   numTroops = nullptr;
   sourceTerritory = nullptr;
   targetTerritory = nullptr;
+}
+
+void Airlift::print(std::ostream &os) const
+{
+  Order::print(os);
+  os << " | numTroops: " << *numTroops
+     << " | sourceTerritory: " << sourceTerritory->getName()
+     << " | targetTerritory: " << targetTerritory->getName();
 }
 
 bool Airlift::validate()
@@ -217,9 +280,20 @@ Negotiate::Negotiate(int i, string p)
 {
 }
 
+Negotiate::Negotiate(const Negotiate &other) : Order(other)
+{
+  this->targetPlayer = new string(*other.targetPlayer);
+}
+
 Negotiate::~Negotiate()
 {
   targetPlayer = nullptr;
+}
+
+void Negotiate::print(std::ostream &os) const
+{
+  Order::print(os);
+  os << " | numTroops: " << *targetPlayer;
 }
 
 bool Negotiate::validate()

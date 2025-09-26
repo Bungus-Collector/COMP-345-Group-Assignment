@@ -21,7 +21,7 @@ private:
 public:
     // Constructors and destructor
     Order(int);
-    Order(const Order &other);
+    Order(const Order &);
     ~Order();
 
     // Print function and stream overloading function

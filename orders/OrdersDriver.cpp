@@ -21,14 +21,18 @@ void testOrdersList()
     testList->add(order1);
     testList->add(order2);
     testList->add(order3);
+    testList->add(order4);
+    testList->add(order5);
 
-    cout << *order1 << endl;
-    cout << *order3 << endl;
-    cout << order1->getId() << endl;
-    cout << *order4 << endl;
-    cout << *order5 << endl;
+    cout << *testList << endl;
 
-    cout << order3 << " " << order5 << endl;
+    // cout << *order1 << endl;
+    // cout << *order3 << endl;
+    // cout << order1->getId() << endl;
+    // cout << *order4 << endl;
+    // cout << *order5 << endl;
+
+    // cout << order3 << " " << order5 << endl;
 }
 
 int main()

@@ -8,9 +8,44 @@
 
 using namespace std;
 
+// Overloading the stream insertion operator
+std::ostream &operator<<(ostream &os, const OrdersList &ordersList)
+{
+    os << "Orders List:\n";
+    for (Order *o : *ordersList.Orders)
+    {
+        if (o) // Check for null pointers
+        {
+            os << *o << "\n";
+        }
+        else
+        {
+            os << "NULL\n";
+        }
+    }
+    return os;
+}
+
 OrdersList::OrdersList()
     : Orders{new list<Order *>}
 {
+}
+
+OrdersList::OrdersList(const OrdersList &other)
+{
+    list<Order *> *newOrders = new list<Order *>();
+
+    for (Order *o : *other.Orders)
+    {
+        if (o) // Check for null pointers
+        {
+            newOrders->push_back(new Order(*o));
+        }
+        else
+        {
+            newOrders->push_back(nullptr); // Preserve null pointers
+        }
+    }
 }
 
 OrdersList::~OrdersList()

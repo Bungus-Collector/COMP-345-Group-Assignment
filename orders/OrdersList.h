@@ -14,6 +14,7 @@ private:
 public:
     // Constructor and destructor
     OrdersList();
+    OrdersList(const OrdersList &);
     ~OrdersList();
 
     // Stream insertion operator

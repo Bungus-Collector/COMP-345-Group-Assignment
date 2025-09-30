@@ -17,6 +17,11 @@ std::ostream &operator<<(ostream &os, const Order &order)
 
 // ======================== ORDER ======================== //
 
+Order::Order()
+    : id{new int()}
+{
+}
+
 Order::Order(int i)
     : id{new int(i)}
 {
@@ -56,6 +61,12 @@ int Order::getId()
   return *id;
 }
 
+void Order::setId(int i)
+{
+  delete id;
+  id = new int(i);
+}
+
 bool Order::validate()
 {
   cout << "Validating generic order... ID = " << *id << endl;
@@ -69,6 +80,13 @@ int Order::execute()
 }
 
 // ======================== DEPLOY ======================== //
+
+Deploy::Deploy()
+    : Order{},
+      numTroops{new int()},
+      targetTerritory{nullptr} // Territory class has no default constructor
+{
+}
 
 Deploy::Deploy(int i, int n, Territory *t)
     : Order{i},
@@ -86,6 +104,7 @@ Deploy::Deploy(const Deploy &other) : Order(other)
 Deploy::~Deploy()
 {
   delete numTroops;
+  delete targetTerritory;
   numTroops = nullptr;
   targetTerritory = nullptr;
 }
@@ -112,6 +131,22 @@ Deploy &Deploy::operator=(const Deploy &other)
   return *this;
 }
 
+int *Deploy::getNumTroops() { return numTroops; }
+
+Territory *Deploy::getTargetTerritory() { return targetTerritory; }
+
+void Deploy::setNumTroops(int *n)
+{
+  delete numTroops;
+  numTroops = n;
+}
+
+void Deploy::setTargetTerritory(Territory *t)
+{
+  delete targetTerritory;
+  targetTerritory = t;
+}
+
 bool Deploy::validate()
 {
   // CHECKS:
@@ -127,6 +162,14 @@ int Deploy::execute()
 }
 
 // ======================== ADVANCE ======================== //
+
+Advance::Advance()
+    : Order{},
+      numTroops{new int()},
+      sourceTerritory{nullptr},
+      targetTerritory{nullptr}
+{
+}
 
 Advance::Advance(int i, int n, Territory *s, Territory *t)
     : Order{i},
@@ -177,6 +220,30 @@ Advance &Advance::operator=(const Advance &other)
   return *this;
 }
 
+int *Advance::getNumTroops() { return numTroops; }
+
+Territory *Advance::getSourceTerritory() { return sourceTerritory; }
+
+Territory *Advance::getTargetTerritory() { return targetTerritory; }
+
+void Advance::setNumTroops(int *n)
+{
+  delete numTroops;
+  numTroops = n;
+}
+
+void Advance::setSourceTerritory(Territory *t)
+{
+  delete sourceTerritory;
+  sourceTerritory = t;
+}
+
+void Advance::setTargetTerritory(Territory *t)
+{
+  delete targetTerritory;
+  targetTerritory = t;
+}
+
 bool Advance::validate()
 {
   // CHECKS:
@@ -195,6 +262,12 @@ int Advance::execute()
 }
 
 // ======================== BOMB ======================== //
+
+Bomb::Bomb()
+    : Order{},
+      targetTerritory{nullptr}
+{
+}
 
 Bomb::Bomb(int i, Territory *t)
     : Order{i},
@@ -232,6 +305,14 @@ Bomb &Bomb::operator=(const Bomb &other)
   return *this;
 }
 
+Territory *Bomb::getTargetTerritory() { return targetTerritory; }
+
+void Bomb::setTargetTerritory(Territory *t)
+{
+  delete targetTerritory;
+  targetTerritory = t;
+}
+
 bool Bomb::validate()
 {
   // CHECKS:
@@ -247,6 +328,12 @@ int Bomb::execute()
 }
 
 // ======================== BLOCKADE ======================== //
+
+Blockade::Blockade()
+    : Order{},
+      targetTerritory{nullptr}
+{
+}
 
 Blockade::Blockade(int i, Territory *t)
     : Order{i},
@@ -284,6 +371,14 @@ Blockade &Blockade::operator=(const Blockade &other)
   return *this;
 }
 
+Territory *Blockade::getTargetTerritory() { return targetTerritory; }
+
+void Blockade::setTargetTerritory(Territory *t)
+{
+  delete targetTerritory;
+  targetTerritory = t;
+}
+
 bool Blockade::validate()
 {
   // CHECKS:
@@ -299,6 +394,14 @@ int Blockade::execute()
 }
 
 // ======================== AIRLIFT ======================== //
+
+Airlift::Airlift()
+    : Order{},
+      numTroops{new int()},
+      sourceTerritory{nullptr},
+      targetTerritory{nullptr}
+{
+}
 
 Airlift::Airlift(int i, int n, Territory *s, Territory *t)
     : Order{i},
@@ -349,6 +452,30 @@ Airlift &Airlift::operator=(const Airlift &other)
   return *this;
 }
 
+int *Airlift::getNumTroops() { return numTroops; }
+
+Territory *Airlift::getSourceTerritory() { return sourceTerritory; }
+
+Territory *Airlift::getTargetTerritory() { return targetTerritory; }
+
+void Airlift::setNumTroops(int *n)
+{
+  delete numTroops;
+  numTroops = n;
+}
+
+void Airlift::setSourceTerritory(Territory *t)
+{
+  delete sourceTerritory;
+  sourceTerritory;
+}
+
+void Airlift::setTargetTerritory(Territory *t)
+{
+  delete targetTerritory;
+  targetTerritory = t;
+}
+
 bool Airlift::validate()
 {
   // CHECKS:
@@ -367,6 +494,12 @@ int Airlift::execute()
 }
 
 // ======================== NEGOTIATE ======================== //
+
+Negotiate::Negotiate()
+    : Order{},
+      targetPlayer{new string()}
+{
+}
 
 Negotiate::Negotiate(int i, string p)
     : Order{i},
@@ -402,6 +535,14 @@ Negotiate &Negotiate::operator=(const Negotiate &other)
 
   this->targetPlayer = new string(*other.targetPlayer);
   return *this;
+}
+
+string *Negotiate::getTargetPlayer() { return targetPlayer; }
+
+void Negotiate::setTargetPlayer(string *p)
+{
+  delete targetPlayer;
+  targetPlayer = p;
 }
 
 bool Negotiate::validate()

@@ -20,6 +20,7 @@ private:
 
 public:
     // Constructors and destructor
+    Order();
     Order(int);
     Order(const Order &);
     ~Order();
@@ -32,11 +33,18 @@ public:
     Order &operator=(const Order &);
 
     /**
-     * @brief Accessor method for id
+     * @brief Getter method for id
      *
      * @return id
      */
     int getId();
+
+    /**
+     * @brief Setter method for id
+     *
+     * @param id
+     */
+    void setId(int);
 
     /**
      * @brief Runs validation checks.
@@ -64,6 +72,7 @@ private:
 
 public:
     // Constructors and destructor
+    Deploy();
     Deploy(int, int, Territory *);
     Deploy(const Deploy &other);
     ~Deploy();
@@ -73,6 +82,14 @@ public:
 
     // Overloading assignment operator
     Deploy &operator=(const Deploy &);
+
+    // Getter methods
+    int *getNumTroops();
+    Territory *getTargetTerritory();
+
+    // Setter methods
+    void setNumTroops(int *);
+    void setTargetTerritory(Territory *);
 
     /**
      * @brief Inherited from Order class: runs validation checks.
@@ -104,6 +121,7 @@ private:
 
 public:
     // Constructor and destructor
+    Advance();
     Advance(int, int, Territory *, Territory *);
     Advance(const Advance &other);
     ~Advance();
@@ -113,6 +131,16 @@ public:
 
     // Overloading assignment operator
     Advance &operator=(const Advance &);
+
+    // Getter methods
+    int *getNumTroops();
+    Territory *getSourceTerritory();
+    Territory *getTargetTerritory();
+
+    // Setter methods
+    void setNumTroops(int *);
+    void setSourceTerritory(Territory *);
+    void setTargetTerritory(Territory *);
 
     /**
      * @brief Inherited from Order class: runs validation checks.
@@ -145,6 +173,7 @@ private:
 
 public:
     // Constructor and destructor
+    Bomb();
     Bomb(int, Territory *);
     Bomb(const Bomb &other);
     ~Bomb();
@@ -154,6 +183,12 @@ public:
 
     // Overloading assignment operator
     Bomb &operator=(const Bomb &);
+
+    // Getter method
+    Territory *getTargetTerritory();
+
+    // Setter method
+    void setTargetTerritory(Territory *);
 
     /**
      * @brief Inherited from Order class: runs validation checks.
@@ -183,6 +218,7 @@ private:
 
 public:
     // Constructor and destructor
+    Blockade();
     Blockade(int, Territory *);
     Blockade(const Blockade &other);
     ~Blockade();
@@ -192,6 +228,12 @@ public:
 
     // Overloading assignment operator
     Blockade &operator=(const Blockade &);
+
+    // Getter method
+    Territory *getTargetTerritory();
+
+    // Setter method
+    void setTargetTerritory(Territory *);
 
     /**
      * @brief Inherited from Order class: runs validation checks.
@@ -223,6 +265,7 @@ private:
 
 public:
     // Constructor and destructor
+    Airlift();
     Airlift(int, int, Territory *, Territory *);
     Airlift(const Airlift &other);
     ~Airlift();
@@ -232,6 +275,16 @@ public:
 
     // Overloading assignment operator
     Airlift &operator=(const Airlift &);
+
+    // Getter methods
+    int *getNumTroops();
+    Territory *getSourceTerritory();
+    Territory *getTargetTerritory();
+
+    // Setter methods
+    void setNumTroops(int *);
+    void setSourceTerritory(Territory *);
+    void setTargetTerritory(Territory *);
 
     /**
      * @brief Inherited from Order class: runs validation checks.
@@ -264,6 +317,7 @@ private:
 
 public:
     // Constructor and destructor
+    Negotiate();
     Negotiate(int, string);
     Negotiate(const Negotiate &other);
     ~Negotiate();
@@ -273,6 +327,12 @@ public:
 
     // Overloading assignment operator
     Negotiate &operator=(const Negotiate &);
+
+    // Getter methods
+    string *getTargetPlayer();
+
+    // Setter methods
+    void setTargetPlayer(string *);
 
     /**
      * @brief Inherited from Order class: runs validation checks.

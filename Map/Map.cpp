@@ -15,6 +15,12 @@ Continent::Continent(const std::string& name, int bonus) {
     this->territories = new std::vector<Territory*>();
 }
 
+Continent::Continent() {
+    this->name = new std::string();
+    this->bonus = new int();
+    this->territories = new std::vector<Territory*>();
+}
+
 Continent::~Continent() {
     delete name;
     delete bonus;
@@ -63,6 +69,13 @@ Territory::Territory(int id, const std::string& name, Continent* continent) {
     this->id = new int(id);
     this->name = new std::string(name);
     this->continent = continent;
+    this->adjacentTerritories = new std::vector<Territory*>();
+}
+
+Territory::Territory() {
+    this->id = new int();
+    this->name = new std::string();
+    this->continent = new Continent();
     this->adjacentTerritories = new std::vector<Territory*>();
 }
 

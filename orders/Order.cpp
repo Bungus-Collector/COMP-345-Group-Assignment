@@ -84,7 +84,7 @@ int Order::execute()
 Deploy::Deploy()
     : Order{},
       numTroops{new int()},
-      targetTerritory{nullptr} // Territory class has no default constructor
+      targetTerritory{new Territory()}
 {
 }
 
@@ -166,8 +166,8 @@ int Deploy::execute()
 Advance::Advance()
     : Order{},
       numTroops{new int()},
-      sourceTerritory{nullptr},
-      targetTerritory{nullptr}
+      sourceTerritory{new Territory()},
+      targetTerritory{new Territory()}
 {
 }
 
@@ -265,7 +265,7 @@ int Advance::execute()
 
 Bomb::Bomb()
     : Order{},
-      targetTerritory{nullptr}
+      targetTerritory{new Territory()}
 {
 }
 
@@ -331,7 +331,7 @@ int Bomb::execute()
 
 Blockade::Blockade()
     : Order{},
-      targetTerritory{nullptr}
+      targetTerritory{new Territory()}
 {
 }
 
@@ -398,8 +398,8 @@ int Blockade::execute()
 Airlift::Airlift()
     : Order{},
       numTroops{new int()},
-      sourceTerritory{nullptr},
-      targetTerritory{nullptr}
+      sourceTerritory{new Territory()},
+      targetTerritory{new Territory()}
 {
 }
 

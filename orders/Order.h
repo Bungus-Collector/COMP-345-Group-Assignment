@@ -4,9 +4,7 @@
 #define ORDER_H
 
 #include <string>
-
-// Forward declaration
-class Territory;
+#include "../Map/Map.h"
 
 using namespace std;
 

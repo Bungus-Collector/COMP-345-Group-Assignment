@@ -4,9 +4,7 @@
 #define ORDERSLIST_H
 
 #include <list>
-
-// Forward declaration
-class Order;
+#include "Order.h"
 
 class OrdersList
 {

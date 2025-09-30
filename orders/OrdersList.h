@@ -23,12 +23,11 @@ public:
     // Overloading assignment operator
     OrdersList &operator=(const OrdersList &);
 
-    /**
-     * @brief Returns the list of Orders.
-     *
-     * @return Orders
-     */
+    // Getter method
     list<Order *> *getOrders();
+
+    // Setter method
+    void setOrders(list<Order *> *);
 
     /**
      * @brief Adds an order to the list.

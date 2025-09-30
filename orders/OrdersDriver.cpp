@@ -26,6 +26,14 @@ void testOrdersList()
 
     testList1->move(order1, 2);
 
+    Order *order7 = new Order();
+    cout << "ORDER7 ID: " << order7->getId() << endl;
+
+    order7->setId(100);
+    cout << "ORDER7 ID: " << order7->getId() << endl;
+
+    return; // RETURN
+
     cout << *testList1 << endl;
     cout << "\n"
          << *order1 << endl;
@@ -35,8 +43,6 @@ void testOrdersList()
     cout << *testList1 << endl;
     cout << "\n"
          << *order1 << endl;
-
-    return;
 
     OrdersList testList2 = *testList1;
 

@@ -33,6 +33,7 @@ OrdersList::~OrdersList()
     {
         delete o;
     }
+    Orders->clear();
 
     delete Orders;
     Orders = nullptr;
@@ -75,6 +76,12 @@ OrdersList &OrdersList::operator=(const OrdersList &other)
 list<Order *> *OrdersList::getOrders()
 {
     return Orders;
+}
+
+void OrdersList::setOrders(list<Order *> *o)
+{
+    delete Orders;
+    Orders = o;
 }
 
 int OrdersList::add(Order *o)

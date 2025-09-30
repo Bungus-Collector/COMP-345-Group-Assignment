@@ -14,6 +14,7 @@ class Continent {
 public:
     // Constructors and Destructor
     Continent(const std::string& name, int bonus);
+    Continent();
     ~Continent();
 
     // Copy Constructor and Assignment Operator
@@ -60,6 +61,7 @@ class Territory {
 public:
     // Constructors and Destructor
     Territory(int id, const std::string& name, Continent* continent);
+    Territory();
     ~Territory();
 
     // Copy Constructor and Assignment Operator

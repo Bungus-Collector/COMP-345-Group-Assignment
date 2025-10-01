@@ -20,7 +20,24 @@
 #include <iostream>
 #include <algorithm>
 
-
+/**
+ * @class Player
+ * @brief default constructor for Player 
+ * 
+ * Attributes:
+ *  -name: Unnamed
+ *  -Territories: empty list
+ *  -hand: nullptr
+ *  -orders: nullptr
+ */
+Player::Player():
+    name_("Unnamed"),
+    territories_(new std::vector<Territory*>()), //empty list of territories
+    hand_(nullptr),
+    orders_(nullptr)
+    {
+        std::cout << "[Player] Default constructor called for " << name_ << "\n";
+    }
 Player::Player(const std::string& name): 
     name_(name),
     territories_(new std::vector<Territory*>()),
@@ -44,7 +61,7 @@ Player& Player::operator=(const Player& other){
     return *this;
 }
 
-~Player(){
+Player::~Player(){
     destroy();
 }
 

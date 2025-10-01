@@ -29,6 +29,7 @@ class OrdersList;
 class Player{
 public: 
     // Constructor and Destructor 
+    Player(); //default constructor
     explicit Player(const string& name);
     Player(const Player& other);
     Player& operator=(const Player& other);

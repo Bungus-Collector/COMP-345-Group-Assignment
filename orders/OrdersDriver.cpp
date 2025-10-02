@@ -13,7 +13,7 @@ void testOrdersList()
 
     Order *order1 = new Order(1);
     Order *order2 = new Order(2);
-    Deploy *order3 = new Deploy(3, 10, new Territory(1, "Territory A", new Continent("Gabeland", 10)));
+    Deploy *order3 = new Deploy(3, 10, new Territory(1, "Territory A", new Continent("Gabeland", 10), new int(10)));
 
     Order *order4 = new Order(*order1);
     Deploy *order5 = new Deploy(*order3);
@@ -26,11 +26,9 @@ void testOrdersList()
 
     testList1->move(order1, 2);
 
-    Order *order7 = new Order();
-    cout << "ORDER7 ID: " << order7->getId() << endl;
-
-    order7->setId(100);
-    cout << "ORDER7 ID: " << order7->getId() << endl;
+    cout << *order5->getTargetTerritory()->getArmies() << endl;
+    order5->execute();
+    cout << *order5->getTargetTerritory()->getArmies() << endl;
 
     return; // RETURN
 

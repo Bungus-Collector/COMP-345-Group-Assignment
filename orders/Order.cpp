@@ -158,6 +158,7 @@ bool Deploy::validate()
 int Deploy::execute()
 {
   // Add numTroops to targetTerritory
+  targetTerritory->setArmies(new int(*targetTerritory->getArmies() + *numTroops));
   return SUCCESS;
 }
 
@@ -258,6 +259,8 @@ int Advance::execute()
 {
   // Move troops from sourceTerritory to targetTerritory
   // Run combat calculations if needed
+  sourceTerritory->changeNumArmies(-(*numTroops));
+  targetTerritory->changeNumArmies(*numTroops);
   return SUCCESS;
 }
 
@@ -324,6 +327,7 @@ bool Bomb::validate()
 int Bomb::execute()
 {
   // Halve the number of troops in targetTerritory
+  targetTerritory->changeNumArmies(-(*targetTerritory->getArmies() / 2));
   return SUCCESS;
 }
 
@@ -389,7 +393,8 @@ bool Blockade::validate()
 int Blockade::execute()
 {
   // Triple the number of troops in targetTerritory
-  // Set targetTerritory status to neutral
+  // TODO: Set targetTerritory status to neutral
+  targetTerritory->changeNumArmies(*(targetTerritory->getArmies()) * 3);
   return SUCCESS;
 }
 
@@ -489,7 +494,9 @@ bool Airlift::validate()
 int Airlift::execute()
 {
   // Move numTroops from sourceTerritory to targetTerritory
-  // Run combat calculations if needed
+  // TODO: Run combat calculations if needed
+  sourceTerritory->changeNumArmies(-(*numTroops));
+  targetTerritory->changeNumArmies(*numTroops);
   return SUCCESS;
 }
 

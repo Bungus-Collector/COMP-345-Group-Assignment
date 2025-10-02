@@ -9,3 +9,6 @@
 
 # Batch file I used for compilation
 compile.bat
+
+# Formatter
+.prettierignore

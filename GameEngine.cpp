@@ -11,6 +11,7 @@ GameEngine::~GameEngine() {
     currentState = nullptr;
 }
 
+//Based on the current state, handle input and/or transition to the next state if the input is valid.
 void GameEngine::handleInput(std::string input){
     switch (*currentState)          
     {   
@@ -94,9 +95,10 @@ void GameEngine::handleInput(std::string input){
     }
 }
 
+//Runs the game loop using the handleInput function. Displays the current state and valid commands for that state.
 void GameEngine::gameLoop() {
     
-std::string input;
+    std::string input;
 
     while (isRunning) {
         std::cout << "Current State: ";
@@ -138,6 +140,7 @@ std::string input;
         std::cout << "Enter command: ";
         std::getline(std::cin, input);
 
+        // Exit the game loop if the user wants to quit in the WIN state
         if (input == "quit" && *currentState == State::WIN) {
             isRunning = false;
         } else {

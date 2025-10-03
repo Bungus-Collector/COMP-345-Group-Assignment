@@ -26,33 +26,49 @@
  * 
  * Attributes:
  *  -name: Unnamed
- *  -Territories: empty list
+ *  -Territories: empty list of territories
  *  -hand: nullptr
- *  -orders: nullptr
+ *  -orders: new OrdersList
  */
 Player::Player():
     name_("Unnamed"),
     territories_(new std::vector<Territory*>()), //empty list of territories
     hand_(nullptr),
-    orders_(nullptr)
+    orders_(new OrdersList()) // every player has its own empty list
     {
         std::cout << "[Player] Default constructor called for " << name_ << "\n";
     }
+
+/**
+ * @class Player
+ * @brief constructor for Player 
+ * 
+ * Attributes:
+ *  -name: name
+ *  -Territories: empty list of territories
+ *  -hand: nullptr
+ *  -orders: new ordersList
+ */
 Player::Player(const std::string& name): 
     name_(name),
     territories_(new std::vector<Territory*>()),
     hand_(nullptr),
-    orders_(nullptr){}
+    orders_(new OrdersList())
+    {
+        std::cout << "[Player] Constructor call for Player with name parameter for "<< name_ << "\n";
+    } 
 
 Player::Player(const Player& other):
     name_(other.name_),
     territories_(nullptr),
     hand_(nullptr),
-    orders_(nullptr){
-        copyFrom(other);
+    orders_(nullptr)
+    {
+        copyFrom(other); // deep copy ***
+        std::cout << "[Player] Constructor call for Player with Other parameter for " << name_ << "\n";
     }
 
-Player& Player::operator=(const Player& other){
+Player& Player::operator=(const Player& other){ //***
     if (this != &other) {
         destroy();
         name_ = other.name_;
@@ -67,8 +83,80 @@ Player::~Player(){
 
 
 /**
- * @param other reference to other obj
+ * Deep copy for container object; shallow copies the territory* entries ***
+ * @param other reference to other Player obj
  */
-void copyFrom(const Player& other) {
-    
+void Player::copyFrom(const Player& other) {
+    // shallow copies the territory* entries ***
+    territories_ = new std::vector<Territory*>(*other.territories_);
+
+    // clone other attributes if present
+
+    if (other.hand_){
+        //hand_ = new Hand(other.hand_); replace when hand class is created
+        hand_ = nullptr;
+    }else{
+        hand_ = nullptr;
+    }
+
+    if (other.orders_){
+        orders_ = new OrdersList(*other.orders_);
+    }else{
+        orders_ = new OrdersList(); //empty list of orders
+    }
+}
+
+/**
+ * Destructor for Player
+ *  - handles dangling pointers
+ */
+void Player::destroy(){
+    delete territories_;
+    territories_ = nullptr;
+    delete hand_;
+    hand_ = nullptr;
+    delete orders_;
+    orders_ = nullptr;
+}
+
+//============ Player functions =============
+
+std::vector<Territory*> Player::toDefend() const{ //***
+    std::vector<Territory*> tDefended;
+
+    // checks if player has territories, return if none;
+    if(!territories_ || territories_->empty()){
+        return tDefended; 
+    }
+
+    // arbitrary list of territories to be defended (first half)
+    const std::size_t half = territories_->size()/2;
+    tDefended.insert(tDefended.end(), territories_->begin(), territories_->begin()+half);
+    return tDefended;
+}
+
+std::vector<Territory*> Player::toAttack() const{ //***
+    std::vector<Territory*> tAttack;
+
+    // checks if player has territories, return if empty;
+    if(!territories_ || territories_->empty()){
+        return tAttack;
+    }
+
+    // arbitrary list of territories to be attack (second half)
+    const std::size_t half = territories_->size()/2;
+    tAttack.insert(tAttack.end(), territories_->begin()+ half, territories_->end());
+    return tAttack;
+}
+
+void Player::issueOrder() {
+    Order* o = new Order();
+    int check = orders_->add(o); //checks if succesfully added
+
+    if (check != 0 ){
+        std::cerr << "[Player::issueOrder] Failed to add order into order list check = "<< check << "\n";
+        delete o;
+        o = nullptr; //handles dangling pointer
+    }
+
 }

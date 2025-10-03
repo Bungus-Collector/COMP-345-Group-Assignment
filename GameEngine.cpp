@@ -147,3 +147,9 @@ std::string input;
     }
 }
 
+void GameEngine::testGameStates() {
+    GameEngine* game = new GameEngine();
+    game->gameLoop();
+    delete game;
+}
+

@@ -10,6 +10,7 @@ public:
 
     void handleInput(std::string input);
     void gameLoop();
+    void testGameStates();
 
 private:
     enum class State {

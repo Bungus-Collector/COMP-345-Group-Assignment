@@ -4,7 +4,7 @@
 int main(int argc, char const *argv[])
 {
     GameEngine* game = new GameEngine();
-    game->gameLoop();
+    game->testGameStates();
     delete game;
     return 0;
 }

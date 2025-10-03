@@ -14,7 +14,6 @@
 #include <vector>
 #include <iosfwd>
 
-using namespace std;
 
 // Forward declaration
 class Territory;
@@ -30,9 +29,13 @@ class Player{
 public: 
     // Constructor and Destructor 
     Player(); //default constructor
-    explicit Player(const string& name);
+
+    explicit Player(const std::string& name);
+
     Player(const Player& other);
+
     Player& operator=(const Player& other);
+
     ~Player(); // Destructor
 
     // Main player methods
@@ -56,11 +59,19 @@ public:
     void issueOrder(); 
 
     // getters and setters for driver
+    // ---Name---
     const std::string& getName() const;
+    void setName(const std::string& n);
+
+    // ---Territories---
     void addTerritory(Territory* t);        // Player does Not own territory lifetime 
+    std::vector<Territory*> getTerritories() const;
+
+    // ---Hand---
     void setHand(Hand* h);                  // player owns Hand
     void setOrdersList(OrdersList* ol);     // player owns orderlist
-
+    OrdersList* getOrdersList() const;
+    
     // Stream insertion
     friend std::ostream& operator<<(std::ostream& os, const Player& p);
 

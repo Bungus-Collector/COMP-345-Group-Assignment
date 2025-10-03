@@ -1,10 +1,19 @@
 #include <iostream>
 #include "GameEngine.h"
 
+void testGameStates() {
+
+    GameEngine* game = new GameEngine();
+
+    game->gameLoop();
+
+    delete game;
+    
+    game = nullptr;
+}
+
 int main(int argc, char const *argv[])
 {
-    GameEngine* game = new GameEngine();
-    game->testGameStates();
-    delete game;
+    testGameStates();
     return 0;
 }

@@ -11,6 +11,11 @@ GameEngine::~GameEngine() {
     currentState = nullptr;
 }
 
+GameEngine::GameEngine(const GameEngine &other){
+    currentState = new State(*other.currentState);
+    isRunning = other.isRunning;
+}
+
 //Based on the current state, handle input and/or transition to the next state if the input is valid.
 void GameEngine::handleInput(std::string input){
     switch (*currentState)          
@@ -28,7 +33,7 @@ void GameEngine::handleInput(std::string input){
                 std::cout << "Map Loaded Successfully.\nTransferring to Map Validated State.\n";
                 *currentState = State::MAPVALIDATED;
             } else if (input == "loadmap"){
-                std::cout << "Map Loaded\n";
+                std::cout << "Loading Map\n";
             } else {
                 std::cout << "Invalid command. Please validate the map using 'validatemap' or load a new map using 'loadmap'.\n";
             }
@@ -104,35 +109,35 @@ void GameEngine::gameLoop() {
         std::cout << "Current State: ";
         switch (*currentState) {
             case State::START:
-                std::cout << "CURRENT STATE = START\n";
+                std::cout << "START\n";
                 std::cout << "Commands:\n 'loadmap'\n";
                 break;
             case State::MAPLOADED:
-                std::cout << "CURRENT STATE = MAPLOADED\n";
+                std::cout << "MAPLOADED\n";
                 std::cout << "Commands:\n 'loadmap'\n 'validatemap'\n";
                 break;
             case State::MAPVALIDATED:
-                std::cout << "CURRENT STATE = MAPVALIDATED\n";
+                std::cout << "MAPVALIDATED\n";
                 std::cout << "Commands:\n 'addplayer'\n";
                 break;
             case State::PLAYERSADDED:
-                std::cout << "CURRENT STATE = PLAYERSADDED\n";
+                std::cout << "PLAYERSADDED\n";
                 std::cout << "Commands:\n 'addplayer'\n 'assignreinforcements'\n";
                 break;
             case State::ASSIGNREINFORCEMENTS:
-                std::cout << "CURRENT STATE = ASSIGNREINFORCEMENTS\n";
+                std::cout << "ASSIGNREINFORCEMENTS\n";
                 std::cout << "Commands:\n 'assignreinforcements'\n 'issueorders'\n";
                 break;
             case State::ISSUEORDERS:
-                std::cout << "CURRENT STATE = ISSUEORDERS\n";
+                std::cout << "ISSUEORDERS\n";
                 std::cout << "Commands:\n 'issueorders'\n 'executeorders'\n";
                 break;
             case State::EXECUTEORDERS:
-                std::cout << "CURRENT STATE = EXECUTEORDERS\n";
+                std::cout << "EXECUTEORDERS\n";
                 std::cout << "Commands:\n 'executeorders'\n 'endexecuteorders'\n 'win'\n";
                 break;
             case State::WIN:
-                std::cout << "CURRENT STATE = WIN\n";
+                std::cout << "WIN\n";
                 std::cout << "Commands:\n 'replay'\n 'quit'\n";
                 break;
         }
@@ -148,11 +153,5 @@ void GameEngine::gameLoop() {
             handleInput(input);
         }
     }
-}
-
-void GameEngine::testGameStates() {
-    GameEngine* game = new GameEngine();
-    game->gameLoop();
-    delete game;
 }
 

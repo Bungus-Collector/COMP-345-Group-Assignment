@@ -8,9 +8,10 @@ public:
     GameEngine();
     ~GameEngine();
 
+    GameEngine(const GameEngine &other); // Copy constructor
+
     void handleInput(std::string input); //Will handle input and change states accordingly
     void gameLoop(); //Runs the game loop using the handleInput function
-    void testGameStates(); //Function to test all game states
 
 private:
     // Define the possible states of the game

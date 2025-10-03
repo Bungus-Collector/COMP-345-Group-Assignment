@@ -4,6 +4,7 @@
 
 GameEngine::GameEngine() {
     currentState = new State(State::START);
+    isRunning = true;
 }
 
 GameEngine::~GameEngine() {
@@ -57,21 +58,21 @@ void GameEngine::handleInput(std::string input){
             }
             break;
         case State::ASSIGNREINFORCEMENTS:
-            if(input == "issueorders"){
+            if(input == "issueorder"){
                 std::cout << "Reinforcements assigned successfully.\nTransferring to Issue Orders State.\n";
                 *currentState = State::ISSUEORDERS;
             } else {
-                std::cout << "Invalid command. Please issue orders using 'issueorders'.\n";
+                std::cout << "Invalid command. Please issue orders using 'issueorder'.\n";
             }
             break;
         case State::ISSUEORDERS:
-            if(input == "executeorders"){
+            if(input == "endissueorders"){
                 std::cout << "Orders issued successfully.\nTransferring to Execute Orders State.\n";
                 *currentState = State::EXECUTEORDERS;
-            } else if(input == "issueorders"){
-                std::cout << "Issuing Orders.\n";
+            } else if(input == "issueorder"){
+                std::cout << "Issuing Order.\n";
             } else {
-                std::cout << "Invalid command. Please execute orders using 'executeorders' or issue more orders using 'issueorders'.\n";
+                std::cout << "Invalid command. Please execute orders using 'endissueorders' or issue more orders using 'issueorder'.\n";
             }
             break;
         case State::EXECUTEORDERS:
@@ -80,11 +81,11 @@ void GameEngine::handleInput(std::string input){
                 *currentState = State::WIN;
             } else if(input == "executeorders"){
                 std::cout << "Executing Orders.\n";
-            } else if(input == "endexecuteorders"){
+            } else if(input == "endexecuteorder"){
                 std::cout << "Ending Execute Orders Phase.\nTransferring to Assignreinforcements.\n";
                 *currentState = State::ASSIGNREINFORCEMENTS;
             } else {
-                std::cout << "Invalid command. Please declare a win using 'win', execute more orders using 'executeorders', or end the execute orders phase using 'endexecuteorders'.\n";
+                std::cout << "Invalid command. Please declare a win using 'win', execute more orders using 'executeorder', or end the execute orders phase using 'endexecuteorders'.\n";
             }
             break;
         case State::WIN:
@@ -126,15 +127,15 @@ void GameEngine::gameLoop() {
                 break;
             case State::ASSIGNREINFORCEMENTS:
                 std::cout << "ASSIGNREINFORCEMENTS\n";
-                std::cout << "Commands:\n 'assignreinforcements'\n 'issueorders'\n";
+                std::cout << "Commands:\n 'issueorder'\n";
                 break;
             case State::ISSUEORDERS:
                 std::cout << "ISSUEORDERS\n";
-                std::cout << "Commands:\n 'issueorders'\n 'executeorders'\n";
+                std::cout << "Commands:\n 'issueorder'\n 'endissueorders'\n";
                 break;
             case State::EXECUTEORDERS:
                 std::cout << "EXECUTEORDERS\n";
-                std::cout << "Commands:\n 'executeorders'\n 'endexecuteorders'\n 'win'\n";
+                std::cout << "Commands:\n 'executeorder'\n 'endexecuteorders'\n 'win'\n";
                 break;
             case State::WIN:
                 std::cout << "WIN\n";

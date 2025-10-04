@@ -13,9 +13,9 @@
 
 #include "Player.h"
 
-#include "Map/Map.h"
-#include "orders/Order.h"
-#include "orders/OrdersList.h"
+#include "../Map/Map.h"
+#include "../orders/Order.h"
+#include "../orders/OrdersList.h"
 
 #include <iostream>
 #include <algorithm>
@@ -55,9 +55,12 @@ Player::Player(const std::string& name):
     hand_(nullptr),
     orders_(new OrdersList())
     {
-        std::cout << "[Player] Constructor call for Player with name parameter for "<< name_ << "\n";
-    } 
+        std::cout << "[Player] Copy-Assigned Constructor call for Player "<< name_ << "\n";
+    }
 
+/**
+ * Copy constructor for Player
+ */
 Player::Player(const Player& other):
     name_(other.name_),
     territories_(nullptr),
@@ -65,9 +68,12 @@ Player::Player(const Player& other):
     orders_(nullptr)
     {
         copyFrom(other); // deep copy ***
-        std::cout << "[Player] Constructor call for Player with Other parameter for " << name_ << "\n";
+        std::cout << "[Player] Copy-Constructor call for Player for " << name_ << "\n";
     }
 
+/**
+ * 
+ */
 Player& Player::operator=(const Player& other){ //***
     if (this != &other) {
         destroy();
@@ -77,6 +83,9 @@ Player& Player::operator=(const Player& other){ //***
     return *this;
 }
 
+/**
+ * destructor for Player
+ */
 Player::~Player(){
     destroy();
 }
@@ -108,7 +117,7 @@ void Player::copyFrom(const Player& other) {
 
 /**
  * Destructor for Player
- *  - handles dangling pointers
+ *  - handles dangling pointers for destructor
  */
 void Player::destroy(){
     delete territories_;
@@ -120,7 +129,9 @@ void Player::destroy(){
 }
 
 //============ Player functions =============
-
+/**
+ * sets arbitrary list of territories to be defended
+ */
 std::vector<Territory*> Player::toDefend() const{ //***
     std::vector<Territory*> tDefended;
 
@@ -135,6 +146,9 @@ std::vector<Territory*> Player::toDefend() const{ //***
     return tDefended;
 }
 
+/**
+ * sets arbitrary list of territories to be attacked.
+ */
 std::vector<Territory*> Player::toAttack() const{ //***
     std::vector<Territory*> tAttack;
 
@@ -149,6 +163,9 @@ std::vector<Territory*> Player::toAttack() const{ //***
     return tAttack;
 }
 
+/**
+ * issues new order for the player
+ */
 void Player::issueOrder() {
     Order* o = new Order();
     int check = orders_->add(o); //checks if succesfully added
@@ -159,4 +176,88 @@ void Player::issueOrder() {
         o = nullptr; //handles dangling pointer
     }
 
+}
+
+// ===== getters and setters =====
+
+/**
+ * name getter
+ * @return string reference 
+ */
+const std::string& Player::getName() const{
+    return name_;
+}
+
+/**
+ * name setter
+ */
+void Player::setName(const std::string& n){
+    name_ = n;
+}
+
+/**
+ * territory getter
+ * @return vector<Territory*>*
+ */
+std::vector<Territory*>* Player::getTerritories() const {
+    return territories_;
+}
+
+/**
+ *  add territory
+ */
+void Player::addTerritory(Territory* t){
+    if (!territories_){
+        territories_ = new std::vector<Territory*>;
+    }
+    territories_->push_back(t);
+}
+
+/**
+ * Hand setters
+ */
+void Player::setHand(Hand* h){
+    if (hand_ != h ){
+        delete hand_;
+        hand_ = h;
+    }
+}
+
+/**
+ * Hand getters
+ * @return Hand*
+ */
+Hand* Player::getHand(){
+    return hand_;
+}
+
+/**
+ * orders list setter
+ */
+void Player::setOrdersList(OrdersList* ol){
+    if (orders_ != ol){
+        delete orders_;
+        orders_ = ol;
+    }
+}
+
+/**
+ * OrdersList getter
+ * @return OrdersList*
+ */
+OrdersList* Player::getOrdersList() const{
+    return orders_;
+}
+
+/**
+ * ostream for Player
+ * @return ostream&
+ */
+std::ostream& operator<<(std::ostream& os, const Player& p){
+    os << "Player {name = " << p.name_ << ", Territories= ";
+    os << (p.territories_ ? p.territories_->size() : 0) 
+    << ", hand = " << (p.hand_ ? "yes" : "no")
+    <<", orders= " << (p.orders_ ? "yes" : "no")
+    << "\n";
+    return os;
 }

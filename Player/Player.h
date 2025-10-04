@@ -4,10 +4,6 @@
  * @date September 29th, 2025
  */
 
- /*
-    Todo:
-        - documentation
- */
 #pragma once
 
 #include <string>
@@ -19,6 +15,7 @@
 class Territory;
 class Hand;
 class OrdersList;
+class Order;
 
 /**
  * @class Player
@@ -27,7 +24,7 @@ class OrdersList;
  */
 class Player{
 public: 
-    // Constructor and Destructor 
+    // ---- Constructor and Destructor ----
     Player(); //default constructor
 
     explicit Player(const std::string& name);
@@ -65,10 +62,11 @@ public:
 
     // ---Territories---
     void addTerritory(Territory* t);        // Player does Not own territory lifetime 
-    std::vector<Territory*> getTerritories() const;
+    std::vector<Territory*>* getTerritories() const;
 
     // ---Hand---
     void setHand(Hand* h);                  // player owns Hand
+    Hand* getHand();                        // player getter for Hands
     void setOrdersList(OrdersList* ol);     // player owns orderlist
     OrdersList* getOrdersList() const;
     
@@ -78,7 +76,7 @@ public:
 private:
     // all data members of user-defined class needs to be pointer type
     std::string name_;                       // player name
-    vector<Territory*>* territories_;   //owned territories
+    std::vector<Territory*>* territories_;   //owned territories
     Hand* hand_;                        // hand of cards
     OrdersList* orders_;                //list of orders.
 

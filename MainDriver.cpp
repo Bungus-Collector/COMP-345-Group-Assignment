@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Map/MapDriver.cpp"
-// #include "Player/PlayerDriver.cpp"
-#include "Orders/OrdersDriver.cpp"
+#include "Player/PlayerDriver.cpp"
+#include "orders/OrdersDriver.cpp"
 #include "Cards/CardsDriver.cpp"
 #include "GameEngine/GameEngineDriver.cpp"
 
@@ -11,7 +11,7 @@ int main()
 {
     testLoadMaps();
 
-    // testPlayers();
+    testPlayers();
 
     testOrdersList();
 

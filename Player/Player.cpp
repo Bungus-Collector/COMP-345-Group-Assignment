@@ -56,7 +56,7 @@ Player::Player(const std::string& name):
     hand_(new Hand()),
     orders_(new OrdersList())
     {
-        std::cout << "[Player] Assigned Constructor call for Player "<< name_ << "\n";
+        std::cout << "[Player] Constructor call for Player "<< name_ << "\n";
     }
 
 /**
@@ -77,10 +77,11 @@ Player::Player(const Player& other):
 
 /**
  *  Copy-assignment constructor for Player
- *  - replaces attributes of another Player with the ones from the Player passed
+ *  - (Deep copy) replaces attributes of another Player with the ones from the Player passed
  * @param other Player object reference
  */
 Player& Player::operator=(const Player& other){ //***
+    std:cout << "[Player] Copy-assignment constructor called for Player: " << this->name_ << endl;
     if (this != &other) {
         destroy(); // Cleans Player attributes for deep copy
         name_ = other.name_;

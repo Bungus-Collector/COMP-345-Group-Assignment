@@ -16,6 +16,7 @@
 #include "../Map/Map.h"
 #include "../orders/Order.h"
 #include "../orders/OrdersList.h"
+#include "../Cards/Cards.h"
 
 #include <iostream>
 #include <algorithm>
@@ -27,13 +28,13 @@
  * Attributes:
  *  -name: Unnamed
  *  -Territories: empty list of territories
- *  -hand: nullptr
+ *  -hand: empty hand
  *  -orders: new OrdersList
  */
 Player::Player():
     name_("Unnamed"),
     territories_(new std::vector<Territory*>()), //empty list of territories
-    hand_(nullptr),
+    hand_(new Hand()), // empty hand
     orders_(new OrdersList()) // every player has its own empty list
     {
         std::cout << "[Player] Default constructor called for " << name_ << "\n";
@@ -46,13 +47,13 @@ Player::Player():
  * Attributes:
  *  -name: name
  *  -Territories: empty list of territories
- *  -hand: nullptr
+ *  -hand: empty hand
  *  -orders: new ordersList
  */
 Player::Player(const std::string& name): 
     name_(name),
     territories_(new std::vector<Territory*>()),
-    hand_(nullptr),
+    hand_(new Hand()),
     orders_(new OrdersList())
     {
         std::cout << "[Player] Assigned Constructor call for Player "<< name_ << "\n";
@@ -107,10 +108,9 @@ void Player::copyFrom(const Player& other) {
     // clone other attributes if present
 
     if (other.hand_){
-        //hand_ = new Hand(other.hand_); replace when hand class is created
-        hand_ = nullptr;
+        hand_ = new Hand(*other.hand_);
     }else{
-        hand_ = nullptr;
+        hand_ = new Hand(); //default if no hand_
     }
 
     if (other.orders_){

@@ -8,7 +8,7 @@ using namespace std;
 
 void testOrdersList()
 {
-    // ------------------- WIP --------------------
+    // Constructors
     OrdersList *testList1 = new OrdersList();
 
     Order *order1 = new Order(1);
@@ -18,30 +18,34 @@ void testOrdersList()
     Order *order4 = new Order(*order1);
     Deploy *order5 = new Deploy(*order3);
 
+    // Add function
     testList1->add(order1);
     testList1->add(order2);
     testList1->add(order3);
     testList1->add(order4);
     testList1->add(order5);
 
+    // Move function
     testList1->move(order1, 2);
 
+    // Execute deploy order
     cout << *order5->getTargetTerritory()->getArmies() << endl;
     order5->execute();
     cout << *order5->getTargetTerritory()->getArmies() << endl;
 
-    return; // RETURN
-
+    // Before removal
     cout << *testList1 << endl;
     cout << "\n"
          << *order1 << endl;
 
     testList1->remove(order1);
 
+    // After removal
     cout << *testList1 << endl;
     cout << "\n"
          << *order1 << endl;
 
+    // Assignment operator
     OrdersList testList2 = *testList1;
 
     list<Order *> *list1 = testList1->getOrders();

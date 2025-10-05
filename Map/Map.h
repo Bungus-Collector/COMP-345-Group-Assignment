@@ -60,7 +60,7 @@ private:
 class Territory {
 public:
     // Constructors and Destructor
-    Territory(int id, const std::string& name, Continent* continent);
+    Territory(int id, const std::string& name, Continent* continent, int* armies);
     Territory();
     ~Territory();
 
@@ -102,6 +102,27 @@ public:
     Continent* getContinent() const;
 
     /**
+     * Returns the number of armies in the territory
+     *
+     * @return armies in territory
+     */
+    int *getArmies() const;
+
+    /**
+     * Sets the number of armies
+     *
+     * @param int* armies in territory
+     */
+    void setArmies(int *);
+
+    /**
+     * Adds or subtracts the number of armies in the territory.
+     *
+     * @param int change in armies
+     */
+    void changeNumArmies(int);
+
+    /**
     * Returns list of of all adjacent territories.
     *
     * @return list of pointers of all adjacent territories.
@@ -113,9 +134,9 @@ private:
     std::string* name;
     Continent* continent;
     std::vector<Territory*>* adjacentTerritories;
+    int* armies; // Number of armies on the territory
 
     // To be implemented later
-    // int* armies; // Number of armies on the territory
     // Player* owner; 
 };
 

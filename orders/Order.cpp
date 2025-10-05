@@ -84,7 +84,7 @@ int Order::execute()
 Deploy::Deploy()
     : Order{},
       numTroops{new int()},
-      targetTerritory{nullptr} // Territory class has no default constructor
+      targetTerritory{new Territory()}
 {
 }
 
@@ -158,6 +158,7 @@ bool Deploy::validate()
 int Deploy::execute()
 {
   // Add numTroops to targetTerritory
+  targetTerritory->setArmies(new int(*targetTerritory->getArmies() + *numTroops));
   return SUCCESS;
 }
 
@@ -166,8 +167,8 @@ int Deploy::execute()
 Advance::Advance()
     : Order{},
       numTroops{new int()},
-      sourceTerritory{nullptr},
-      targetTerritory{nullptr}
+      sourceTerritory{new Territory()},
+      targetTerritory{new Territory()}
 {
 }
 
@@ -258,6 +259,8 @@ int Advance::execute()
 {
   // Move troops from sourceTerritory to targetTerritory
   // Run combat calculations if needed
+  sourceTerritory->changeNumArmies(-(*numTroops));
+  targetTerritory->changeNumArmies(*numTroops);
   return SUCCESS;
 }
 
@@ -265,7 +268,7 @@ int Advance::execute()
 
 Bomb::Bomb()
     : Order{},
-      targetTerritory{nullptr}
+      targetTerritory{new Territory()}
 {
 }
 
@@ -324,6 +327,7 @@ bool Bomb::validate()
 int Bomb::execute()
 {
   // Halve the number of troops in targetTerritory
+  targetTerritory->changeNumArmies(-(*targetTerritory->getArmies() / 2));
   return SUCCESS;
 }
 
@@ -331,7 +335,7 @@ int Bomb::execute()
 
 Blockade::Blockade()
     : Order{},
-      targetTerritory{nullptr}
+      targetTerritory{new Territory()}
 {
 }
 
@@ -389,7 +393,8 @@ bool Blockade::validate()
 int Blockade::execute()
 {
   // Triple the number of troops in targetTerritory
-  // Set targetTerritory status to neutral
+  // TODO: Set targetTerritory status to neutral
+  targetTerritory->changeNumArmies(*(targetTerritory->getArmies()) * 3);
   return SUCCESS;
 }
 
@@ -398,8 +403,8 @@ int Blockade::execute()
 Airlift::Airlift()
     : Order{},
       numTroops{new int()},
-      sourceTerritory{nullptr},
-      targetTerritory{nullptr}
+      sourceTerritory{new Territory()},
+      targetTerritory{new Territory()}
 {
 }
 
@@ -489,7 +494,9 @@ bool Airlift::validate()
 int Airlift::execute()
 {
   // Move numTroops from sourceTerritory to targetTerritory
-  // Run combat calculations if needed
+  // TODO: Run combat calculations if needed
+  sourceTerritory->changeNumArmies(-(*numTroops));
+  targetTerritory->changeNumArmies(*numTroops);
   return SUCCESS;
 }
 

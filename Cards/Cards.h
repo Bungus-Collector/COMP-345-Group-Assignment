@@ -7,6 +7,10 @@
 #include <vector>
 #include <memory>
 
+class Hand;
+class Deck;
+
+
 // Card Types enum
 enum CardType
 {
@@ -18,7 +22,7 @@ enum CardType
 };
 
 
-// Card class
+// CARD CLASS
 class Card
 {
 public:
@@ -31,15 +35,16 @@ public:
     Card& operator=(const Card& other);     // assignment operator
     friend std::ostream& operator<<(std::ostream& os, const Card& card);    // stream insertion operator
 
-    // DATA MEMBERS
-    CardType type;
-
     // METHODS
     CardType getType() const;
-    void play();
+    void play(Hand& hand, Deck& deck);
+
+private:
+    CardType type;
 };
 
-// Deck class
+
+// DECK CLASS
 class Deck
 {
 public:
@@ -52,14 +57,17 @@ public:
     Deck& operator=(const Deck& other);     // assignment operator
     friend std::ostream& operator<<(std::ostream& os, const Deck& deck);    // stream insertion operator
 
-    // DATA MEMBERS
-    vector<std::unique_ptr<Card>> cards;
-
     // METHODS
-    Card draw();
+    void draw(Hand& hand);
+private:
+    std::vector<std::unique_ptr<Card>> cards;
+
+    // allows direct access to Card::type_
+    friend class Card;
 };
 
-// Hand class
+
+// HAND CLASS
 class Hand
 {
 public:
@@ -68,12 +76,19 @@ public:
     Hand(const Hand& other);    // copy constructor
     ~Hand();                    // destructor
 
-    //OPERATORS
+    // OPERATORS
     Hand& operator=(const Hand& other);     // assignment operator
     friend std::ostream& operator<<(std::ostream& os, const Hand& hand);    // stream insertion operator
 
-    // DATA MEMBERS
-    vector<std::unique_ptr<Card>> cards;
+    // METHODS
+    const std::vector<std::unique_ptr<Card>>& getCards() const;
+
+private:
+    std::vector<std::unique_ptr<Card>> cards;
+    
+    // allows direct access to Card::type_ and Deck::cards
+    friend class Card;
+    friend class Deck;
 };
 
 #endif

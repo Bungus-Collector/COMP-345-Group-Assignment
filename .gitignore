@@ -8,7 +8,4 @@
 .vscode/
 
 # Batch file I used for compilation
-compile.bat
-
-# Formatter
-.prettierignore
+#compile.bat

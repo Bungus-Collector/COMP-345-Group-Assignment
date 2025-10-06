@@ -8,6 +8,10 @@ using namespace std;
 
 void testOrdersList()
 {
+    cout << "===================================" << endl;
+    cout << "            Orders Test            " << endl;
+    cout << "===================================" << endl;
+
     // Constructors
     OrdersList *testList1 = new OrdersList();
 
@@ -29,11 +33,14 @@ void testOrdersList()
     testList1->move(order1, 2);
 
     // Execute deploy order
+    cout << "Deploy order test execution: Before execution" << endl;
     cout << *order5->getTargetTerritory()->getArmies() << endl;
     order5->execute();
+    cout << "Deploy order test execution: After execution" << endl;
     cout << *order5->getTargetTerritory()->getArmies() << endl;
 
     // Before removal
+    cout << "Remove order from list: Before execution" << endl;
     cout << *testList1 << endl;
     cout << "\n"
          << *order1 << endl;
@@ -41,6 +48,7 @@ void testOrdersList()
     testList1->remove(order1);
 
     // After removal
+    cout << "Remove order from list: After execution" << endl;
     cout << *testList1 << endl;
     cout << "\n"
          << *order1 << endl;
@@ -51,6 +59,7 @@ void testOrdersList()
     list<Order *> *list1 = testList1->getOrders();
     list<Order *> *list2 = testList2.getOrders();
 
+    cout << "Creating deep copy with assignment operator" << endl;
     cout << "list1:" << endl;
     for (Order *o : *list1)
     {
@@ -70,9 +79,9 @@ void testOrdersList()
     cout << order1 << " " << &order6 << endl;
 }
 
-int main()
-{
-    testOrdersList();
+// int main()
+// {
+//     testOrdersList();
 
-    return 0;
-}
+//     return 0;
+// }

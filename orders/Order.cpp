@@ -1,10 +1,21 @@
 // Author: Gabriel Lagacé
 
+/**
+ * Design note:
+ * Deep copies of Player and Territory pointers are not made
+ * in constructors or other assignments. This is because the
+ * order needs to directly modify the values of that
+ * specific Player/Territory. This is also why Players and
+ * Territory members aren't deleted in destructors because
+ * that would delete the object for the entire game.
+ */
+
 #include <iostream>
 #include <string>
 #include "Order.h"
 #include "OrdersErrorCodes.h"
 #include "../Map/Map.h"
+#include "../Player/Player.h"
 
 using namespace std;
 
@@ -18,29 +29,33 @@ std::ostream &operator<<(ostream &os, const Order &order)
 // ======================== ORDER ======================== //
 
 Order::Order()
-    : id{new int()}
+    : id{new int()},
+      issuer{new Player()}
 {
 }
 
-Order::Order(int i)
-    : id{new int(i)}
+Order::Order(int i, Player *p)
+    : id{new int(i)},
+      issuer{p}
 {
 }
 
 Order::Order(const Order &other)
 {
   this->id = new int(*other.id);
+  this->issuer = new Player(*other.issuer);
 }
 
 Order::~Order()
 {
   delete id;
   id = nullptr;
+  issuer = nullptr;
 }
 
 void Order::print(std::ostream &os) const
 {
-  os << "id: " << *id; // TODO: add player
+  os << "id: " << *id << " | issuer: " << issuer->getName();
 }
 
 Order &Order::operator=(const Order &other)
@@ -53,6 +68,7 @@ Order &Order::operator=(const Order &other)
   delete id;
 
   this->id = new int(*other.id);
+  this->issuer = other.issuer;
   return *this;
 }
 
@@ -61,22 +77,20 @@ int Order::getId()
   return *id;
 }
 
+Player *Order::getIssuer()
+{
+  return issuer;
+}
+
 void Order::setId(int i)
 {
   delete id;
   id = new int(i);
 }
 
-bool Order::validate()
+void Order::setIssuer(Player *p)
 {
-  cout << "Validating generic order... ID = " << *id << endl;
-  return true;
-}
-
-int Order::execute()
-{
-  cout << "Executing generic order... ID = " << *id << endl;
-  return SUCCESS;
+  issuer = p;
 }
 
 // ======================== DEPLOY ======================== //
@@ -88,8 +102,8 @@ Deploy::Deploy()
 {
 }
 
-Deploy::Deploy(int i, int n, Territory *t)
-    : Order{i},
+Deploy::Deploy(int i, Player *p, int n, Territory *t)
+    : Order{i, p},
       numTroops{new int(n)},
       targetTerritory{t}
 {
@@ -98,13 +112,12 @@ Deploy::Deploy(int i, int n, Territory *t)
 Deploy::Deploy(const Deploy &other) : Order(other)
 {
   this->numTroops = new int(*other.numTroops);
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->targetTerritory = other.targetTerritory;
 }
 
 Deploy::~Deploy()
 {
   delete numTroops;
-  delete targetTerritory;
   numTroops = nullptr;
   targetTerritory = nullptr;
 }
@@ -124,10 +137,9 @@ Deploy &Deploy::operator=(const Deploy &other)
 
   Order::operator=(other);
   delete numTroops;
-  delete targetTerritory;
 
   this->numTroops = new int(*other.numTroops);
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->targetTerritory = other.targetTerritory;
   return *this;
 }
 
@@ -143,15 +155,14 @@ void Deploy::setNumTroops(int *n)
 
 void Deploy::setTargetTerritory(Territory *t)
 {
-  delete targetTerritory;
   targetTerritory = t;
 }
 
 bool Deploy::validate()
 {
   // CHECKS:
-  // numTroops <= # troops in reserve
   // Player controls targetTerritory
+
   return true;
 }
 
@@ -172,8 +183,8 @@ Advance::Advance()
 {
 }
 
-Advance::Advance(int i, int n, Territory *s, Territory *t)
-    : Order{i},
+Advance::Advance(int i, Player *p, int n, Territory *s, Territory *t)
+    : Order{i, p},
       numTroops{new int(n)},
       sourceTerritory{s},
       targetTerritory{t}
@@ -183,8 +194,8 @@ Advance::Advance(int i, int n, Territory *s, Territory *t)
 Advance::Advance(const Advance &other) : Order(other)
 {
   this->numTroops = new int(*other.numTroops);
-  this->sourceTerritory = new Territory(*other.sourceTerritory);
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->sourceTerritory = other.sourceTerritory;
+  this->targetTerritory = other.targetTerritory;
 }
 
 Advance::~Advance()
@@ -272,15 +283,15 @@ Bomb::Bomb()
 {
 }
 
-Bomb::Bomb(int i, Territory *t)
-    : Order{i},
+Bomb::Bomb(int i, Player *p, Territory *t)
+    : Order{i, p},
       targetTerritory{t}
 {
 }
 
 Bomb::Bomb(const Bomb &other) : Order(other)
 {
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->targetTerritory = other.targetTerritory;
 }
 
 Bomb::~Bomb()
@@ -302,9 +313,8 @@ Bomb &Bomb::operator=(const Bomb &other)
   }
 
   Order::operator=(other);
-  delete targetTerritory;
 
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->targetTerritory = other.targetTerritory;
   return *this;
 }
 
@@ -312,14 +322,12 @@ Territory *Bomb::getTargetTerritory() { return targetTerritory; }
 
 void Bomb::setTargetTerritory(Territory *t)
 {
-  delete targetTerritory;
   targetTerritory = t;
 }
 
 bool Bomb::validate()
 {
   // CHECKS:
-  // Player must have a Bomb card in hand
   // Controller of targetTerritory and the current player must not be in Negotiation state
   return true;
 }
@@ -339,15 +347,15 @@ Blockade::Blockade()
 {
 }
 
-Blockade::Blockade(int i, Territory *t)
-    : Order{i},
+Blockade::Blockade(int i, Player *p, Territory *t)
+    : Order{i, p},
       targetTerritory{t}
 {
 }
 
 Blockade::Blockade(const Blockade &other) : Order(other)
 {
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->targetTerritory = other.targetTerritory;
 }
 
 Blockade::~Blockade()
@@ -369,9 +377,8 @@ Blockade &Blockade::operator=(const Blockade &other)
   }
 
   Order::operator=(other);
-  delete targetTerritory;
 
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->targetTerritory = other.targetTerritory;
   return *this;
 }
 
@@ -379,14 +386,13 @@ Territory *Blockade::getTargetTerritory() { return targetTerritory; }
 
 void Blockade::setTargetTerritory(Territory *t)
 {
-  delete targetTerritory;
   targetTerritory = t;
 }
 
 bool Blockade::validate()
 {
   // CHECKS:
-  // Player must have a Blockade card in hand
+  // targetTerritory must not be controlled by an enemy player
   return true;
 }
 
@@ -408,8 +414,8 @@ Airlift::Airlift()
 {
 }
 
-Airlift::Airlift(int i, int n, Territory *s, Territory *t)
-    : Order{i},
+Airlift::Airlift(int i, Player *p, int n, Territory *s, Territory *t)
+    : Order{i, p},
       numTroops{new int(n)},
       sourceTerritory{s},
       targetTerritory{t}
@@ -419,8 +425,8 @@ Airlift::Airlift(int i, int n, Territory *s, Territory *t)
 Airlift::Airlift(const Airlift &other) : Order(other)
 {
   this->numTroops = new int(*other.numTroops);
-  this->sourceTerritory = new Territory(*other.sourceTerritory);
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->sourceTerritory = other.sourceTerritory;
+  this->targetTerritory = other.targetTerritory;
 }
 
 Airlift::~Airlift()
@@ -448,12 +454,10 @@ Airlift &Airlift::operator=(const Airlift &other)
 
   Order::operator=(other);
   delete numTroops;
-  delete sourceTerritory;
-  delete targetTerritory;
 
   this->numTroops = new int(*other.numTroops);
-  this->sourceTerritory = new Territory(*other.sourceTerritory);
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->sourceTerritory = other.sourceTerritory;
+  this->targetTerritory = other.targetTerritory;
   return *this;
 }
 
@@ -471,20 +475,17 @@ void Airlift::setNumTroops(int *n)
 
 void Airlift::setSourceTerritory(Territory *t)
 {
-  delete sourceTerritory;
   sourceTerritory;
 }
 
 void Airlift::setTargetTerritory(Territory *t)
 {
-  delete targetTerritory;
   targetTerritory = t;
 }
 
 bool Airlift::validate()
 {
   // CHECKS:
-  // Player must have an Airlift card in hand
   // numTroops <= # troops in sourceTerritory
   // Player must control sourceTerritory
   // Controllers of sourceTerritory and targetTerritory must not be in Negotiation state
@@ -504,19 +505,19 @@ int Airlift::execute()
 
 Negotiate::Negotiate()
     : Order{},
-      targetPlayer{new string()}
+      targetPlayer{new Player()}
 {
 }
 
-Negotiate::Negotiate(int i, string p)
-    : Order{i},
-      targetPlayer{&p} // TODO: change to player
+Negotiate::Negotiate(int i, Player *p, Player *t)
+    : Order{i, p},
+      targetPlayer{t} // TODO: change to player
 {
 }
 
 Negotiate::Negotiate(const Negotiate &other) : Order(other)
 {
-  this->targetPlayer = new string(*other.targetPlayer);
+  this->targetPlayer = other.targetPlayer;
 }
 
 Negotiate::~Negotiate()
@@ -527,7 +528,7 @@ Negotiate::~Negotiate()
 void Negotiate::print(std::ostream &os) const
 {
   Order::print(os);
-  os << " | numTroops: " << *targetPlayer;
+  os << " | targetPlayer: " << targetPlayer->getName();
 }
 
 Negotiate &Negotiate::operator=(const Negotiate &other)
@@ -538,24 +539,22 @@ Negotiate &Negotiate::operator=(const Negotiate &other)
   }
 
   Order::operator=(other);
-  delete targetPlayer;
 
-  this->targetPlayer = new string(*other.targetPlayer);
+  this->targetPlayer = other.targetPlayer;
   return *this;
 }
 
-string *Negotiate::getTargetPlayer() { return targetPlayer; }
+Player *Negotiate::getTargetPlayer() { return targetPlayer; }
 
-void Negotiate::setTargetPlayer(string *p)
+void Negotiate::setTargetPlayer(Player *p)
 {
-  delete targetPlayer;
   targetPlayer = p;
 }
 
 bool Negotiate::validate()
 {
   // CHECKS:
-  // Player must have a Negotiate card in hand
+  // If source player and target player are the same then order is invalid
   return true;
 }
 

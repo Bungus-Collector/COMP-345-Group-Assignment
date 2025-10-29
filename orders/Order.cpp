@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include <algorithm>
 #include "Order.h"
 #include "OrdersErrorCodes.h"
 #include "../Map/Map.h"
@@ -285,6 +286,12 @@ bool Advance::validate()
     return false;
 
   // Controllers of sourceTerritory and targetTerritory must not be in Negotiation state
+  std::string targetPlayerName = targetTerritory->getOwner()->getName();
+  std::vector<std::string> negotiatingParters = *getIssuer()->getNegotiatingPartners();
+  auto it = std::find(negotiatingParters.begin(), negotiatingParters.end(), targetPlayerName);
+
+  if (it != negotiatingParters.end())
+    return false;
 
   return true;
 }
@@ -395,7 +402,32 @@ void Bomb::setTargetTerritory(Territory *t)
 bool Bomb::validate()
 {
   // CHECKS:
-  // Controller of targetTerritory and the current player must not be in Negotiation state
+  // Issuer must not control targetTerritory
+  if (targetTerritory->getOwner()->getName() == getIssuer()->getName())
+    return false;
+
+  // targetTerritory must be adjacent to a territory controlled by issuer
+  std::vector<Territory *> *adjacentTerritories = targetTerritory->getAdjacentTerritories();
+  bool isAdjacent = false;
+  for (size_t i = 0; i < adjacentTerritories->size(); ++i)
+  {
+    if (adjacentTerritories->at(i)->getOwner()->getName() == getIssuer()->getName())
+    {
+      isAdjacent = true;
+      break;
+    }
+  }
+  if (!isAdjacent)
+    return false;
+
+  // Controller of targetTerritory and the issuer must not be in Negotiation state
+  std::string targetPlayerName = targetTerritory->getOwner()->getName();
+  std::vector<std::string> negotiatingParters = *getIssuer()->getNegotiatingPartners();
+  auto it = std::find(negotiatingParters.begin(), negotiatingParters.end(), targetPlayerName);
+
+  if (it != negotiatingParters.end())
+    return false;
+
   return true;
 }
 
@@ -475,6 +507,7 @@ int Blockade::execute()
 {
   // Triple the number of troops in targetTerritory
   targetTerritory->changeNumArmies(*(targetTerritory->getArmies()) * 3);
+
   // Set territory to neutral
   targetTerritory->setOwner(nullptr);
   return SUCCESS;
@@ -643,11 +676,15 @@ bool Negotiate::validate()
 {
   // CHECKS:
   // If source player and target player are the same then order is invalid
+  if (targetPlayer->getName() == getIssuer()->getName())
+    return false;
+
   return true;
 }
 
 int Negotiate::execute()
 {
   // Impose Negotiation state between the current player and targetPlayer for one turn
+  targetPlayer->addNegotiatingPartner(getIssuer()->getName());
   return SUCCESS;
 }

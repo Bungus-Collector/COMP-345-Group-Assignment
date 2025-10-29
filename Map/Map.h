@@ -5,101 +5,119 @@
 #include <string>
 
 class Territory;
+class Player;
 
 /**
  * @class Continent
  * @brief Represents a continent, which is a connected subgraph of territories.
  */
-class Continent {
+class Continent
+{
 public:
     // Constructors and Destructor
-    Continent(const std::string& name, int bonus);
+    Continent(const std::string &name, int bonus);
     Continent();
     ~Continent();
 
     // Copy Constructor and Assignment Operator
-    Continent(const Continent& other);
-    Continent& operator=(const Continent& other);
+    Continent(const Continent &other);
+    Continent &operator=(const Continent &other);
 
     // Stream Insertion Operator
-    friend std::ostream& operator<<(std::ostream& os, const Continent& continent);
+    friend std::ostream &operator<<(std::ostream &os, const Continent &continent);
 
     // Public Methods
 
     /**
-    * Add territory to continent
-    *
-    * @param territory pointer to territory to be added.
-    */
-    void addTerritory(Territory* territory);
+     * Add territory to continent
+     *
+     * @param territory pointer to territory to be added.
+     */
+    void addTerritory(Territory *territory);
 
     /**
-    * Returns the name of the continent.
-    *
-    * @returns name of continent.
-    */
+     * Returns the name of the continent.
+     *
+     * @returns name of continent.
+     */
     std::string getName() const;
 
     /**
-    * Returns list of territories of the continent.
-    *
-    * @returns list of pointers of all territories on the continent.
-    */
-    std::vector<Territory*>* getTerritories() const;
+     * Returns the owner of the continent.
+     *
+     * @returns owner of continent.
+     */
+    Player* getOwner() const;
+
+    /**
+     * Sets a new owner of the continent.
+     *
+     * @param Player* new owner.
+     */
+    void setOwner(Player*);
+
+    /**
+     * Returns list of territories of the continent.
+     *
+     * @returns list of pointers of all territories on the continent.
+     */
+    std::vector<Territory *> *getTerritories() const;
 
 private:
-    std::string* name;
-    int* bonus;
-    std::vector<Territory*>* territories;
+    std::string *name;
+    int *bonus;
+    std::vector<Territory *> *territories;
+    Player* owner;
 };
 
 /**
  * @class Territory
  * @brief Represents a territory (a node in the map graph).
  */
-class Territory {
+class Territory
+{
 public:
     // Constructors and Destructor
-    Territory(int id, const std::string& name, Continent* continent, int* armies);
+    Territory(int id, const std::string &name, Continent *continent, int *armies, Player* owner);
     Territory();
     ~Territory();
 
     // Copy Constructor and Assignment Operator
-    Territory(const Territory& other);
-    Territory& operator=(const Territory& other);
+    Territory(const Territory &other);
+    Territory &operator=(const Territory &other);
 
     // Stream Insertion Operator
-    friend std::ostream& operator<<(std::ostream& os, const Territory& territory);
+    friend std::ostream &operator<<(std::ostream &os, const Territory &territory);
 
     // Public Methods
 
     /**
-    * Add a edge from this territory to another.
-    *
-    * @param territory pointer to territory to be added.
-    */
-    void addAdjacentTerritory(Territory* territory);
+     * Add a edge from this territory to another.
+     *
+     * @param territory pointer to territory to be added.
+     */
+    void addAdjacentTerritory(Territory *territory);
 
     /**
-    * Returns the name of the territory.
-    *
-    * @return name of territory.
-    */
+     * Returns the name of the territory.
+     *
+     * @return name of territory.
+     */
     std::string getName() const;
 
     /**
-    * Returns the id of the territory.
-    *
-    * @return id of territory.
-    */
+     * Returns the id of the territory.
+     *
+     * @return id of territory.
+     */
     int getId() const;
 
     /**
-    * Returns the id of the territory.
-    *
-    * @return id of territory.
-    */
-    Continent* getContinent() const;
+     * Returns the id of the territory.
+     *
+     * @return id of territory.
+     */
+    Continent *getContinent() const;
 
     /**
      * Returns the number of armies in the territory
@@ -123,108 +141,120 @@ public:
     void changeNumArmies(int);
 
     /**
-    * Returns list of of all adjacent territories.
-    *
-    * @return list of pointers of all adjacent territories.
-    */
-    std::vector<Territory*>* getAdjacentTerritories() const;
+     * Returns the player who owns the territory
+     *
+     * @return player owner
+     */
+    Player* getOwner() const;
+
+    /**
+     * Sets the owner of the territory
+     *
+     * @param Player* new owner
+     */
+    void setOwner(Player*);
+
+    /**
+     * Returns list of of all adjacent territories.
+     *
+     * @return list of pointers of all adjacent territories.
+     */
+    std::vector<Territory *> *getAdjacentTerritories() const;
 
 private:
-    int* id;
-    std::string* name;
-    Continent* continent;
-    std::vector<Territory*>* adjacentTerritories;
-    int* armies; // Number of armies on the territory
-
-    // To be implemented later
-    // Player* owner; 
+    int *id;
+    std::string *name;
+    Continent *continent;
+    std::vector<Territory *> *adjacentTerritories;
+    int *armies; // Number of armies on the territory
+    Player* owner;
 };
-
 
 /**
  * @class Map
  * @brief Represents the entire game map as a connected graph.
  */
-class Map {
+class Map
+{
 public:
     // Constructor and Destructor
     Map();
     ~Map();
 
     // Rule of Three: Copy Constructor and Assignment Operator
-    Map(const Map& other);
-    Map& operator=(const Map& other);
+    Map(const Map &other);
+    Map &operator=(const Map &other);
 
     // Stream Insertion Operator
-    friend std::ostream& operator<<(std::ostream& os, const Map& map);
+    friend std::ostream &operator<<(std::ostream &os, const Map &map);
 
     // Public Methods
 
     /**
-    * Add continent to map.
-    *
-    * @param continent pointer to be added to map.
-    */
-    void addContinent(Continent* continent);
+     * Add continent to map.
+     *
+     * @param continent pointer to be added to map.
+     */
+    void addContinent(Continent *continent);
 
     /**
-    * Add territory to map.
-    *
-    * @param territory pointer to be added to map.
-    */
-    void addTerritory(Territory* territory);
+     * Add territory to map.
+     *
+     * @param territory pointer to be added to map.
+     */
+    void addTerritory(Territory *territory);
 
     /**
-    * Validate map
-    */
+     * Validate map
+     */
     bool validate() const;
 
     /**
-    * Get a territory by its id.
-    *
-    * @param id of the territory.
-    * @return pointer to the territory object.
-    */
-    Territory* getTerritoryById(int id) const;
+     * Get a territory by its id.
+     *
+     * @param id of the territory.
+     * @return pointer to the territory object.
+     */
+    Territory *getTerritoryById(int id) const;
 
     /**
-    * Get all territories on the map.
-    *
-    * @return list of pointers to all territory objects.
-    */
-    std::vector<Territory*>* getAllTerritories() const;
+     * Get all territories on the map.
+     *
+     * @return list of pointers to all territory objects.
+     */
+    std::vector<Territory *> *getAllTerritories() const;
 
     /**
-    * Get all Continents on the map.
-    *
-    * @return list of pointers to all Continent objects.
-    */
-    std::vector<Continent*>* getAllContinents() const;
-
+     * Get all Continents on the map.
+     *
+     * @return list of pointers to all Continent objects.
+     */
+    std::vector<Continent *> *getAllContinents() const;
 
 private:
-    std::vector<Continent*>* allContinents;
-    std::vector<Territory*>* allTerritories;
+    std::vector<Continent *> *allContinents;
+    std::vector<Territory *> *allTerritories;
 
     // Validation helper methods
     bool isMapConnected() const;
     bool areContinentsConnected() const;
     bool doesEachTerritoryBelongToOneContinent() const;
-    void traverse(Territory* start, std::vector<bool>& visited) const;
-    void traverseContinent(Territory* start, std::vector<bool>& visited, const Continent* continent) const;
+    void traverse(Territory *start, std::vector<bool> &visited) const;
+    void traverseContinent(Territory *start, std::vector<bool> &visited, const Continent *continent) const;
 };
 
 /**
  * @class MapLoader
  * @brief A utility class to load a map from a .map file.
  */
-class MapLoader {
+class MapLoader
+{
 public:
     /**
-    * Load a map from a .map file
-    * 
-    * @param filename of .map file to be loaded.
-    * @return pointer to a Map if map is valid, else null pointer.
-    */
-    Map* loadMap(const std::string& filename);
+     * Load a map from a .map file
+     *
+     * @param filename of .map file to be loaded.
+     * @return pointer to a Map if map is valid, else null pointer.
+     */
+    Map *loadMap(const std::string &filename);
 };

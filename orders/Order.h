@@ -5,6 +5,7 @@
 
 #include <string>
 #include "../Map/Map.h"
+#include "../Player/Player.h"
 
 using namespace std;
 
@@ -13,7 +14,8 @@ using namespace std;
 class Order
 {
 private:
-    // TODO: add initiating Player
+    // Initiating Player
+    Player *issuer;
 
     // Unique int identifier
     int *id;
@@ -21,9 +23,9 @@ private:
 public:
     // Constructors and destructor
     Order();
-    Order(int);
+    Order(int, Player *);
     Order(const Order &);
-    ~Order();
+    virtual ~Order();
 
     // Print function and stream overloading function
     virtual void print(std::ostream &) const;
@@ -32,19 +34,13 @@ public:
     // Overloading assignment operator
     Order &operator=(const Order &);
 
-    /**
-     * @brief Getter method for id
-     *
-     * @return id
-     */
+    // Getter methods
     int getId();
+    Player *getIssuer();
 
-    /**
-     * @brief Setter method for id
-     *
-     * @param id
-     */
+    // Setter methods
     void setId(int);
+    void setIssuer(Player *);
 
     /**
      * @brief Runs validation checks.
@@ -52,14 +48,14 @@ public:
      *
      * @return false if a check fails, true otherwise
      */
-    virtual bool validate();
+    virtual bool validate() = 0;
 
     /**
      * @brief Executes an order
      *
      * @return 0 on success, error code otherwise
      */
-    virtual int execute();
+    virtual int execute() = 0;
 };
 
 // ======================== DEPLOY ======================== //
@@ -73,7 +69,7 @@ private:
 public:
     // Constructors and destructor
     Deploy();
-    Deploy(int, int, Territory *);
+    Deploy(int, Player *, int, Territory *);
     Deploy(const Deploy &other);
     ~Deploy();
 
@@ -122,7 +118,7 @@ private:
 public:
     // Constructor and destructor
     Advance();
-    Advance(int, int, Territory *, Territory *);
+    Advance(int, Player *, int, Territory *, Territory *);
     Advance(const Advance &other);
     ~Advance();
 
@@ -174,7 +170,7 @@ private:
 public:
     // Constructor and destructor
     Bomb();
-    Bomb(int, Territory *);
+    Bomb(int, Player *, Territory *);
     Bomb(const Bomb &other);
     ~Bomb();
 
@@ -219,7 +215,7 @@ private:
 public:
     // Constructor and destructor
     Blockade();
-    Blockade(int, Territory *);
+    Blockade(int, Player *, Territory *);
     Blockade(const Blockade &other);
     ~Blockade();
 
@@ -266,7 +262,7 @@ private:
 public:
     // Constructor and destructor
     Airlift();
-    Airlift(int, int, Territory *, Territory *);
+    Airlift(int, Player *, int, Territory *, Territory *);
     Airlift(const Airlift &other);
     ~Airlift();
 
@@ -313,12 +309,12 @@ public:
 class Negotiate : public Order
 {
 private:
-    string *targetPlayer; // TODO: Change to player pointer
+    Player *targetPlayer; // TODO: Change to player pointer
 
 public:
     // Constructor and destructor
     Negotiate();
-    Negotiate(int, string);
+    Negotiate(int, Player *, Player *);
     Negotiate(const Negotiate &other);
     ~Negotiate();
 
@@ -329,10 +325,10 @@ public:
     Negotiate &operator=(const Negotiate &);
 
     // Getter methods
-    string *getTargetPlayer();
+    Player *getTargetPlayer();
 
     // Setter methods
-    void setTargetPlayer(string *);
+    void setTargetPlayer(Player *);
 
     /**
      * @brief Inherited from Order class: runs validation checks.

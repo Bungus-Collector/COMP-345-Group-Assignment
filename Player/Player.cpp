@@ -35,7 +35,9 @@ Player::Player():
     name_("Unnamed"),
     territories_(new std::vector<Territory*>()), //empty list of territories
     hand_(new Hand()), // empty hand
-    orders_(new OrdersList()) // every player has its own empty list
+    orders_(new OrdersList()), // every player has its own empty list
+    negotiatingPartners_(new std::vector<std::string>()), // no negotiating partners
+    getsCard_(false) // default false
     {
         std::cout << "[Player] Default constructor called for " << name_ << "\n";
     }
@@ -54,7 +56,9 @@ Player::Player(const std::string& name):
     name_(name),
     territories_(new std::vector<Territory*>()),
     hand_(new Hand()),
-    orders_(new OrdersList())
+    orders_(new OrdersList()),
+    negotiatingPartners_(new std::vector<std::string>()),
+    getsCard_(false)
     {
         std::cout << "[Player] Constructor call for Player "<< name_ << "\n";
     }
@@ -69,7 +73,9 @@ Player::Player(const Player& other):
     name_(other.name_),
     territories_(nullptr),
     hand_(nullptr),
-    orders_(nullptr)
+    orders_(nullptr),
+    negotiatingPartners_(nullptr),
+    getsCard_(nullptr)
     {
         copyFrom(other);
         std::cout << "[Player] Copy-Constructor call for Player for " << name_ << "\n";
@@ -119,6 +125,12 @@ void Player::copyFrom(const Player& other) {
     }else{
         orders_ = new OrdersList(); //empty list of orders
     }
+
+    if(other.negotiatingPartners_){
+        negotiatingPartners_ = new std::vector<std::string>(*other.negotiatingPartners_);
+    }else{
+        negotiatingPartners_ = new std::vector<std::string>();
+    }
 }
 
 /**
@@ -132,6 +144,8 @@ void Player::destroy(){
     hand_ = nullptr;
     delete orders_;
     orders_ = nullptr;
+    delete negotiatingPartners_;
+    negotiatingPartners_ = nullptr;
 }
 
 //============ Player functions =============
@@ -173,7 +187,7 @@ std::vector<Territory*> Player::toAttack() const{ //***
  * issues new order for the player
  */
 void Player::issueOrder() {
-    Order* o = new Order();
+    Order* o = new Order(); // ERROR: Order class is pure virtual
     int check = orders_->add(o); //checks if succesfully added
 
     if (check != 0 ){
@@ -253,6 +267,54 @@ void Player::setOrdersList(OrdersList* ol){
  */
 OrdersList* Player::getOrdersList() const{
     return orders_;
+}
+
+/**
+ * negotiating partners setter
+ */
+void Player::setNegotiatingPartners(std::vector<std::string>* np){
+    if (negotiatingPartners_ != np){
+        delete negotiatingPartners_;
+        negotiatingPartners_ = np;
+    }
+}
+
+/**
+ * negotiating partners getter
+ * @return negotiating partners*
+ */
+std::vector<std::string>* Player::getNegotiatingPartners(){
+    return negotiatingPartners_;
+}
+
+/**
+ * Adds a negotiating partner which cannot be attacked this turn
+ */
+void Player::addNegotiatingPartner(string p){
+    negotiatingPartners_->push_back(p);
+}
+
+/**
+ * Resets negotiating partners (called at the beginning of each new turn)
+ */
+void Player::resetNegotatingPlayers(){
+    delete negotiatingPartners_;
+    negotiatingPartners_ = new std::vector<std::string>();
+}
+
+/**
+ * gets card setter
+ */
+void Player::setGetsCard(bool gc){
+    getsCard_ = gc;
+}
+
+/**
+ * gets card getter
+ * @return bool
+ */
+bool Player::getGetsCard(){
+    return getsCard_;
 }
 
 /**

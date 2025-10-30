@@ -12,7 +12,16 @@
 
  // forward declaration
 class Command{
-    
+    // --- Constructor and Destructor --- 
+    Command(); // Default constructor
+
+    explicit Command(); // Constructor
+
+    Command(const Command& c); 
+
+    Command& operator=(const Command& c);
+
+    ~Command(); // Destructor
 }
 
 class CommandProcessor{
@@ -20,7 +29,7 @@ public:
     // --- Constructor and Destructor --- 
     CommandProcessor(); // Default constructor
 
-    explicit CommandProcessor();// constructor
+    explicit CommandProcessor();// Constructor
 
     CommandProcessor(const CommandProcessor& cp);
 
@@ -40,12 +49,18 @@ private:
     void saveCommand();
 }
 
-class FileCommandProcessorAdapter{
+class FCPAdapter{
 public:
     // --- Constructor and Destructor --- 
-    FileCommandProcessorAdapter(); // Default constructor
+    FCPAdapter(); // Default constructor
 
-    ~FileCommandProcessorAdapter(); // Destructor
+    explicit FCPAdapter();
+
+    FCPAdapter(const FCPAdapter& fcpa);
+
+    FCPAdatper& operator=(const FCPAdapter& fcpa);
+
+    ~FCPAdapter(); // Destructor
 
     void getCommand();
 

@@ -22,7 +22,7 @@ OrdersList::OrdersList(const OrdersList &other)
     {
         if (o)
         {
-            Orders->push_back(new Order(*o));
+            Orders->push_back(o->clone());
         }
     }
 }
@@ -67,7 +67,7 @@ OrdersList &OrdersList::operator=(const OrdersList &other)
 
     for (Order *o : *other.Orders)
     {
-        this->Orders->push_back(new Order(*o));
+        this->Orders->push_back(o->clone());
     }
 
     return *this;

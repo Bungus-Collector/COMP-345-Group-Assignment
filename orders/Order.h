@@ -34,6 +34,9 @@ public:
     // Overloading assignment operator
     Order &operator=(const Order &);
 
+    // Method for polymorphically copying objects
+    virtual Order *clone() const = 0;
+
     // Getter methods
     int getId();
     Player *getIssuer();
@@ -78,6 +81,9 @@ public:
 
     // Overloading assignment operator
     Deploy &operator=(const Deploy &);
+
+    // Method for polymorphically copying objects
+    Order *clone() const override;
 
     // Getter methods
     int *getNumTroops();
@@ -127,6 +133,9 @@ public:
 
     // Overloading assignment operator
     Advance &operator=(const Advance &);
+
+    // Method for polymorphically copying objects
+    Order *clone() const override;
 
     // Getter methods
     int *getNumTroops();
@@ -180,6 +189,9 @@ public:
     // Overloading assignment operator
     Bomb &operator=(const Bomb &);
 
+    // Method for polymorphically copying objects
+    Order *clone() const override;
+
     // Getter method
     Territory *getTargetTerritory();
 
@@ -224,6 +236,9 @@ public:
 
     // Overloading assignment operator
     Blockade &operator=(const Blockade &);
+
+    // Method for polymorphically copying objects
+    Order *clone() const override;
 
     // Getter method
     Territory *getTargetTerritory();
@@ -271,6 +286,9 @@ public:
 
     // Overloading assignment operator
     Airlift &operator=(const Airlift &);
+
+    // Method for polymorphically copying objects
+    Order *clone() const override;
 
     // Getter methods
     int *getNumTroops();
@@ -323,6 +341,9 @@ public:
 
     // Overloading assignment operator
     Negotiate &operator=(const Negotiate &);
+
+    // Method for polymorphically copying objects
+    Order *clone() const override;
 
     // Getter methods
     Player *getTargetPlayer();

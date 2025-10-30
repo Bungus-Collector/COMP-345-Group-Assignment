@@ -4,6 +4,7 @@
 #include "orders/OrdersDriver.cpp"
 #include "Cards/CardsDriver.cpp"
 #include "GameEngine/GameEngineDriver.cpp"
+#include "GameLogs/LoggingObserverDriver.cpp"
 
 using namespace std;
 
@@ -18,6 +19,8 @@ int main()
     testCards();
 
     testGameStates();
+
+    testLoggingObserver();
 
     return 0;
 }

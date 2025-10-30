@@ -108,6 +108,7 @@ void GameEngine::gameLoop() {
 
     while (isRunning) {
         std::cout << "Current State: ";
+        notify(this);
         switch (*currentState) {
             case State::START:
                 std::cout << "START\n";
@@ -154,5 +155,9 @@ void GameEngine::gameLoop() {
             handleInput(input);
         }
     }
+}
+
+std::string GameEngine::stringToLog() {
+    return "Game Engine new state: " + GameEngine::stateToString(*currentState);
 }
 

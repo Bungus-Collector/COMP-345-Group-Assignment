@@ -6,9 +6,10 @@
 enum OrdersErrorCodes
 {
     SUCCESS = 0,
-    INVALID_INPUT = 1,
-    NOT_FOUND = 2,
-    OUT_OF_BOUNDS = 3
+    FAILURE = 1,
+    INVALID_INPUT = 2,
+    NOT_FOUND = 3,
+    OUT_OF_BOUNDS = 4
 };
 
 #endif

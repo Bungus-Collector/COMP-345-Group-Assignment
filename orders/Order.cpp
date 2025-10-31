@@ -30,20 +30,19 @@ Order::Order()
 
 Order::Order(int i, Player *p)
     : id{new int(i)},
-      issuer{new Player(*p)}
+      issuer{p}
 {
 }
 
 Order::Order(const Order &other)
 {
   this->id = new int(*other.id);
-  this->issuer = new Player(*other.issuer);
+  this->issuer = other.issuer;
 }
 
 Order::~Order()
 {
   delete id;
-  delete issuer;
   id = nullptr;
   issuer = nullptr;
 }
@@ -61,10 +60,9 @@ Order &Order::operator=(const Order &other)
   }
 
   delete id;
-  delete issuer;
 
   this->id = new int(*other.id);
-  this->issuer = new Player(*other.issuer);
+  this->issuer = other.issuer;
   return *this;
 }
 
@@ -86,8 +84,7 @@ void Order::setId(int i)
 
 void Order::setIssuer(Player *p)
 {
-  delete issuer;
-  issuer = new Player(*p);
+  issuer = p;
 }
 
 // ======================== DEPLOY ======================== //
@@ -102,20 +99,19 @@ Deploy::Deploy()
 Deploy::Deploy(int i, Player *p, int n, Territory *t)
     : Order{i, p},
       numTroops{new int(n)},
-      targetTerritory{new Territory(*t)}
+      targetTerritory{t}
 {
 }
 
 Deploy::Deploy(const Deploy &other) : Order(other)
 {
   this->numTroops = new int(*other.numTroops);
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->targetTerritory = other.targetTerritory;
 }
 
 Deploy::~Deploy()
 {
   delete numTroops;
-  delete targetTerritory;
   numTroops = nullptr;
   targetTerritory = nullptr;
 }
@@ -135,11 +131,15 @@ Deploy &Deploy::operator=(const Deploy &other)
 
   Order::operator=(other);
   delete numTroops;
-  delete targetTerritory;
 
   this->numTroops = new int(*other.numTroops);
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->targetTerritory = other.targetTerritory;
   return *this;
+}
+
+Order *Deploy::clone() const
+{
+  return new Deploy(*this);
 }
 
 int *Deploy::getNumTroops() { return numTroops; }
@@ -154,8 +154,7 @@ void Deploy::setNumTroops(int *n)
 
 void Deploy::setTargetTerritory(Territory *t)
 {
-  delete targetTerritory;
-  targetTerritory = new Territory(*t);
+  targetTerritory = t;
 }
 
 bool Deploy::validate()
@@ -170,6 +169,12 @@ bool Deploy::validate()
 
 int Deploy::execute()
 {
+  if (!validate())
+  {
+    std::cout << "[Deploy Order]: " << getIssuer()->getName() << "'s order is invalid!" << std::endl;
+    return FAILURE;
+  }
+
   // Add numTroops to targetTerritory
   targetTerritory->setArmies(new int(*targetTerritory->getArmies() + *numTroops));
   return SUCCESS;
@@ -188,23 +193,21 @@ Advance::Advance()
 Advance::Advance(int i, Player *p, int n, Territory *s, Territory *t)
     : Order{i, p},
       numTroops{new int(n)},
-      sourceTerritory{new Territory(*s)},
-      targetTerritory{new Territory(*t)}
+      sourceTerritory{s},
+      targetTerritory{t}
 {
 }
 
 Advance::Advance(const Advance &other) : Order(other)
 {
   this->numTroops = new int(*other.numTroops);
-  this->sourceTerritory = new Territory(*other.sourceTerritory);
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->sourceTerritory = other.sourceTerritory;
+  this->targetTerritory = other.targetTerritory;
 }
 
 Advance::~Advance()
 {
   delete numTroops;
-  delete sourceTerritory;
-  delete targetTerritory;
   numTroops = nullptr;
   sourceTerritory = nullptr;
   targetTerritory = nullptr;
@@ -227,13 +230,16 @@ Advance &Advance::operator=(const Advance &other)
 
   Order::operator=(other);
   delete numTroops;
-  delete sourceTerritory;
-  delete targetTerritory;
 
   this->numTroops = new int(*other.numTroops);
   this->sourceTerritory = new Territory(*other.sourceTerritory);
   this->targetTerritory = new Territory(*other.targetTerritory);
   return *this;
+}
+
+Order *Advance::clone() const
+{
+  return new Advance(*this);
 }
 
 int *Advance::getNumTroops() { return numTroops; }
@@ -250,13 +256,11 @@ void Advance::setNumTroops(int *n)
 
 void Advance::setSourceTerritory(Territory *t)
 {
-  delete sourceTerritory;
   sourceTerritory = t;
 }
 
 void Advance::setTargetTerritory(Territory *t)
 {
-  delete targetTerritory;
   targetTerritory = t;
 }
 
@@ -264,7 +268,7 @@ bool Advance::validate()
 {
   // CHECKS:
   // numtroops <= # troops in sourceTerritory
-  if (sourceTerritory->getArmies() < numTroops)
+  if (*sourceTerritory->getArmies() < *numTroops)
     return false;
 
   // sourceTerritory and targetTerritory are adjacent
@@ -278,11 +282,12 @@ bool Advance::validate()
       break;
     }
   }
+
   if (!isAdjacent)
     return false;
 
   // Player must control sourceTerritory
-  if (targetTerritory->getOwner()->getName() != getIssuer()->getName())
+  if (sourceTerritory->getOwner()->getName() != getIssuer()->getName())
     return false;
 
   // Controllers of sourceTerritory and targetTerritory must not be in Negotiation state
@@ -298,6 +303,12 @@ bool Advance::validate()
 
 int Advance::execute()
 {
+  if (!validate())
+  {
+    std::cout << "[Advance Order]: " << getIssuer()->getName() << "'s order is invalid!" << std::endl;
+    return FAILURE;
+  }
+
   // Move troops from sourceTerritory to targetTerritory
   if (targetTerritory->getOwner() == getIssuer()) // No combat
   {
@@ -308,39 +319,41 @@ int Advance::execute()
   {
     srand(time(0));
     int attackingArmies = *numTroops;
+    int attackerCasualties = 0;
     int defendingArmies = *targetTerritory->getArmies();
+    int defenderCasualties = 0;
 
     for (int i = 0; i < attackingArmies; i++) // Attackers damage
     {
-      if (defendingArmies == 0)
+      if (defenderCasualties == defendingArmies)
         break;
 
       float roll = static_cast<float>(rand()) / RAND_MAX;
       if (roll <= ATTACK_KILL_CHANCE)
-        defendingArmies--;
+        defenderCasualties++;
     }
 
     for (int i = 0; i < defendingArmies; i++) // Defenders damage
     {
-      if (attackingArmies == 0)
+      if (attackerCasualties == attackingArmies)
         break;
 
       float roll = static_cast<float>(rand()) / RAND_MAX;
       if (roll <= DEFEND_KILL_CHANCE)
-        attackingArmies--;
+        attackerCasualties++;
     }
 
-    if (defendingArmies == 0 && attackingArmies > 0)
+    if (defenderCasualties == defendingArmies && attackerCasualties != attackingArmies)
     {
       sourceTerritory->changeNumArmies(-*numTroops);
       targetTerritory->setArmies(new int(0));
-      targetTerritory->changeNumArmies(attackingArmies);
+      targetTerritory->changeNumArmies(attackingArmies - attackerCasualties);
       targetTerritory->setOwner(getIssuer());
     }
     else
     {
-      sourceTerritory->changeNumArmies(attackingArmies - *numTroops);
-      targetTerritory->setArmies(new int(defendingArmies));
+      sourceTerritory->changeNumArmies(-attackerCasualties);
+      targetTerritory->changeNumArmies(-defenderCasualties);
     }
   }
   return SUCCESS;
@@ -356,18 +369,17 @@ Bomb::Bomb()
 
 Bomb::Bomb(int i, Player *p, Territory *t)
     : Order{i, p},
-      targetTerritory{new Territory(*t)}
+      targetTerritory{t}
 {
 }
 
 Bomb::Bomb(const Bomb &other) : Order(other)
 {
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->targetTerritory = other.targetTerritory;
 }
 
 Bomb::~Bomb()
 {
-  delete targetTerritory;
   targetTerritory = nullptr;
 }
 
@@ -385,18 +397,21 @@ Bomb &Bomb::operator=(const Bomb &other)
   }
 
   Order::operator=(other);
-  delete targetTerritory;
 
   this->targetTerritory = other.targetTerritory;
   return *this;
+}
+
+Order *Bomb::clone() const
+{
+  return new Bomb(*this);
 }
 
 Territory *Bomb::getTargetTerritory() { return targetTerritory; }
 
 void Bomb::setTargetTerritory(Territory *t)
 {
-  delete targetTerritory;
-  targetTerritory = new Territory(*t);
+  targetTerritory = t;
 }
 
 bool Bomb::validate()
@@ -433,6 +448,12 @@ bool Bomb::validate()
 
 int Bomb::execute()
 {
+  if (!validate())
+  {
+    std::cout << "[Bomb Order]: " << getIssuer()->getName() << "'s order is invalid!" << std::endl;
+    return FAILURE;
+  }
+
   // Halve the number of troops in targetTerritory
   targetTerritory->changeNumArmies(-(*targetTerritory->getArmies() / 2));
   return SUCCESS;
@@ -448,18 +469,17 @@ Blockade::Blockade()
 
 Blockade::Blockade(int i, Player *p, Territory *t)
     : Order{i, p},
-      targetTerritory{new Territory(*t)}
+      targetTerritory{t}
 {
 }
 
 Blockade::Blockade(const Blockade &other) : Order(other)
 {
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->targetTerritory = other.targetTerritory;
 }
 
 Blockade::~Blockade()
 {
-  delete targetTerritory;
   targetTerritory = nullptr;
 }
 
@@ -477,25 +497,28 @@ Blockade &Blockade::operator=(const Blockade &other)
   }
 
   Order::operator=(other);
-  delete targetTerritory;
 
   this->targetTerritory = other.targetTerritory;
   return *this;
+}
+
+Order *Blockade::clone() const
+{
+  return new Blockade(*this);
 }
 
 Territory *Blockade::getTargetTerritory() { return targetTerritory; }
 
 void Blockade::setTargetTerritory(Territory *t)
 {
-  delete targetTerritory;
-  targetTerritory = new Territory(*t);
+  targetTerritory = t;
 }
 
 bool Blockade::validate()
 {
   // CHECKS:
-  // targetTerritory must not be controlled by an enemy player
-  if (targetTerritory->getOwner()->getName() == getIssuer()->getName())
+  // Issuer must control targetTerritory
+  if (targetTerritory->getOwner()->getName() != getIssuer()->getName())
   {
     return false;
   }
@@ -505,11 +528,17 @@ bool Blockade::validate()
 
 int Blockade::execute()
 {
+  if (!validate())
+  {
+    std::cout << "[Blockade Order]: " << getIssuer()->getName() << "'s order is invalid!" << std::endl;
+    return FAILURE;
+  }
+
   // Triple the number of troops in targetTerritory
-  targetTerritory->changeNumArmies(*(targetTerritory->getArmies()) * 3);
+  targetTerritory->setArmies(new int(*targetTerritory->getArmies() * 3));
 
   // Set territory to neutral
-  targetTerritory->setOwner(nullptr);
+  targetTerritory->setOwner(new Player("NEUTRAL")); // TODO: might change later
   return SUCCESS;
 }
 
@@ -526,23 +555,21 @@ Airlift::Airlift()
 Airlift::Airlift(int i, Player *p, int n, Territory *s, Territory *t)
     : Order{i, p},
       numTroops{new int(n)},
-      sourceTerritory{new Territory(*s)},
-      targetTerritory{new Territory(*t)}
+      sourceTerritory{s},
+      targetTerritory{t}
 {
 }
 
 Airlift::Airlift(const Airlift &other) : Order(other)
 {
   this->numTroops = new int(*other.numTroops);
-  this->sourceTerritory = new Territory(*other.sourceTerritory);
-  this->targetTerritory = new Territory(*other.targetTerritory);
+  this->sourceTerritory = other.sourceTerritory;
+  this->targetTerritory = other.targetTerritory;
 }
 
 Airlift::~Airlift()
 {
   delete numTroops;
-  delete sourceTerritory;
-  delete targetTerritory;
   numTroops = nullptr;
   sourceTerritory = nullptr;
   targetTerritory = nullptr;
@@ -565,13 +592,16 @@ Airlift &Airlift::operator=(const Airlift &other)
 
   Order::operator=(other);
   delete numTroops;
-  delete sourceTerritory;
-  delete targetTerritory;
 
   this->numTroops = new int(*other.numTroops);
   this->sourceTerritory = other.sourceTerritory;
   this->targetTerritory = other.targetTerritory;
   return *this;
+}
+
+Order *Airlift::clone() const
+{
+  return new Airlift(*this);
 }
 
 int *Airlift::getNumTroops() { return numTroops; }
@@ -588,21 +618,19 @@ void Airlift::setNumTroops(int *n)
 
 void Airlift::setSourceTerritory(Territory *t)
 {
-  delete sourceTerritory;
-  sourceTerritory = new Territory(*t);
+  sourceTerritory = t;
 }
 
 void Airlift::setTargetTerritory(Territory *t)
 {
-  delete targetTerritory;
-  targetTerritory = new Territory(*t);
+  targetTerritory = t;
 }
 
 bool Airlift::validate()
 {
   // CHECKS:
   // numtroops <= # troops in sourceTerritory
-  if (sourceTerritory->getArmies() < numTroops)
+  if (*sourceTerritory->getArmies() < *numTroops)
     return false;
 
   // Player must control sourceTerritory and targetTerritory
@@ -616,6 +644,12 @@ bool Airlift::validate()
 
 int Airlift::execute()
 {
+  if (!validate())
+  {
+    std::cout << "[Airlift Order]: " << getIssuer()->getName() << "'s order is invalid!" << std::endl;
+    return FAILURE;
+  }
+
   // Move numTroops from sourceTerritory to targetTerritory
   sourceTerritory->changeNumArmies(-(*numTroops));
   targetTerritory->changeNumArmies(*numTroops);
@@ -632,7 +666,7 @@ Negotiate::Negotiate()
 
 Negotiate::Negotiate(int i, Player *p, Player *t)
     : Order{i, p},
-      targetPlayer{t} // TODO: change to player
+      targetPlayer{t}
 {
 }
 
@@ -665,6 +699,11 @@ Negotiate &Negotiate::operator=(const Negotiate &other)
   return *this;
 }
 
+Order *Negotiate::clone() const
+{
+  return new Negotiate(*this);
+}
+
 Player *Negotiate::getTargetPlayer() { return targetPlayer; }
 
 void Negotiate::setTargetPlayer(Player *p)
@@ -684,7 +723,14 @@ bool Negotiate::validate()
 
 int Negotiate::execute()
 {
+  if (!validate())
+  {
+    std::cout << "[Negotiate Order]: " << getIssuer()->getName() << "'s order is invalid!" << std::endl;
+    return FAILURE;
+  }
+
   // Impose Negotiation state between the current player and targetPlayer for one turn
+  getIssuer()->addNegotiatingPartner(targetPlayer->getName());
   targetPlayer->addNegotiatingPartner(getIssuer()->getName());
   return SUCCESS;
 }

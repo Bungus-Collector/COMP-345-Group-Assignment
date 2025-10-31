@@ -1,0 +1,1 @@
+cl /EHsc /std:c++17 Orders/OrdersDriver.cpp Orders/Order.cpp Orders/OrdersList.cpp Map/Map.cpp Cards/Cards.cpp Player/Player.cpp /Fe:otest.exe

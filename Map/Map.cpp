@@ -64,7 +64,7 @@ void Continent::addTerritory(Territory* territory) {
 std::string Continent::getName() const { return *name; }
 std::vector<Territory*>* Continent::getTerritories() const { return territories; }
 
-Player* Continent::getOwner() const { return *owner; }
+Player* Continent::getOwner() const { return owner; }
 void Continent::setOwner(Player* o){
     delete owner;
     owner = o;

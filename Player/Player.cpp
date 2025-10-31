@@ -187,14 +187,14 @@ std::vector<Territory*> Player::toAttack() const{ //***
  * issues new order for the player
  */
 void Player::issueOrder() {
-    Order* o = new Order(); // ERROR: Order class is pure virtual
-    int check = orders_->add(o); //checks if succesfully added
+    // Order* o = new Order(); // ERROR: Order class is pure virtual
+    // int check = orders_->add(o); //checks if succesfully added
 
-    if (check != 0 ){
-        std::cerr << "[Player::issueOrder] Failed to add order into order list check = "<< check << "\n";
-        delete o;
-        o = nullptr; //handles dangling pointer
-    }
+    // if (check != 0 ){
+    //     std::cerr << "[Player::issueOrder] Failed to add order into order list check = "<< check << "\n";
+    //     delete o;
+    //     o = nullptr; //handles dangling pointer
+    // }
 
 }
 

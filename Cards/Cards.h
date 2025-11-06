@@ -1,4 +1,3 @@
-// Author: Paul Humennyj
 #ifndef CARDS_H
 #define CARDS_H
 

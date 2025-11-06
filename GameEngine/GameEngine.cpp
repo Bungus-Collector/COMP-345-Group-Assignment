@@ -4,16 +4,25 @@
 
 GameEngine::GameEngine() {
     currentState = new State(State::START);
+    currentMap = nullptr;
+    gameDeck = new Deck(15);
     isRunning = true;
 }
 
 GameEngine::~GameEngine() {
     delete currentState;
     currentState = nullptr;
+    delete currentMap;
+    currentMap = nullptr;
+    delete gameDeck;
+    gameDeck = nullptr;
 }
 
 GameEngine::GameEngine(const GameEngine &other){
     currentState = new State(*other.currentState);
+    currentMap = new Map(*other.currentMap);
+    gameDeck = new Deck(*other.gameDeck);
+    players = other.players;
     isRunning = other.isRunning;
 }
 
@@ -116,7 +125,7 @@ void GameEngine::gameLoop() {
                 break;
             case State::MAPLOADED:
                 std::cout << "MAPLOADED\n";
-                std::cout << "Commands:\n 'loadmap'\n 'validatemap'\n";
+                std::cout << "Commands:\n 'loadmap \" filename \"'\n 'validatemap'\n";
                 break;
             case State::MAPVALIDATED:
                 std::cout << "MAPVALIDATED\n";
@@ -161,3 +170,99 @@ std::string GameEngine::stringToLog() {
     return "Game Engine new state: " + GameEngine::stateToString(*currentState);
 }
 
+void GameEngine::handleInput2(std::string input){
+    // Alternative input handler for testing start up phase
+    switch (*currentState)
+    {
+    case State::START:
+            if(input == "loadmap"){
+                std::cout << "Transferring to Loading Map State.\n";
+                *currentState = State::MAPLOADED;
+            } else {
+                std::cout << "Invalid command. Please enter loading map phase using 'loadmap'.\n";
+            }
+        break;
+    case State::MAPLOADED:
+            MapLoader loader;
+            if(input == "validatemap"){
+                if(currentMap->validate()){
+                    std::cout << "Map Loaded Successfully.\nTransferring to Map Validated State.\n";
+                    *currentState = State::PLAYERSADDED;
+                }
+            } else if(input == "loadmap") {
+                std::cout <<"Available maps in the 'maps' directory: Canada.map, Americas_1792.map\n";
+                std::cout << "Enter loading map name: ";
+                std::string tempName;
+                std::getline(std::cin, tempName);
+                currentMap = loader.loadMap(tempName);
+                if(currentMap != nullptr){
+                    std::cout << "Map " << tempName << " loaded successfully.\n";
+                } else {
+                    std::cout << "Failed to load map " << tempName << ".\n";
+                }
+            } else {
+                std::cout << "Invalid command. Please either load a map using 'loadmap' or validate the current map using 'validatemap'.\n";
+            }
+        break;
+    case State::PLAYERSADDED:
+            if(input == "addplayer"){
+                if(players.size() >= 6){
+                    std::cout << "Maximum number of players (6) reached. Cannot add more players.\n";
+                    break;
+                }
+                std::cout << "Enter player name: ";
+                std::string playerName;
+                std::cin >> playerName;
+                Player newPlayer(playerName);
+                players.push_back(newPlayer);
+                std::cout << "Player " << playerName << " added successfully.\n";
+            } else if(input == "startgame"){
+                if(players.size() >= 2 & players.size() <= 6){
+                    std::cout << "Players added successfully.\nTransferring to Assign Reinforcements State.\n";
+                    *currentState = State::ASSIGNREINFORCEMENTS;
+                } else {
+                    std::cout << "Not enough players to start the game. Please add more players using 'addplayer'.\n";
+                }
+            } else {
+                std::cout << "Invalid command. Please add players using 'addplayer' or start the game using 'startgame'.\n";
+            }
+        break;
+    
+    default:
+        break;
+    }
+}
+
+void GameEngine::startUpPhase() {
+    std::string input;
+
+    while (isRunning) {
+        std::cout << "Current State: ";
+        //notify(this);
+        switch (*currentState) {
+            case State::START:
+                std::cout << "START\n";
+                std::cout << "Commands:\n 'loadmap'\n";
+                break;
+            case State::MAPLOADED:
+                std::cout << "MAPLOADED\n";
+                std::cout << "Commands:\n 'loadmap'\n 'validatemap'\n";
+                break;
+            case State::PLAYERSADDED:
+                std::cout << "PLAYERSADDED\n";
+                std::cout << "Commands:\n 'addplayer'\n 'startgame'\n";
+                break;
+            default:
+                break;
+        }
+
+        std::cout << "Enter command: ";
+        std::getline(std::cin, input);
+
+        if(input == "quit"){
+            isRunning = false;
+        }
+
+        handleInput2(input);
+    }
+}

@@ -3,7 +3,6 @@
 
 void testGameStates()
 {
-
     GameEngine *game = new GameEngine();
 
     game->gameLoop();
@@ -13,8 +12,19 @@ void testGameStates()
     game = nullptr;
 }
 
-// int main(int argc, char const *argv[])
-// {
-//     testGameStates();
-//     return 0;
-// }
+void testGameStartupPhase()
+{
+    GameEngine *game = new GameEngine();
+
+    game->startUpPhase();
+
+    delete game;
+
+    game = nullptr;
+}
+
+//int main(int argc, char const *argv[])
+//{
+    //testGameStartupPhase();
+    //return 0;
+//}

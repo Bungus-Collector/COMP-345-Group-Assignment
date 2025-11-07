@@ -10,17 +10,17 @@ using namespace std;
 
 int main()
 {
-    testLoadMaps();
+    //testLoadMaps();
 
-    testPlayers();
+    //testPlayers();
 
-    testOrdersList();
+    //testOrdersList();
 
-    testCards();
+    //testCards();
 
-    testGameStates();
+    testGameStartupPhase();
 
-    testLoggingObserver();
+    //testLoggingObserver();
 
     return 0;
 }

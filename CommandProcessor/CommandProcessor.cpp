@@ -26,8 +26,8 @@ Command::Command():
  * @brief constructor
  */
 Command::Command(const std::string& cmd):
-    commandStr_(new std::string(cmd));
-    effect_(new std::string());
+    commandStr_(new std::string(cmd)),
+    effect_(new std::string())
     {
         std::cout << "[Command] Calling constructor" << std::endl;
     }
@@ -38,7 +38,7 @@ Command::Command(const std::string& cmd):
  * @brief (shallow) copy constructor
  */
 Command::Command(const Command& c):
-    commandstr_(nullptr),
+    commandStr_(nullptr),
     effect_(nullptr)
     {
         copyFrom(c);
@@ -86,13 +86,13 @@ Command::~Command(){
 /**
  * @brief accessor for effect
  */
-std::string& Command::getEffect() const{
+const std::string& Command::getEffect() const{
     return *effect_;
 }
 /**
  * @brief accessor for commandStr
  */
-std::string& Command::getCommand() const{
+const std::string& Command::getCommand() const{
     return *commandStr_;
 }
 /**
@@ -163,8 +163,9 @@ CommandProcessor& CommandProcessor::operator=(const CommandProcessor& cp){
 /**
  * @brief destructor
  */
-virtual CommandProcessor::~CommandProcessor(){
+CommandProcessor::~CommandProcessor(){
     for (auto* c: *commands_) delete c;
+    delete commands_;
     commands_ = nullptr;
 }
 
@@ -178,6 +179,72 @@ friend std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp){
     return os;
 }
 
+/**
+ * @brief records the command sent by the user
+ * @return string command entered by user
+ */
+std::string CommandProcessor::readCommand() {
+    std::cout << "Enter command: ";
+    std::string command;
+    std::getline(std::cin, command);
+    return command;
+}
+
+/**
+ * @param cmd Command 
+ * @brief pushes the command 
+ */
+void CommandProcessor::saveCommand(Command* cmd) {
+    if (cmd) {
+        commands_->push_back(cmd);
+    }
+}
+
+/**
+ * @brief returns true if command text is allowed in provided state
+ * @return boolean
+ * @param cmd, state 
+ */
+bool CommandProcessor::validate(Command* cmd, State state) {
+    if (!cmd) return false;
+
+    // Normalize command text (lowercase) and do simple prefix checks.
+    std::string s = cmd->getCommand();
+    for (char& c : s) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+
+    auto starts_with = [&](const std::string& prefix) {
+        return s.rfind(prefix, 0) == 0; // prefix at position 0
+    };
+
+    switch (state) {
+        case State::Start:
+            // Valid: loadmap <name>, quit, (allow harmless replay)
+            return starts_with("loadmap") || s == "quit" || s == "replay";
+
+        case State::MapLoaded:
+            // Valid: validatemap, loadmap (reload), quit
+            return s == "validatemap" || starts_with("loadmap") || s == "quit";
+
+        case State::MapValidated:
+            // Valid: addplayer <name>, loadmap (reset to MapLoaded), quit
+            return starts_with("addplayer") || starts_with("loadmap") || s == "quit";
+
+        case State::PlayersAdded:
+            // Valid: addplayer <name>, gamestart, loadmap, quit
+            return starts_with("addplayer") || s == "gamestart"
+                   || starts_with("loadmap") || s == "quit";
+
+        case State::GameStarted:
+            // Valid: replay, quit
+            return (s == "replay" || s == "quit");
+
+        case State::End:
+            // After End, nothing is valid (driver will usually stop the loop)
+            return false;
+    }
+    // Unknown state fallback
+    return false;
+}
 
 // ===== FILE COMMAND PROCESSOR ADAPTER CLASS =====
 /**

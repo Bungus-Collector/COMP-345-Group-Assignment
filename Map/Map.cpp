@@ -39,7 +39,11 @@ Continent::Continent(const Continent& other) {
     this->name = new std::string(*other.name);
     this->bonus = new int(*other.bonus);
     this->territories = new std::vector<Territory*>(*other.territories);
-    this->owner = new Player(*other.owner);
+    if (other.owner != nullptr) {
+        this->owner = new Player(*other.owner);
+    } else {
+        this->owner = nullptr;
+    }
 }
 
 Continent& Continent::operator=(const Continent& other) {
@@ -85,7 +89,7 @@ Territory::Territory(int id, const std::string& name, Continent* continent, int*
     this->continent = continent;
     this->adjacentTerritories = new std::vector<Territory*>();
     this->armies = new int(*armies);
-    this->owner = new Player(*owner);
+    this->owner = owner;
 }
 
 Territory::Territory() {
@@ -117,7 +121,11 @@ Territory::Territory(const Territory& other) {
     this->continent = other.continent;
     this->adjacentTerritories = new std::vector<Territory*>(*other.adjacentTerritories);
     this->armies = new int(*other.armies);
-    this->owner = new Player(*other.owner);
+    if (other.owner != nullptr) {
+        this->owner = new Player(*other.owner);
+    } else {
+        this->owner = nullptr;
+    }
 }
 
 Territory& Territory::operator=(const Territory& other) {

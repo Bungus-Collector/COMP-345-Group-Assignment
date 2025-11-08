@@ -3,6 +3,10 @@
 
 #include <string>
 #include "../GameLogs/LoggingObserver.h"
+#include "../Player/Player.h"
+#include "../Map/Map.h"
+#include "../Cards/Cards.h"
+#include <vector>
 
 class GameEngine : public Subject, ILoggable {
 public:
@@ -12,7 +16,10 @@ public:
     GameEngine(const GameEngine &other); // Copy constructor
 
     void handleInput(std::string input); //Will handle input and change states accordingly
+    void handleSetUp(std::string input); // Alternative input handler for testing start up phase
     void gameLoop(); //Runs the game loop using the handleInput function
+    void startUpPhase(); //Controls the initialization before gameplay (includes loading and validating the map, and adding players).
+    void InitialPlayerAssignment(); //Handles the initial assignment of players  
 
     std::string stringToLog() override;
 
@@ -45,7 +52,10 @@ private:
 
     State* currentState; // Pointer to the current state
     bool isRunning; // Flag to control the game loop
+    std::vector<Player> players;
+    Map* currentMap;
+    Deck* gameDeck;
+    std::string currentMapName;
 };
 
 #endif
-

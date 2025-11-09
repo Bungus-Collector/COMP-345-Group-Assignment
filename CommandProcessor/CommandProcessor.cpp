@@ -263,14 +263,151 @@ bool CommandProcessor::validate(Command* cmd, State state) {
     return false;
 }
 
-// ===== FILE COMMAND PROCESSOR ADAPTER CLASS =====
+
+
+// =========== FILE LINE READER CLASS ==============
+
+/**
+ * @brief default constructor for FLR
+ */
+FileLineReader::FileLineReader(): 
+    file_(nullptr), 
+    filename_(nullptr) 
+    {
+    
+    }
+
+/**
+ * @brief param cosntructor for FLR
+ * @param filename string of filename
+ */
+FileLineReader::FileLineReader(const std::string& filename): 
+    file_(new std::ifstream(filename)),
+    filename_(new std::string(filename)) {
+        if (!file_->is_open()) {
+            std::cerr << "[FileLineReader] Failed to open: " << filename << "\n";
+            delete file_;
+            delete filename_; 
+            file_ = nullptr;
+            filename_=nullptr;
+    }
+}
+
+/**
+ * @brief copy constructor for FLR
+ */
+FileLineReader::FileLineReader(const FileLineReader& flr): 
+    file_(nullptr), 
+    filename_(nullptr) {
+        if (flr.filename_) {
+            filename_ = new std::string(*flr.filename_);
+            file_ = new std::ifstream(*filename_);
+            if (!file_->is_open()) { delete file_; file_ = nullptr; }
+            else if (flr.file_ && flr.file_->is_open()) {
+                std::streampos pos = flr.file_->tellg();
+                if (pos != std::streampos(-1)) file_->seekg(pos);
+            }
+    }
+}
+
+/**
+ * @brief copy assign constructor for FLR
+ * will check if it is the same object, if it isn't, deep copies this* from flr
+ */
+FileLineReader& FileLineReader::operator=(const FileLineReader& flr) {
+    if (this != &flr) {
+
+        if (file_) { 
+            file_->close(); 
+            delete file_; 
+            file_ = nullptr; 
+        }
+
+        if (filename_) { 
+            delete filename_; 
+            filename_ = nullptr; 
+        }
+
+        if (flr.filename_) {
+            filename_ = new std::string(*flr.filename_);
+            file_ = new std::ifstream(*filename_);
+
+            if (!file_->is_open()) { 
+                delete file_; 
+                file_ = nullptr; 
+            }
+            else if (flr.file_ && flr.file_->is_open()) {
+                std::streampos pos = flr.file_->tellg();
+                if (pos != std::streampos(-1)) file_->seekg(pos);
+            }
+        }
+    }
+    return *this;
+}
+
+/**
+ * @brief destructor for flr
+ */
+FileLineReader::~FileLineReader() {
+    if (file_) { 
+        file_->close(); delete file_; 
+    }
+    if (filename_) { 
+        delete filename_; 
+    }
+    file_ = nullptr; 
+    filename_ = nullptr;
+}
+
+/**
+ * @return string: next command line from the file or an empty string on EOF/error
+ * @brief reads next command line from input file
+ * returns empty string when EOF reached.
+ */
+std::string FileLineReader::readLineFromFile() {
+
+    // if no file or file open unsuccessful
+    if (!file_ || !file_->is_open()) {
+        return {
+            std::cout << "[FLR] Unable to open file or file DNE. \n"
+        };
+    }
+
+    std::string line;
+    if (std::getline(*file_, line)) {
+        if (!line.empty() && line.back() == '\r') line.pop_back(); // trims \r
+        return line;
+    }
+    return {
+       std::cout << "[FLR] End of file reached or error.\n"
+    };
+}
+
+std::ostream& operator<<(std::ostream& os, const FileLineReader& flr) {
+    os << "FileLineReader{ ";
+    //check if flr has file
+    if (flr.filename_) {
+        os << "filename=\"" << *flr.filename_ << "\"";
+        if (flr.file_ && flr.file_->is_open()) os << ", status=open";
+        else os << ", status=closed";
+    } else {
+        os << "filename=nullptr, status=none";
+    }
+    os << " }";
+    return os;
+}
+
+
+// ===== FILE COMMAND PROCESSOR ADAPTER CLASS ======
+
+
 /**
  * @brief default constructor
  * 
  */
 FCPAdapter::FCPAdapter():
-    CommandProcessor(), file_(nullptr), filename_(nullptr){
-}
+    CommandProcessor(), flr_(nullptr){
+    }
 
 /**
  * @param filename name of command file
@@ -279,127 +416,50 @@ FCPAdapter::FCPAdapter():
  */
 FCPAdapter::FCPAdapter(const std::string& filename):
     CommandProcessor(),
-    file_(new std::ifstream(filename)),
-    filename_(new std::string(filename)) {
-        if (!file_->is_open()){
-            std::cerr << "[FCPAdapter] Failed to open file: " << filename << std::endl;
-            delete file_;
-            file_ = nullptr;
-        }
+    flr_(new FileLineReader(filename)){
 }
 
 /**
  * @param fcpa
- * @brief deep copy constructor, reopens the same file.
- * if unable to reopen, sets file to nullptr 
+ * @brief deep copy constructor
+ * sets file to nullptr if none
  */
 FCPAdapter::FCPAdapter(const FCPAdapter& fcpa):
-    CommandProcessor(fcpa), file_(nullptr), filename_(nullptr){
-        if (fcpa.filename_){
-            filename_ = new std::string(*fcpa.filename_);
-            file_ = new std::ifstream(*filename_);
-
-            if(file->is_open()&& fcpa.file && fcpa.file-> is_open()){
-                //try to mirror stream position
-                std::streampos pos = fcpa.file_->tellg();
-                
-                if (pos != std::streampos(-1)){
-                    file_->seekg(pos);
-                }
-            } else if(!file_ -> is_open()){
-                delete file_;
-                file_ = nullptr;
-            }
-        }
+    CommandProcessor(fcpa), 
+    flr_(fcpa.flr_ ? new FileLineReader(*fcpa.flr_) : nullptr) {
     }
+
 /**
  * @param fcpa
- * @return reference to this object
- * @brief deep copy and proper clean ups of existing resources.
- * closes any open file before copying new one.
+ * @return reference to this* fcpa object
+ * @brief deep copy and proper clean ups of existing flr if exists
  */
 FCPAdapter& FCPAdapter::operator=(const FCPAdapter& fcpa){
     if(this != &fcpa){
         // copy base class portion
         CommandProcessor::operator=(fcpa);
-        // clean up 
-        if(file_){
-            file_->close(); delete file_;
-            file_ = nullptr;
-        }
-        
-        if(filename_) {
-            delete filename_;
-            filename_ = nullptr;
-        }
-        // deep copy 
-        if(fcpa.filename_){
-            filename_ = new std::string(*fcpa.filename_);
-            file_ = new std::ifstream(*filename_);
-
-            if(file_-> is_open() && fcpa.file_ && fcpa.file_ -> is_open()) {
-                std::streampos pos = fcpa.file_ ->tellg();
-                if(pos != std::streampos(-1)){
-                    file_->seekg(pos);
-                }
-            } else if(!file_ -> is_open()){
-                delete file_;
-                file_ = nullptr;
-            }
-        }
+        delete flr_;
+        flr_ = fcpa.flr_ ? new FileLineReader(*fcpa.flr_) : nullptr;
     }
+    return *this;
 }
 
 /**
  * @brief destructor, closes file if exists and cleans up memory and pointers
  */
 FCPAdapter::~FCPAdapter(){
-    if(file_){ 
-        file_->close();
-        delete file_;
-        file_ = nullptr;
-    }
-
-    if(filename_){
-        filename_->close();
-        delete filename_;
-        filename_=nullptr;
-    }
+    delete flr_;
+    flr_ = nullptr;
 }
 
 /**
  * @return string: next command line from the file or an empty string on EOF/error
- * @brief reads next command line from input file
+ * @brief reads next command line from input file by passing file to flr
  * returns empty string when EOF reached.
  */
 std::string FCPAdapter::readCommand(){
-    // If no file stream is open but we have a filename, try opening it.
-    if (!file_ && filename_) {
-        file_ = new std::ifstream(*filename_);
-        if (!file_->is_open()) {
-            std::cerr << "[FCPAdapter] Failed to (re)open file: " << *filename_ << "\n";
-            delete file_;
-            file_ = nullptr;
-        }
-    }
-
-    // If the file still isn't open, nothing to read.
-    if (!file_ || !file_->is_open()) {
-        return {};
-    }
-
-    // Attempt to read a single line.
-    std::string line;
-    if (std::getline(*file_, line)) {
-        // trailing '\r' 
-        if (!line.empty() && line.back() == '\r')
-            line.pop_back();
-
-        return line; // return the next command line
-    }
-
-    // return empty to signal end-of-file
-    return {};
+    if (!flr_) return {}; // no file provided
+    return flr_->readLineFromFile(); // delegate to FileLineReader
 }
 
 /**
@@ -408,15 +468,9 @@ std::string FCPAdapter::readCommand(){
  */
 std::ostream& operator<<(std::ostream& os, const FCPAdapter& adapter) {
     os << "FCPAdapter{ ";
-    if (adapter.filename_) {
-        os << "filename=\"" << *adapter.filename_ << "\"";
-        if (adapter.file_ && adapter.file_->is_open())
-            os << ", status=open";
-        else
-            os << ", status=closed";
-    } else {
-        os << "filename=nullptr, status=none";
-    }
+    if (fcpa.flr_) os << *fcpa.flr_;     // reuse FileLineReader printer
+    else os << "FileLineReader=nullptr";
     os << " }";
+    return os;  
     return os;
 }

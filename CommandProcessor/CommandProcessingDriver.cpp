@@ -4,30 +4,32 @@
  * @date November 6th, 2025
  */
 #include "CommandProcessor.h"
+#include "../GameEngine/GameEngine.h" // for state
 #include <iostream>
 #include <algorithm>
-#include <cctype>
+#include <vector>
 #include <memory>
+#include <string>
+
+static void testing(const std::string& cmdText, State& state){
+    const Command c = new Command(cmdText);
+    switch(state){
+        case State::Start:
+            if(c.validate()) std::cout
+    }
+}
+
 
 /**
- * game engine states
+ * @param hist list of commands
+ * @brief prints the history of commands and size of list of commands
  */
-enum class State{
-    Start,
-    MapLoaded,
-    MapValidated,
-    PlayersAdded,
-    GameStarted,
-    Win,
-    AssignReinforcement
-};
-
-/**
- * @return lowercase copy of input string
- */
-static std::string toLower(std::string s) {
-    std::transform(s.begin(), s.end(), s.begin(),[](unsigned char c){ return std::tolower(c); });
-    return s;
+static void printHistory(const std::vector<Command*>& hist) {
+    std::cout << "\n--- Command History (" << hist.size() << ") ---\n";
+    for (const Command* c : hist) {
+        if (c) std::cout << *c;        // uses Command::operator<<
+    }
+    std::cout << "-------------------------------\n";
 }
 
 /**

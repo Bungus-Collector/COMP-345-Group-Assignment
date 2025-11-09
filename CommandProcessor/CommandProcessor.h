@@ -76,6 +76,24 @@ private:
     std::vector<Command*>* commands_{};
 };
 
+// ======== FileLineReader ==========
+class FileLineReader{
+public:
+    FileLineReader();
+    explicit FileLineReader(const std::string& filename);
+    FileLineReader(const FileLineReader& flr);
+    FileLineReader& operator=(const FileLineReader& flr);
+    ~FileLineReader();
+
+    std::string readLineFromFile();
+
+private:
+    std::ifstream* file_; // owned stream
+    std::string*   filename_; // owned path
+
+    friend std::ostream& operator<<(std::ostream& os, const FileLineReader& r);
+}
+
 
 // === FileCommandProcessorAdapter ===
 /**
@@ -100,7 +118,6 @@ protected:
     std::string readCommand() override;
 
 private:
-    std::ifstream* file_{};
-    std::string* filename_{};
+    FileLineReader* flr_;
     friend std::ostream& operator<<(std::ostream& os, const FCPAdapter& fcpa); //stream insertion for 1.2.8
 };

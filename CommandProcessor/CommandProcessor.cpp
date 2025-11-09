@@ -199,13 +199,28 @@ void CommandProcessor::saveCommand(Command* cmd) {
 }
 
 /**
- * 
+ * @return the command object owned by processor
  */
-bool CommandProcessor::validateLast(State state) {
-    if(commands_->empty()) {
-        return false;
+Command* CommandProcessor::getCommand(State state){
+    std::string reading = readCommand();
+
+    // check if empty
+    if (reading.empty()){
+        return nullptr;
     }
-    return validate(commands_->back(), state);
+
+    // if there is input:
+    Command* cmd = new Command(reading);
+
+    // validate for the GameEngine 
+    if(validate(cmd,state)){
+        cmd->saveEffect("Command Accepted")
+    } else {
+        std::cout << "Invalid Command.\n";
+        return nullptr;
+    }
+    saveCommand(cmd);
+    return cmd;
 }
 
 /**

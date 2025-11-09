@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
         // output result for I/O + state changes.
         std::cout << "> " << cmd << "\n  -> " << effect << "\n";
 
-        if (!ok && state == State::End) break; // safety
+        if (!valid && state == State::End) break; // safety
     }
 
     std::cout << "[Driver] Exiting.\n";

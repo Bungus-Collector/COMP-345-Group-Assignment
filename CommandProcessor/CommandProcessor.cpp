@@ -106,9 +106,9 @@ void Command::saveEffect(const std::string& effect){
 
 /**
  * @param os, cmd
- * @brief output stream operator
+ * @brief output stream operator (friend function)
  */
-friend std::ostream& operator<<(std::ostream& os, const Command& cmd){
+std::ostream& operator<<(std::ostream& os, const Command& cmd){
     os << "Command {commandStr = " << cmd.commandStr_ << ", Effect = " << cmd.effect_ <<"} " << std::endl;
     return os;
 }
@@ -120,7 +120,7 @@ friend std::ostream& operator<<(std::ostream& os, const Command& cmd){
  * @brief default constructor
  */
 CommandProcessor::CommandProcessor():
-    commands_(new std::vector<Commands*>())
+    commands_(new std::vector<Command*>())
     {
         std::cout << "[CmdProcessor] default constructor called."<< std::endl;
     }
@@ -171,10 +171,10 @@ CommandProcessor::~CommandProcessor(){
 
 /**
  * @param os, cp
- * @brief ouput stream
+ * @brief ouput stream, (friend function)
  * @return ostream with the object attributes
  */
-friend std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp){
+std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp){
     os << "CommandProcessor {Commands = " << cp.commands_ << "} \n";
     return os;
 }
@@ -260,7 +260,7 @@ bool CommandProcessor::validate(Command* cmd, State state) {
  * 
  */
 FCPAdapter::FCPAdapter():
-    commandProcessor(), file_(nullptr), filename_(nullptr){
+    CommandProcessor(), file_(nullptr), filename_(nullptr){
 }
 
 /**
@@ -284,7 +284,7 @@ FCPAdapter::FCPAdapter(const std::string& filename):
  * @brief deep copy constructor, reopens the same file.
  * if unable to reopen, sets file to nullptr 
  */
-FCPAdapter::FCPAdatper(const FCPAdapter& fcpa):
+FCPAdapter::FCPAdapter(const FCPAdapter& fcpa):
     CommandProcessor(fcpa), file_(nullptr), filename_(nullptr){
         if (fcpa.filename_){
             filename_ = new std::string(*fcpa.filename_);
@@ -340,6 +340,7 @@ FCPAdapter& FCPAdapter::operator=(const FCPAdapter& fcpa){
         }
     }
 }
+
 /**
  * @brief destructor, closes file if exists and cleans up memory and pointers
  */

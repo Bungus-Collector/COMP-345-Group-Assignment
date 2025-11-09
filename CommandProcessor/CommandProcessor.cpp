@@ -195,9 +195,7 @@ std::string CommandProcessor::readCommand() {
  * @brief pushes the command 
  */
 void CommandProcessor::saveCommand(Command* cmd) {
-    if (cmd) {
-        commands_->push_back(cmd);
-    }
+    commands_->push_back(cmd);
 }
 
 /**
@@ -365,24 +363,33 @@ FCPAdapter::~FCPAdapter(){
  * returns empty string when EOF reached.
  */
 std::string FCPAdapter::readCommand(){
-    // if no stream yet but have filename, will try to open on demand
-    if (!file_ && filename_){
+    // If no file stream is open but we have a filename, try opening it.
+    if (!file_ && filename_) {
         file_ = new std::ifstream(*filename_);
-        if(!file_ -> is_open()){
-            std::cerr<< "[FCPAdapter] failed to open or reopen file: "<< *filename_ << std::endl;
+        if (!file_->is_open()) {
+            std::cerr << "[FCPAdapter] Failed to (re)open file: " << *filename_ << "\n";
             delete file_;
             file_ = nullptr;
         }
     }
 
-    if(!file_ || !file_->is_open()){
-        //this means no file available: return empty
-        std::cout << "[FCPAdapter] there are no file available." << std::endl;
+    // If the file still isn't open, nothing to read.
+    if (!file_ || !file_->is_open()) {
         return {};
     }
 
-    // if EOF reached: return empty 
-    return{};
+    // Attempt to read a single line.
+    std::string line;
+    if (std::getline(*file_, line)) {
+        // trailing '\r' 
+        if (!line.empty() && line.back() == '\r')
+            line.pop_back();
+
+        return line; // return the next command line
+    }
+
+    // return empty to signal end-of-file
+    return {};
 }
 
 /**

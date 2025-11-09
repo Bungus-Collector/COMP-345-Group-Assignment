@@ -4,20 +4,12 @@
  * @date November 6th, 2025
  */
 #include "CommandProcessor.h"
-#include "../GameEngine/GameEngine.h" // for state
+#include "../GameEngine/GameEngine.h"
 #include <iostream>
 #include <algorithm>
 #include <vector>
 #include <memory>
 #include <string>
-
-static void testing(const std::string& cmdText, State& state){
-    const Command c = new Command(cmdText);
-    switch(state){
-        case State::Start:
-            if(c.validate()) std::cout
-    }
-}
 
 
 /**
@@ -27,9 +19,65 @@ static void testing(const std::string& cmdText, State& state){
 static void printHistory(const std::vector<Command*>& hist) {
     std::cout << "\n--- Command History (" << hist.size() << ") ---\n";
     for (const Command* c : hist) {
-        if (c) std::cout << *c;        // uses Command::operator<<
+        if (c) std::cout << *c;
     }
     std::cout << "-------------------------------\n";
+}
+
+/**
+ * @brief Runs the full Part 1 demo
+ */
+void test(int argc, char* argv[]) {
+    std::unique_ptr<CommandProcessor> cp;
+    bool fromFile = (argc >= 2);
+
+    if (fromFile) {
+        // 1.2.1 + 1.2.3: Adapter route (file input)
+        cp = std::make_unique<FCPAdapter>(std::string(argv[1]));
+        std::cout << "[Driver] Using FCPAdapter with file: " << argv[1] << "\n";
+
+        // 1.2.8: stream operator for adapter
+        if (auto* adapter = dynamic_cast<FCPAdapter*>(cp.get()))
+            std::cout << *adapter << "\n";
+    } else {
+        // 1.2.1 + 1.2.2: Console route
+        cp = std::make_unique<CommandProcessor>();
+        std::cout << "[Driver] Using CommandProcessor (console). Type 'quit' or EOF to exit.\n";
+    }
+
+    State current = State::START;
+
+    // 1.3.3: getCommand(State) returns a Command* owned by the processor
+    while (true) {
+        Command* cmd = cp->getCommand(current);
+        if (!cmd) {
+            std::cout << "[Driver] No more commands (EOF/invalid/empty). Exiting.\n";
+            break;
+        }
+
+        std::cout << "> " << cmd->getCommand() << "\n";
+        std::cout << "  -> " << cmd->getEffect() << "\n";
+
+        // stop if user typed quit
+        if (!fromFile && cmd->getCommand() == "quit")
+            break;
+    }
+
+    // 1.2.4 + 1.2.8: display stored commands and operator<< for processor
+    printHistory(cp->getHistory());
+    std::cout << *cp << "\n";
+
+    // 1.2.8: Rule of Three — copy ctor and copy assignment
+    std::cout << "\n[Driver] Copy constructing CommandProcessor cpCopy from cp...\n";
+    CommandProcessor cpCopy(*cp);
+    std::cout << cpCopy << "\n";
+
+    std::cout << "[Driver] Copy assigning CommandProcessor cpAssign = cpCopy...\n";
+    CommandProcessor cpAssign;
+    cpAssign = cpCopy;
+    std::cout << cpAssign << "\n";
+
+    std::cout << "[Driver] Done.\n";
 }
 
 /**
@@ -38,39 +86,7 @@ static void printHistory(const std::vector<Command*>& hist) {
  * @param argv 
  */
 int main(int argc, char* argv[]) {
-    std::unique_ptr<CommandProcessor> cp;
-
-    // Use FCPAdapter if a filename is given, else console input.
-    if (argc >= 2) {
-        cp = std::make_unique<FCPAdapter>(argv[1]);
-        std::cout << "[Driver] Reading commands from file: " << argv[1] << "\n";
-    } else {
-        cp = std::make_unique<CommandProcessor>();
-        std::cout << "[Driver] Reading commands from console. Type 'quit' to exit.\n";
-    }
-
-    State state = State::Start;
-
-    while (state != State::End) {
-        // getCommand call readCommand() and also create/push a Command object into the history.
-        std::string cmd = cp->getCommand(static_cast<int>(state));  
-        if (cmd.empty()) {
-            break;
-        }
-
-        std::string effect;
-        bool valid = validateAndTransition(cmd, state, effect);
-
-        // processor attach the effect text to the lastate command object.
-        cp->saveEffect(effect);
-
-        // output result for I/O + state changes.
-        std::cout << "> " << cmd << "\n  -> " << effect << "\n";
-
-        if (!valid && state == State::End) break; // safety
-    }
-
-    std::cout << "[Driver] Exiting.\n";
+    test(argc,argv);
     return 0;
 }
 

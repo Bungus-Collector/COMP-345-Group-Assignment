@@ -12,7 +12,16 @@
  #include <fstream>
 
  // forward declaration
-enum class State;
+enum class State {
+    START,
+    MAPLOADED,
+    MAPVALIDATED,
+    PLAYERSADDED,
+    ASSIGNREINFORCEMENTS,
+    ISSUEORDERS,
+    EXECUTEORDERS,
+    WIN
+};
 
 // === COMMAND CLASS ===
 /**
@@ -23,7 +32,7 @@ class Command{
 public:
     // --- Constructor and Destructor --- 
     Command(); // Default constructor
-    explicit Command(const std::string cmd); // Constructor
+    explicit Command(const std::string& cmd); // Constructor
     Command(const Command& c); 
     Command& operator=(const Command& c);
     ~Command(); // Destructor
@@ -92,7 +101,7 @@ private:
     std::string*   filename_; // owned path
 
     friend std::ostream& operator<<(std::ostream& os, const FileLineReader& r);
-}
+};
 
 
 // === FileCommandProcessorAdapter ===

@@ -8,6 +8,7 @@
 #include <fstream>
 #include "../GameEngine/GameEngine.h"
 #include <sstream>
+#include <string>
 
 // ==== COMMAND CLASS ====
 /**
@@ -214,7 +215,7 @@ Command* CommandProcessor::getCommand(State state){
 
     // validate for the GameEngine 
     if(validate(cmd,state)){
-        cmd->saveEffect("Command Accepted")
+        cmd->saveEffect("Command Accepted");
     } else {
         std::cout << "Invalid Command.\n";
         return nullptr;
@@ -234,29 +235,25 @@ bool CommandProcessor::validate(Command* cmd, State state) {
     std::string s = cmd->getCommand();
 
     switch (state) {
-        case State::Start:
+        case State::START:
             // Valid: loadmap <name>
             return starts_with("loadmap");
 
-        case State::MapLoaded:
+        case State::MAPLOADED:
             // Valid: validatemap, loadmap 
             return s == "validatemap" || starts_with("loadmap");
 
-        case State::MapValidated:
+        case State::MAPVALIDATED:
             // Valid: addplayer <name>
             return starts_with("addplayer");
 
-        case State::PlayersAdded:
+        case State::PLAYERSADDED:
             // Valid: addplayer <name>, gamestart
             return starts_with("addplayer") || s == "gamestart";
 
-        case State::Win:
+        case State::WIN:
             // Valid: replay, quit
             return (s == "quit" || s == "replay");
-
-        case default:
-            std::cout << "[Validate Error]: State entered does not exist.\n";
-            return false;
     }
     // Unknown state or command
     std::cout << "[Validate Error]: Command does not exist in Command list or State does not exist.\n";
@@ -368,9 +365,8 @@ std::string FileLineReader::readLineFromFile() {
 
     // if no file or file open unsuccessful
     if (!file_ || !file_->is_open()) {
-        return {
-            std::cout << "[FLR] Unable to open file or file DNE. \n"
-        };
+        std::cout << "[FLR] Unable to open file or file DNE. \n";
+        return {};
     }
 
     std::string line;
@@ -378,9 +374,9 @@ std::string FileLineReader::readLineFromFile() {
         if (!line.empty() && line.back() == '\r') line.pop_back(); // trims \r
         return line;
     }
-    return {
-       std::cout << "[FLR] End of file reached or error.\n"
-    };
+
+    std::cout << "[FLR] End of file reached or error.\n";
+    return {};
 }
 
 /**
@@ -470,7 +466,7 @@ std::string FCPAdapter::readCommand(){
  * @return ostream with file or filename if open
  * @brief Stream insertion operator for FCPAdapter.
  */
-std::ostream& operator<<(std::ostream& os, const FCPAdapter& adapter) {
+std::ostream& operator<<(std::ostream& os, const FCPAdapter& fcpa) {
     os << "FCPAdapter{ ";
     if (fcpa.flr_) os << *fcpa.flr_;     // reuse FileLineReader printer
     else os << "FileLineReader=nullptr";

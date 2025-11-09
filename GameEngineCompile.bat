@@ -1,0 +1,1 @@
+g++ -g GameEngine/GameEngine.cpp GameEngine/GameEngineDriver.cpp orders/Order.cpp orders/OrdersList.cpp Map/Map.cpp Cards/Cards.cpp GameLogs/LoggingObserver.cpp Player/Player.cpp -o test.exe

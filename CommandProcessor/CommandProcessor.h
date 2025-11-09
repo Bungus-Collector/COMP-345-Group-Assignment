@@ -67,9 +67,6 @@ public:
 
     friend std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp);
 
-    //1.2.5 public wrapper so driver can ask processor to validate last command
-    bool validateLast(State state);
-
 protected:
     virtual std::string readCommand();
     void saveCommand(Command* cmd);

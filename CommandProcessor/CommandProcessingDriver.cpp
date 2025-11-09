@@ -18,7 +18,8 @@ enum class State{
     MapValidated,
     PlayersAdded,
     GameStarted,
-    End
+    Win,
+    AssignReinforcement
 };
 
 /**

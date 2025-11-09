@@ -231,41 +231,35 @@ Command* CommandProcessor::getCommand(State state){
 bool CommandProcessor::validate(Command* cmd, State state) {
     if (!cmd) return false;
 
-    // Normalize command text (lowercase) and do simple prefix checks.
     std::string s = cmd->getCommand();
-    for (char& c : s) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-
-    auto starts_with = [&](const std::string& prefix) {
-        return s.rfind(prefix, 0) == 0; // prefix at position 0
-    };
 
     switch (state) {
         case State::Start:
-            // Valid: loadmap <name>, quit, (allow harmless replay)
-            return starts_with("loadmap") || s == "quit" || s == "replay";
+            // Valid: loadmap <name>
+            return starts_with("loadmap");
 
         case State::MapLoaded:
-            // Valid: validatemap, loadmap (reload), quit
-            return s == "validatemap" || starts_with("loadmap") || s == "quit";
+            // Valid: validatemap, loadmap 
+            return s == "validatemap" || starts_with("loadmap");
 
         case State::MapValidated:
-            // Valid: addplayer <name>, loadmap (reset to MapLoaded), quit
-            return starts_with("addplayer") || starts_with("loadmap") || s == "quit";
+            // Valid: addplayer <name>
+            return starts_with("addplayer");
 
         case State::PlayersAdded:
-            // Valid: addplayer <name>, gamestart, loadmap, quit
-            return starts_with("addplayer") || s == "gamestart"
-                   || starts_with("loadmap") || s == "quit";
+            // Valid: addplayer <name>, gamestart
+            return starts_with("addplayer") || s == "gamestart";
 
-        case State::GameStarted:
+        case State::Win:
             // Valid: replay, quit
-            return (s == "replay" || s == "quit");
+            return (s == "quit" || s == "replay");
 
-        case State::End:
-            // After End, nothing is valid (driver will usually stop the loop)
+        case default:
+            std::cout << "[Validate Error]: State entered does not exist.\n";
             return false;
     }
-    // Unknown state fallback
+    // Unknown state or command
+    std::cout << "[Validate Error]: Command does not exist in Command list or State does not exist.\n";
     return false;
 }
 

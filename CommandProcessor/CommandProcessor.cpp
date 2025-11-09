@@ -201,6 +201,16 @@ void CommandProcessor::saveCommand(Command* cmd) {
 }
 
 /**
+ * 
+ */
+bool CommandProcessor::validateLast(State state) {
+    if(commands_->empty()) {
+        return false;
+    }
+    return validate(commands_->back(), state);
+}
+
+/**
  * @brief returns true if command text is allowed in provided state
  * @return boolean
  * @param cmd, state 
@@ -374,4 +384,22 @@ std::string FCPAdapter::readCommand(){
     // if EOF reached: return empty 
     return{};
 }
-    
+
+/**
+ * @return ostream with file or filename if open
+ * @brief Stream insertion operator for FCPAdapter.
+ */
+std::ostream& operator<<(std::ostream& os, const FCPAdapter& adapter) {
+    os << "FCPAdapter{ ";
+    if (adapter.filename_) {
+        os << "filename=\"" << *adapter.filename_ << "\"";
+        if (adapter.file_ && adapter.file_->is_open())
+            os << ", status=open";
+        else
+            os << ", status=closed";
+    } else {
+        os << "filename=nullptr, status=none";
+    }
+    os << " }";
+    return os;
+}

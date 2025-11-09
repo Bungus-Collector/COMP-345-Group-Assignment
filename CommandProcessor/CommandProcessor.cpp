@@ -383,6 +383,10 @@ std::string FileLineReader::readLineFromFile() {
     };
 }
 
+/**
+ * @return ostream with file or filename if open
+ * @brief Stream insertion operator for FLR.
+ */
 std::ostream& operator<<(std::ostream& os, const FileLineReader& flr) {
     os << "FileLineReader{ ";
     //check if flr has file

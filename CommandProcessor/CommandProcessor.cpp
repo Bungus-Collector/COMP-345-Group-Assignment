@@ -220,11 +220,9 @@ Command* CommandProcessor::getCommand(State state){
     Command* cmd = new Command(reading);
 
     // validate for the GameEngine 
-    if(validate(cmd,state)){
-        cmd->saveEffect("Command Accepted");
-    } else {
+    bool ok = validate(cmd, state);
+    if (!ok) {
         std::cout << "Invalid Command.\n";
-        return nullptr;
     }
     saveCommand(cmd);
     return cmd;
@@ -245,7 +243,7 @@ std::vector<Command*> CommandProcessor::getHistory() const {
 }
 
 /**
- * @brief returns true if command text is allowed in provided state
+ * @brief returns true if command is allowed in provided state and will save its effect
  * @return boolean
  * @param cmd, state 
  */
@@ -259,21 +257,33 @@ bool CommandProcessor::validate(Command* cmd, State state) {
         return s.rfind(prefix, 0) == 0; // prefix at position 0
     };
 
+    // handle quit in all state
+    if (s == "quit") {
+        cmd->saveEffect("Program terminated");
+        return true;
+    }
+
     switch (state) {
         case State::START:
             // Valid: loadmap <name>
             if (starts_with("loadmap")) {
                 cmd->saveEffect("Map Loaded");
                 return true;
+            } if (s == "quit") {
+                cmd->saveEffect("Program Terminated");
+                return true;
             }break;
 
         case State::MAPLOADED:
             // Valid: validatemap, loadmap 
             if (starts_with("loadmap")) {
-                cmd->saveEffect("Map Loaded");
+                cmd->saveEffect("Map Reloaded");
                 return true;
             }if (s == "validatemap") {
-                cmd->saveEffect("Map validated");
+                cmd->saveEffect("Map Validated");
+                return true;
+            } if (s == "quit") {
+                cmd->saveEffect("Program Terminated");
                 return true;
             }break;
 
@@ -281,6 +291,9 @@ bool CommandProcessor::validate(Command* cmd, State state) {
             // Valid: addplayer <name>
             if (starts_with("addplayer")) {
                 cmd->saveEffect("Player Added");
+                return true;
+            } if (s == "quit") {
+                cmd->saveEffect("Program Terminated");
                 return true;
             }break;
 
@@ -290,7 +303,10 @@ bool CommandProcessor::validate(Command* cmd, State state) {
                 cmd->saveEffect("Player Added");
                 return true;
             } if (s == "gamestart"){
-                cmd->saveEffect("Game started");
+                cmd->saveEffect("Game Started");
+                return true;
+            } if (s == "quit") {
+                cmd->saveEffect("Program Terminated");
                 return true;
             }break;
 

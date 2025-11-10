@@ -18,6 +18,7 @@ public:
     void handleSetUp(std::string input); // Alternative input handler for testing start up phase
     void startUpPhase(); //Controls the initialization before gameplay (includes loading and validating the map, and adding players).
     void InitialPlayerAssignment(); //Handles the initial assignment of players
+    void printPlayerStats(int roundNum);
     void mainGameLoop(); //Loops the game's play phase
     void reinforcementPhase();
     void issueOrdersPhase();

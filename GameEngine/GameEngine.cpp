@@ -1,4 +1,6 @@
 #include "GameEngine.h"
+#include "..\orders\Order.h"
+#include "..\orders\OrdersList.h"
 #include <iostream>
 #include <cstdlib>
 #include <random>
@@ -196,32 +198,46 @@ void GameEngine::InitialPlayerAssignment() {
     //Each Player gets initial armies of size 50
     for (auto& player : players) {
         player.addReinforcements(50);
-        std::cout << "PLAYER HAS: " << player.getReinforcements();
     }
 
-    std::cout << "ORDER OF PLAY: ";
+    std::cout << "ORDER OF PLAY: \n";
     for (const auto& player : players) {
         std::cout << player.getName() << ", ";
     }
-    std::cout << "\n\nPLAYERS:\n\n";
+    std::cout << "\n";
 
-    for(int i = 0; i < players.size(); i++){
-        std::cout << "Player " << players[i].getName() << "\n\n";
-        std::cout << "Reinforcement Pool: " << players[i].getReinforcements() << "\n\n";
-        std::cout << "Territories: ";
-        for(auto& territory : *players[i].getTerritories()){
-            std::cout << territory->getName() << " (Armies: " << *(territory->getArmies()) << "), ";
-        }
-        std::cout << "\n\n";
-        std::cout <<*(players[i].getHand()) <<"\n\n\n";
+    printPlayerStats(-1);
+
+    std::cout << "Initial player setup complete. Each player has been assigned territories and armies.\n\n";
+}
+
+void GameEngine::printPlayerStats(int roundnum) {
+    if (isGameRunning) {
+        std::cout << "END OF ROUND " << roundnum << "\n";
     }
-
-    std::cout << "Initial player setup complete. Each player has been assigned territories and armies.\n";
+    else {
+        std::cout << "END OF INITIAL SETUP" << "\n";
+    }
+    
+    std::cout << "========================================================================\n";
+    for(int i = 0; i < players.size(); i++){
+        std::cout << i << " - Player " << players[i].getName() << "\n";
+        std::cout << "\tReinforcement Pool: " << players[i].getReinforcements() << "\n\n";
+        std::cout << "\tTerritories: \n";
+        for(auto& territory : *players[i].getTerritories()){
+            std::cout << "\t\t" << territory->getName() << " (Armies: " << *(territory->getArmies()) << "),\n";
+        }
+        std::cout << "\n";
+        std::cout << "\t" << *(players[i].getHand()) <<"\n\n";
+    }
+    std::cout << "========================================================================\n\n";
 }
 
 void GameEngine::mainGameLoop() {
-    int totalTerritoryNum = currentMap->getAllTerritories()->size();
-    std::cout << "In mainGameLoop() - start - TOTAL TERRITORIES (" << totalTerritoryNum << "(\n)";
+    auto* allTerritories = currentMap->getAllTerritories();
+    int totalTerritoryNum = allTerritories->size();
+    int roundNum = 1;
+    std::cout << "In mainGameLoop() - start - TOTAL TERRITORIES (" << totalTerritoryNum << ")\n";
     isGameRunning = true;
 
     int tempCount = 0;
@@ -229,11 +245,36 @@ void GameEngine::mainGameLoop() {
         reinforcementPhase();
         issueOrdersPhase();
         executeOrdersPhase();
+        // if (tempCount == 9) {
+        //     isGameRunning = false;
+        // }
+        // tempCount++;
 
-        if (tempCount == 9) {
+        printPlayerStats(roundNum++);
+
+        bool hasWinner = true;
+        Player* winner = nullptr;
+
+        for (auto* territory : *allTerritories) {
+            Player* owner = territory->getOwner();
+            if (owner == nullptr) {
+                hasWinner = false;
+                break;
+            }
+            if (winner == nullptr) {
+                winner = owner;
+            }
+            else if (owner != winner) {
+                hasWinner = false;
+                break;
+            }
+        }
+
+        if (hasWinner && winner != nullptr) {
+            *currentState = State::WIN;
+            std::cout << "PLAYER " << winner->getName() << " HAS WON THE GAME!";
             isGameRunning = false;
         }
-        tempCount++;
     }
 
     std::cout << "In mainGameLoop() - end\n";
@@ -270,7 +311,7 @@ void GameEngine::reinforcementPhase() {
 
         player.addReinforcements(reinforcementCount);
 
-        std::cout << "Player " << player.getName() << " received " << reinforcementCount << " reinforcement armies, as owner of "
+        std::cout << "\tPlayer " << player.getName() << " received " << reinforcementCount << " reinforcement armies, as owner of "
                   << numOfTerritories << " territories and " << numOfContinents << " continents.\n";
     }
 }
@@ -287,6 +328,44 @@ void GameEngine::issueOrdersPhase() {
 void GameEngine::executeOrdersPhase() {
     *currentState = State::EXECUTEORDERS;
     std::cout << "C - EXECUTE ORDERS PHASE\n";
+
+    bool ordersRemaining = true;
+    while (ordersRemaining) {
+        ordersRemaining = false;
+
+        for (auto& player : players) {
+            OrdersList* list = player.getOrdersList();
+            auto* orders = list->getOrders();
+
+            if (!orders->empty()) {
+                ordersRemaining = true;
+
+                // Get the order to execute
+                Order* order = orders->front();
+                int orderId = order->getId();
+
+                // EXECUTE ORDER
+                int result = order->execute();
+
+                if (result == 0) {
+                    std::cout << "\t" << player.getName() << " - Execute: " << *order << "\n";
+                }
+                else {
+                    std::cerr << "\t" << player.getName() << " - Failed to execute: " << *order << "\n";
+                }
+
+                // Remove from player's orders list
+                int removeResult = list->remove(orderId);
+                if (removeResult != 0) {
+                    std::cerr << "Failed to remove order ID: " << orderId;
+                }
+
+                delete order;
+            }
+        }
+    }
+
+    std::cout << "\tALL ORDERS EXECUTED\n\n";
 }
 
 std::string GameEngine::stringToLog() {

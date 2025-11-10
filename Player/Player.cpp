@@ -217,7 +217,10 @@ void Player::issueOrder() {
             std::cerr << "Failed to add Deploy order for " << territory->getName() << "\n";
             delete deploy;
         }
-        else {std::cout << "\t" << getName() << " - Issue Deploy order of " << totalArmies << " armies to territory " << territory->getName() << "\n";}
+        else {
+            std::cout << "\t" << getName() << " - Issue Deploy order of " << totalArmies << " armies to territory " << territory->getName() << "\n";
+            takeReinforcements(totalArmies);
+        }
     }
 
     // Choose to issue 1-4 Advance orders for defence and attack
@@ -228,7 +231,6 @@ void Player::issueOrder() {
     // A - ADVANCE ORDERS TO DEFEND
     int numOfDefenseOrders = distrib(gen);
     if (!defendList.empty()) {
-        std::cout << "\nINSIDE ADVANCE ORDERS - DEFEND " << numOfDefenseOrders << "\n";
         for (int i = 0; i < numOfDefenseOrders; i++) {
             std::uniform_int_distribution<int> targetIndices(0, defendList.size() - 1);
             Territory* target = defendList[targetIndices(gen)];
@@ -240,7 +242,6 @@ void Player::issueOrder() {
                     possibleSources.push_back(territory);
                 }
             }
-            std::cout << "POSSIBLE SOURCES: " << possibleSources.size() << "\n";
             if (possibleSources.empty()) continue;
 
             // Randomly pick source territory
@@ -268,7 +269,6 @@ void Player::issueOrder() {
     // B - ADVANCE ORDERS TO ATTACK
     int numOfAttackOrders = distrib(gen);
     if (!attackList.empty()) {
-        std::cout << "\nINSIDE ADVANCE ORDERS - ATTACK " << numOfAttackOrders << "\n";
         for (int i = 0; i < numOfAttackOrders; i++) {
             std::uniform_int_distribution<int> sourceIndices(0, attackList.size() - 1);
             Territory* source = attackList[sourceIndices(gen)];

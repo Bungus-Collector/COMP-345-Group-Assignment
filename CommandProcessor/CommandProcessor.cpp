@@ -6,7 +6,6 @@
 #include "CommandProcessor.h"
 #include <iostream>
 #include <fstream>
-#include "../GameEngine/GameEngine.h"
 #include <sstream>
 #include <string>
 
@@ -18,7 +17,6 @@ Command::Command():
     commandStr_(new std::string()),
     effect_(new std::string())
     {
-        std::cout << "[Command] Calling default constructor" << std::endl;
     }
 
 
@@ -30,7 +28,6 @@ Command::Command(const std::string& cmd):
     commandStr_(new std::string(cmd)),
     effect_(new std::string())
     {
-        std::cout << "[Command] Calling constructor" << std::endl;
     }
 
 
@@ -110,7 +107,7 @@ void Command::saveEffect(const std::string& effect){
  * @brief output stream operator (friend function)
  */
 std::ostream& operator<<(std::ostream& os, const Command& cmd){
-    os << "Command {commandStr = " << cmd.commandStr_ << ", Effect = " << cmd.effect_ <<"} " << std::endl;
+    os << "Command {commandStr = " << *cmd.commandStr_ << ", Effect = " << *cmd.effect_ <<"} " << std::endl;
     return os;
 }
 
@@ -176,7 +173,16 @@ CommandProcessor::~CommandProcessor(){
  * @return ostream with the object attributes
  */
 std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp){
-    os << "CommandProcessor {Commands = " << cp.commands_ << "} \n";
+    const size_t n = (cp.commands_ ? cp.commands_->size() : 0);
+    os << "CommandProcessor {Commands size = " << n << "}";
+    if (cp.commands_ && !cp.commands_->empty()) {
+        os << " [\n";
+        for (const Command* c : *cp.commands_) {
+            if (c) os << "  " << *c;   // uses Command::operator<<
+        }
+        os << "]";
+    }
+    os << "\n";
     return os;
 }
 
@@ -225,6 +231,20 @@ Command* CommandProcessor::getCommand(State state){
 }
 
 /**
+ * @brief Returns a copy of the current command history.
+ * Each element is a pointer to a Command owned by the CommandProcessor.
+ */
+std::vector<Command*> CommandProcessor::getHistory() const {
+    std::vector<Command*> history;
+    history.reserve(commands_->size());  // reserveing space for efficiency
+
+    for (Command* cmd : *commands_) {
+        history.push_back(cmd);
+    }
+    return history; // returns a shallow copy just to get the history
+}
+
+/**
  * @brief returns true if command text is allowed in provided state
  * @return boolean
  * @param cmd, state 
@@ -233,30 +253,67 @@ bool CommandProcessor::validate(Command* cmd, State state) {
     if (!cmd) return false;
 
     std::string s = cmd->getCommand();
+    
+    // check for command prefix for the commands that take a file.
+    auto starts_with = [&](const std::string& prefix) {
+        return s.rfind(prefix, 0) == 0; // prefix at position 0
+    };
 
     switch (state) {
         case State::START:
             // Valid: loadmap <name>
-            return starts_with("loadmap");
+            if (starts_with("loadmap")) {
+                cmd->saveEffect("Map Loaded");
+                return true;
+            }break;
 
         case State::MAPLOADED:
             // Valid: validatemap, loadmap 
-            return s == "validatemap" || starts_with("loadmap");
+            if (starts_with("loadmap")) {
+                cmd->saveEffect("Map Loaded");
+                return true;
+            }if (s == "validatemap") {
+                cmd->saveEffect("Map validated");
+                return true;
+            }break;
 
         case State::MAPVALIDATED:
             // Valid: addplayer <name>
-            return starts_with("addplayer");
+            if (starts_with("addplayer")) {
+                cmd->saveEffect("Player Added");
+                return true;
+            }break;
 
         case State::PLAYERSADDED:
             // Valid: addplayer <name>, gamestart
-            return starts_with("addplayer") || s == "gamestart";
+            if (starts_with("addplayer")) {
+                cmd->saveEffect("Player Added");
+                return true;
+            } if (s == "gamestart"){
+                cmd->saveEffect("Game started");
+                return true;
+            }break;
 
         case State::WIN:
             // Valid: replay, quit
-            return (s == "quit" || s == "replay");
+            if (s == "replay") {
+                cmd->saveEffect("New Game");
+                return true;
+            }if (s == "quit") {
+                cmd->saveEffect("Program Terminated");
+                return true;
+            }break;
+        case State::ASSIGNREINFORCEMENTS:
+            // placeholder
+            return true;
+        case State::ISSUEORDERS:
+            // placeholder
+            return true;
+        case State::EXECUTEORDERS:
+            // placeholder
+            return true;
     }
-    // Unknown state or command
-    std::cout << "[Validate Error]: Command does not exist in Command list or State does not exist.\n";
+
     return false;
 }
 

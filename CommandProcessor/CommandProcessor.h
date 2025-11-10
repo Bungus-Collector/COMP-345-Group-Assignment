@@ -4,12 +4,13 @@
  * @date October 29th, 2025
  */
 
- #pragma once
+#pragma once
 
- #include <string>
- #include <vector>
- #include <iosfwd>
- #include <fstream>
+#include <string>
+#include <vector>
+#include <iosfwd>
+#include <fstream>
+#include <string>
 
  // forward declaration
 enum class State {

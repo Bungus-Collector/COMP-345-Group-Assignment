@@ -37,6 +37,7 @@ Player::Player():
     hand_(new Hand()), // empty hand
     orders_(new OrdersList()), // every player has its own empty list
     negotiatingPartners_(new std::vector<std::string>()), // no negotiating partners
+    reinforcementPool_(0),
     getsCard_(false) // default false
     {
         std::cout << "[Player] Default constructor called for " << name_ << "\n";
@@ -58,6 +59,7 @@ Player::Player(const std::string& name):
     hand_(new Hand()),
     orders_(new OrdersList()),
     negotiatingPartners_(new std::vector<std::string>()),
+    reinforcementPool_(0),
     getsCard_(false)
     {
         std::cout << "[Player] Constructor call for Player "<< name_ << "\n";
@@ -75,6 +77,7 @@ Player::Player(const Player& other):
     hand_(nullptr),
     orders_(nullptr),
     negotiatingPartners_(nullptr),
+    reinforcementPool_(0),
     getsCard_(nullptr)
     {
         copyFrom(other);
@@ -91,6 +94,7 @@ Player& Player::operator=(const Player& other){ //***
     if (this != &other) {
         destroy(); // Cleans Player attributes for deep copy
         name_ = other.name_;
+        reinforcementPool_ = other.reinforcementPool_;
         copyFrom(other);
     }
     return *this;
@@ -315,6 +319,16 @@ void Player::setGetsCard(bool gc){
  */
 bool Player::getGetsCard(){
     return getsCard_;
+}
+
+void Player::addReinforcements(int qty) {
+    reinforcementPool_ += qty;
+}
+void Player::takeReinforcements(int qty) {
+    reinforcementPool_ -= qty;
+}
+int Player::getReinforcements() {
+    return reinforcementPool_;
 }
 
 /**

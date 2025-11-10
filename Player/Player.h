@@ -78,6 +78,10 @@ public:
     void setGetsCard(bool);
     bool getGetsCard();
 
+    void addReinforcements(int);
+    void takeReinforcements(int);
+    int getReinforcements();
+
     // Stream insertion
     friend std::ostream &operator<<(std::ostream &os, const Player &p);
 
@@ -89,6 +93,7 @@ private:
     OrdersList *orders_;                            // list of orders.
     std::vector<std::string> *negotiatingPartners_; // players that cant be attacked by this player this turn
     bool getsCard_;                                 // true if the player successfully conquered a territory last turn
+    int reinforcementPool_;                         // the reinforcement pool of armies the player can deploy
 
     // deep copy helpers
     void copyFrom(const Player &other);

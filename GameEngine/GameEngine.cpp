@@ -220,7 +220,8 @@ void GameEngine::InitialPlayerAssignment() {
 }
 
 void GameEngine::mainGameLoop() {
-    std::cout << "In mainGameLoop() - start\n";
+    int totalTerritoryNum = currentMap->getAllTerritories()->size();
+    std::cout << "In mainGameLoop() - start - TOTAL TERRITORIES (" << totalTerritoryNum << "(\n)";
     isGameRunning = true;
 
     int tempCount = 0;
@@ -277,6 +278,10 @@ void GameEngine::reinforcementPhase() {
 void GameEngine::issueOrdersPhase() {
     *currentState = State::ISSUEORDERS;
     std::cout << "B - ISSUE ORDERS PHASE\n";
+
+    for (auto& player : players) {
+        player.issueOrder(); 
+    }
 }
 
 void GameEngine::executeOrdersPhase() {

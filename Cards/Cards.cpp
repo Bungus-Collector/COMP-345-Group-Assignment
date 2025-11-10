@@ -72,11 +72,11 @@ void Card::play(Hand& hand, Deck& deck)
 Deck::Deck(int size)    // constructor
 {
     if (size < 0) size = 0;
-    int cardsPerType = size / 5;
+    int cardsPerType = size / 4;
     for (int i = 0; i < cardsPerType; ++i)
     {
         cards.push_back(std::make_unique<Card>(CardType::Bomb));
-        cards.push_back(std::make_unique<Card>(CardType::Reinforcement));
+        // cards.push_back(std::make_unique<Card>(CardType::Reinforcement));
         cards.push_back(std::make_unique<Card>(CardType::Blockade));
         cards.push_back(std::make_unique<Card>(CardType::Airlift));
         cards.push_back(std::make_unique<Card>(CardType::Diplomacy));

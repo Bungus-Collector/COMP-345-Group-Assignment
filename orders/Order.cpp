@@ -101,6 +101,8 @@ Deploy::Deploy(int i, Player *p, int n, Territory *t)
       numTroops{new int(n)},
       targetTerritory{t}
 {
+  if (*numTroops < 0)
+    *numTroops = 0;
 }
 
 Deploy::Deploy(const Deploy &other) : Order(other)
@@ -196,6 +198,8 @@ Advance::Advance(int i, Player *p, int n, Territory *s, Territory *t)
       sourceTerritory{s},
       targetTerritory{t}
 {
+  if (*numTroops < 0)
+    *numTroops = 0;
 }
 
 Advance::Advance(const Advance &other) : Order(other)
@@ -538,7 +542,7 @@ int Blockade::execute()
   targetTerritory->setArmies(new int(*targetTerritory->getArmies() * 3));
 
   // Set territory to neutral
-  targetTerritory->setOwner(new Player("NEUTRAL")); // TODO: might change later
+  targetTerritory->setOwner(NULL);
   return SUCCESS;
 }
 
@@ -558,6 +562,8 @@ Airlift::Airlift(int i, Player *p, int n, Territory *s, Territory *t)
       sourceTerritory{s},
       targetTerritory{t}
 {
+  if (*numTroops < 0)
+    *numTroops = 0;
 }
 
 Airlift::Airlift(const Airlift &other) : Order(other)

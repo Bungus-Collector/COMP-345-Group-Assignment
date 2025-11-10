@@ -43,6 +43,13 @@ public:
     std::string getName() const;
 
     /**
+     * Returns the bonus.
+     *
+     * @returns bonus value.
+     */
+    int getBonus() const;
+
+    /**
      * Returns the owner of the continent.
      *
      * @returns owner of continent.

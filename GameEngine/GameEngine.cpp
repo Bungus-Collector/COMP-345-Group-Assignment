@@ -239,17 +239,48 @@ void GameEngine::mainGameLoop() {
 }
 
 void GameEngine::reinforcementPhase() {
-    *currentState == State::ASSIGNREINFORCEMENTS;
+    *currentState = State::ASSIGNREINFORCEMENTS;
     std::cout << "A - REINFORCEMENT PHASE\n";
+
+    std::vector<Continent *> allContinents = *currentMap->getAllContinents();
+
+    for (auto& player : players) {
+        int numOfTerritories = player.getTerritories()->size();
+        int reinforcementCount = std::max(3, static_cast<int>(numOfTerritories / 3));
+        int numOfContinents = 0;
+
+        for (auto* continent : allContinents) {
+            auto* territories = continent->getTerritories();
+            if (territories->empty()) continue;
+
+            bool isContinentOwner = true;
+            for (auto* territory : *territories) {
+                if (territory->getOwner() != &player) {
+                    isContinentOwner = false;
+                    break;
+                }
+            }
+
+            if (isContinentOwner) {
+                numOfContinents++;
+                reinforcementCount += continent->getBonus();
+            }
+        }
+
+        player.addReinforcements(reinforcementCount);
+
+        std::cout << "Player " << player.getName() << " received " << reinforcementCount << " reinforcement armies, as owner of "
+                  << numOfTerritories << " territories and " << numOfContinents << " continents.\n";
+    }
 }
 
 void GameEngine::issueOrdersPhase() {
-    *currentState == State::ISSUEORDERS;
+    *currentState = State::ISSUEORDERS;
     std::cout << "B - ISSUE ORDERS PHASE\n";
 }
 
 void GameEngine::executeOrdersPhase() {
-    *currentState == State::EXECUTEORDERS;
+    *currentState = State::EXECUTEORDERS;
     std::cout << "C - EXECUTE ORDERS PHASE\n";
 }
 

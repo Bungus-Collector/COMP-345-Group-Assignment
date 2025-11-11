@@ -226,7 +226,7 @@ void Player::issueOrder() {
     // Choose to issue 1-4 Advance orders for defence and attack
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(1, 4);
+    std::uniform_int_distribution<> distrib(4, 10);
 
     // A - ADVANCE ORDERS TO DEFEND
     int numOfDefenseOrders = distrib(gen);
@@ -238,7 +238,8 @@ void Player::issueOrder() {
             // Finding possible territories to take armies from
             std::vector<Territory*> possibleSources;
             for (Territory* territory : *target->getAdjacentTerritories()) {
-                if (territory->getOwner() == this && *territory->getArmies() >= 2) {
+                auto check3 = territory->getArmies();
+                if (territory->getOwner() == this && territory->getArmies() >= 2) {
                     possibleSources.push_back(territory);
                 }
             }
@@ -249,7 +250,7 @@ void Player::issueOrder() {
             Territory* source = possibleSources[sourceIndices(gen)];
 
             // Randomly choose number of armies to advance
-            int maxArmies = *source->getArmies() - 1;
+            int maxArmies = source->getArmies() - 1;
             std::uniform_int_distribution<int> transferQty(1, maxArmies);
             int armiesToMove = transferQty(gen);
 
@@ -261,7 +262,7 @@ void Player::issueOrder() {
                 delete advance;
             }
             else {
-                std::cout << "\t" << getName() << " - Issue Advance order of " << armiesToMove << " armies from territory " << source->getName() << " territory " << target->getName() << "\n";
+                std::cout << "\t" << getName() << " - Issue Advance order (Defend) of " << armiesToMove << " armies from territory " << source->getName() << " territory " << target->getName() << "\n";
             }
         }
     }
@@ -272,7 +273,7 @@ void Player::issueOrder() {
         for (int i = 0; i < numOfAttackOrders; i++) {
             std::uniform_int_distribution<int> sourceIndices(0, attackList.size() - 1);
             Territory* source = attackList[sourceIndices(gen)];
-            if (*source->getArmies() < 2) continue;
+            if (source->getArmies() < 2) continue;
 
             // Finding adjacent enemy territories
             std::vector<Territory*> possibleTargets;
@@ -289,7 +290,7 @@ void Player::issueOrder() {
             Territory* target = possibleTargets[targetIndices(gen)];
 
             // Randomly choose armies to move to target
-            int maxArmies = *source->getArmies() - 1;
+            int maxArmies = source->getArmies() - 1;
             std::uniform_int_distribution<int> transferQty(1, maxArmies);
             int armiesToMove = transferQty(gen);
 
@@ -301,7 +302,7 @@ void Player::issueOrder() {
                 delete advance;
             }
             else {
-                std::cout << "\t" << getName() << " - Issue Advance order of " << armiesToMove << " armies from territory " << source->getName() << " to player " << target->getOwner()->getName() << "'s territory " << target->getName() << "\n";
+                std::cout << "\t" << getName() << " - Issue Advance order (Attack) of " << armiesToMove << " armies from territory " << source->getName() << " to territory " << target->getName() << "\n";
             }
         }
     }
@@ -377,7 +378,7 @@ void Player::issueOrder() {
                 Territory* source = (*ownedTerritories)[indices[0]];
                 Territory* target = (*ownedTerritories)[indices[indices.size() - 1]];
 
-                int numOfTroops = *source->getArmies() - 1;
+                int numOfTroops = source->getArmies() - 1;
 
                 class Airlift* airlift = new class Airlift(nextId++, this, numOfTroops, source, target);
                 int result = list->add(airlift);

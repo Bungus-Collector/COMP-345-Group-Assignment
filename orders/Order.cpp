@@ -181,7 +181,7 @@ int Deploy::execute()
   }
 
   // Add numTroops to targetTerritory
-  targetTerritory->setArmies(new int(*targetTerritory->getArmies() + *numTroops));
+  targetTerritory->setArmies(targetTerritory->getArmies() + *numTroops);
   return SUCCESS;
 }
 
@@ -273,12 +273,12 @@ void Advance::setTargetTerritory(Territory *t)
 
 bool Advance::validate()
 {
-  if (!sourceTerritory->getOwner() || !targetTerritory->getOwner())
+  if (!sourceTerritory->getOwner())
     return false;
 
   // CHECKS:
   // numtroops <= # troops in sourceTerritory
-  if (*sourceTerritory->getArmies() < *numTroops)
+  if (sourceTerritory->getArmies() < *numTroops)
     return false;
 
   // sourceTerritory and targetTerritory are adjacent
@@ -301,13 +301,15 @@ bool Advance::validate()
     return false;
 
   // Controllers of sourceTerritory and targetTerritory must not be in Negotiation state
-  std::string targetPlayerName = targetTerritory->getOwner()->getName();
-  std::vector<std::string> negotiatingParters = *getIssuer()->getNegotiatingPartners();
-  auto it = std::find(negotiatingParters.begin(), negotiatingParters.end(), targetPlayerName);
+  if (targetTerritory->getOwner()) {
+    std::string targetPlayerName = targetTerritory->getOwner()->getName();
+    std::vector<std::string> negotiatingParters = *getIssuer()->getNegotiatingPartners();
+    auto it = std::find(negotiatingParters.begin(), negotiatingParters.end(), targetPlayerName);
 
-  if (it != negotiatingParters.end())
-    return false;
-
+    if (it != negotiatingParters.end())
+      return false;
+  }
+  
   return true;
 }
 
@@ -320,7 +322,13 @@ int Advance::execute()
   }
 
   // Move troops from sourceTerritory to targetTerritory
-  if (targetTerritory->getOwner() == getIssuer()) // No combat
+  if (!targetTerritory->getOwner()) {
+    sourceTerritory->changeNumArmies(-(*numTroops));
+    targetTerritory->changeNumArmies(*numTroops);
+    targetTerritory->setOwner(getIssuer());
+    getIssuer()->addTerritory(targetTerritory);
+  }
+  else if (targetTerritory->getOwner() == getIssuer()) // No combat
   {
     sourceTerritory->changeNumArmies(-(*numTroops));
     targetTerritory->changeNumArmies(*numTroops);
@@ -330,7 +338,7 @@ int Advance::execute()
     srand(time(0));
     int attackingArmies = *numTroops;
     int attackerCasualties = 0;
-    int defendingArmies = *targetTerritory->getArmies();
+    int defendingArmies = targetTerritory->getArmies();
     int defenderCasualties = 0;
 
     for (int i = 0; i < attackingArmies; i++) // Attackers damage
@@ -356,9 +364,10 @@ int Advance::execute()
     if (defenderCasualties == defendingArmies && attackerCasualties != attackingArmies)
     {
       sourceTerritory->changeNumArmies(-*numTroops);
-      targetTerritory->setArmies(new int(0));
+      targetTerritory->setArmies(0);
       targetTerritory->changeNumArmies(attackingArmies - attackerCasualties);
       targetTerritory->setOwner(getIssuer());
+      getIssuer()->addTerritory(targetTerritory);
     }
     else
     {
@@ -439,6 +448,9 @@ bool Bomb::validate()
   bool isAdjacent = false;
   for (size_t i = 0; i < adjacentTerritories->size(); ++i)
   {
+    if (!adjacentTerritories->at(i)->getOwner()) {
+      return false;
+    }
     if (adjacentTerritories->at(i)->getOwner()->getName() == getIssuer()->getName())
     {
       isAdjacent = true;
@@ -468,7 +480,7 @@ int Bomb::execute()
   }
 
   // Halve the number of troops in targetTerritory
-  targetTerritory->changeNumArmies(-(*targetTerritory->getArmies() / 2));
+  targetTerritory->changeNumArmies(-targetTerritory->getArmies() / 2);
   return SUCCESS;
 }
 
@@ -551,7 +563,7 @@ int Blockade::execute()
   }
 
   // Triple the number of troops in targetTerritory
-  targetTerritory->setArmies(new int(*targetTerritory->getArmies() * 3));
+  targetTerritory->setArmies(targetTerritory->getArmies() * 3);
 
   // Set territory to neutral
   targetTerritory->setOwner(NULL);
@@ -652,7 +664,7 @@ bool Airlift::validate()
   // CHECKS:
   // numtroops <= # troops in sourceTerritory
 
-  if (*sourceTerritory->getArmies() < *numTroops)
+  if (sourceTerritory->getArmies() < *numTroops)
     return false;
 
   // Player must control sourceTerritory and targetTerritory

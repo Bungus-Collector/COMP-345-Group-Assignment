@@ -41,6 +41,7 @@ void GameEngine::handleSetUp(std::string input) {
     MapLoader loader;
     Map* placeHolderMap;
     // Alternative input handler for testing start up phase
+    notify(this);
     switch (*currentState)
     {
     case State::START:
@@ -124,7 +125,7 @@ void GameEngine::startUpPhase() {
 
     while (isSetupRunning) {
         std::cout << "Current State: ";
-        //notify(this);
+        notify(this);
         switch (*currentState) {
             case State::START:
                 std::cout << "START\n";
@@ -247,6 +248,7 @@ void GameEngine::mainGameLoop() {
     int roundNum = 1;
     std::cout << "In mainGameLoop() - start - TOTAL TERRITORIES (" << totalTerritoryNum << ")\n";
     isGameRunning = true;
+    notify(this);
 
     int tempCount = 0;
     while (isGameRunning) {
@@ -276,6 +278,7 @@ void GameEngine::mainGameLoop() {
 
         if (hasWinner && winner != nullptr) {
             *currentState = State::WIN;
+            notify(this);
             std::cout << "PLAYER " << winner->getName() << " HAS WON THE GAME!";
             isGameRunning = false;
         }

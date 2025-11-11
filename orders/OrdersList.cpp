@@ -1,6 +1,7 @@
 // Author: Gabriel Lagacé
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <list>
 #include <algorithm>
@@ -73,6 +74,14 @@ OrdersList &OrdersList::operator=(const OrdersList &other)
     return *this;
 }
 
+std::string OrdersList::stringToLog() {
+    std::ostringstream oss;
+
+    oss << "New order added to OrdersList: " << *(Orders->back());
+
+    return oss.str();
+}
+
 list<Order *> *OrdersList::getOrders()
 {
     return Orders;
@@ -92,6 +101,8 @@ int OrdersList::add(Order *o)
     }
 
     Orders->insert(Orders->end(), o);
+
+    notify(this);
 
     return SUCCESS;
 }

@@ -18,9 +18,9 @@ int main()
 
     //testCards();
 
-    testGameStartupPhase();
+    // testGameStartupPhase();
 
-    //testLoggingObserver();
+    testLoggingObserver();
 
     return 0;
 }

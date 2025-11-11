@@ -81,6 +81,15 @@ void Command::destroy(){
 Command::~Command(){
     destroy();
 }
+
+std::string Command::stringToLog() {
+    std::ostringstream oss;
+
+    oss << "New command saved with effect: " << *this;;
+
+    return oss.str();
+}
+
 /**
  * @brief accessor for effect
  */
@@ -100,6 +109,7 @@ const std::string& Command::getCommand() const{
 void Command::saveEffect(const std::string& effect){
     if(!effect_) effect_ = new std::string();
     *effect_ = effect;
+    notify(this);
 }
 
 /**
@@ -186,6 +196,14 @@ std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp){
     return os;
 }
 
+std::string CommandProcessor::stringToLog() {
+    std::ostringstream oss;
+
+    oss << "New command saved in game processor: " << *this;
+
+    return oss.str();
+}
+
 /**
  * @brief records the command sent by the user
  * @return string command entered by user
@@ -203,6 +221,7 @@ std::string CommandProcessor::readCommand() {
  */
 void CommandProcessor::saveCommand(Command* cmd) {
     commands_->push_back(cmd);
+    notify(this);
 }
 
 /**

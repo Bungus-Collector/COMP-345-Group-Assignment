@@ -161,6 +161,9 @@ void Deploy::setTargetTerritory(Territory *t)
 
 bool Deploy::validate()
 {
+  if (!targetTerritory->getOwner())
+    return false;
+
   // CHECKS:
   // Player controls targetTerritory
   if (targetTerritory->getOwner()->getName() != getIssuer()->getName())
@@ -270,6 +273,9 @@ void Advance::setTargetTerritory(Territory *t)
 
 bool Advance::validate()
 {
+  if (!sourceTerritory->getOwner() || !targetTerritory->getOwner())
+    return false;
+
   // CHECKS:
   // numtroops <= # troops in sourceTerritory
   if (*sourceTerritory->getArmies() < *numTroops)
@@ -420,6 +426,9 @@ void Bomb::setTargetTerritory(Territory *t)
 
 bool Bomb::validate()
 {
+  if (!targetTerritory->getOwner())
+    return false;
+
   // CHECKS:
   // Issuer must not control targetTerritory
   if (targetTerritory->getOwner()->getName() == getIssuer()->getName())
@@ -520,6 +529,9 @@ void Blockade::setTargetTerritory(Territory *t)
 
 bool Blockade::validate()
 {
+  if (!targetTerritory->getOwner())
+    return false;
+
   // CHECKS:
   // Issuer must control targetTerritory
   if (targetTerritory->getOwner()->getName() != getIssuer()->getName())
@@ -634,8 +646,12 @@ void Airlift::setTargetTerritory(Territory *t)
 
 bool Airlift::validate()
 {
+  if (!sourceTerritory->getOwner() || !targetTerritory->getOwner())
+    return false;
+
   // CHECKS:
   // numtroops <= # troops in sourceTerritory
+
   if (*sourceTerritory->getArmies() < *numTroops)
     return false;
 

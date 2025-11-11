@@ -467,6 +467,19 @@ void Player::addTerritory(Territory* t){
 }
 
 /**
+ *  remove territory
+ */
+void Player::removeTerritory(Territory* t){
+    if (!territories_){
+        territories_ = new std::vector<Territory*>;
+    }
+    auto it = std::find(territories_->begin(), territories_->end(), t);
+    if (it != territories_->end()) {
+        territories_->erase(it);
+    }
+}
+
+/**
  * Hand setters
  */
 void Player::setHand(Hand* h){

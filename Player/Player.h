@@ -12,8 +12,8 @@
 
 // Forward declaration
 class Territory;
-class Deck;
 class Hand;
+class Deck;
 class OrdersList;
 class Order;
 
@@ -63,6 +63,7 @@ public:
 
     // ---Territories---
     void addTerritory(Territory *t); // Player does Not own territory lifetime
+    void removeTerritory(Territory *t);
     std::vector<Territory *> *getTerritories() const;
 
     // ---Hand---

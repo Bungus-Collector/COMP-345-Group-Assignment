@@ -366,8 +366,15 @@ int Advance::execute()
       sourceTerritory->changeNumArmies(-*numTroops);
       targetTerritory->setArmies(0);
       targetTerritory->changeNumArmies(attackingArmies - attackerCasualties);
+
+      Player* oldOwner = targetTerritory->getOwner();
+
       targetTerritory->setOwner(getIssuer());
       getIssuer()->addTerritory(targetTerritory);
+
+      if (oldOwner) {
+        oldOwner->removeTerritory(targetTerritory);
+      }
     }
     else
     {
@@ -567,6 +574,7 @@ int Blockade::execute()
 
   // Set territory to neutral
   targetTerritory->setOwner(NULL);
+  getIssuer()->removeTerritory(targetTerritory);
   return SUCCESS;
 }
 

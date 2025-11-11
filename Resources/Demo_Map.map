@@ -11,15 +11,15 @@ Continent Blue=2
 Continent Red=3
 
 [Territories]
-G1,0,0,G2,G3
-G2,0,0,G1,G3,R2
-G3,0,0,G1,G2,B1,B3,R1
+G1,0,0,Continent Green,G2,G3
+G2,0,0,Continent Green,G1,G3,R2
+G3,0,0,Continent Green,G1,G2,B1,B3,R1
 
-B1,0,0,G3,B2,B3
-B2,0,0,B1,B3
-B3,0,0,G3,B1,B2,R1,R3
+B1,0,0,Continent Blue,G3,B2,B3
+B2,0,0,Continent Blue,B1,B3
+B3,0,0,Continent Blue,G3,B1,B2,R1,R3
 
-R1,0,0,G3,B3,R2,R3,R4
-R2,0,0,G2,R1,R3,R4
-R3,0,0,B3,R1,R2,R4
-R4,0,0,R1,R2,R3
+R1,0,0,Continent Red,G3,B3,R2,R3,R4
+R2,0,0,Continent Red,G2,R1,R3,R4
+R3,0,0,Continent Red,B3,R1,R2,R4
+R4,0,0,Continent Red,R1,R2,R3

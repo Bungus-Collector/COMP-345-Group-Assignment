@@ -227,10 +227,14 @@ void GameEngine::printPlayerStats(int roundnum) {
     for(int i = 0; i < players.size(); i++){
         std::cout << i << " - Player " << players[i].getName() << "\n";
         std::cout << "\tReinforcement Pool: " << players[i].getReinforcements() << "\n\n";
-        std::cout << "\tTerritories: \n";
-        for(auto& territory : *players[i].getTerritories()){
+        std::cout << "\tTerritories (" << players[i].getTerritories()->size() << "): \n";
+
+        auto ts = *players[i].getTerritories();
+        std::sort(ts.begin(), ts.end(), [](Territory* a, Territory* b){ return a->getArmies() > b->getArmies();});
+        for(auto& territory : ts) {
             std::cout << "\t\t" << territory->getName() << " (Armies: " << territory->getArmies() << "),\n";
         }
+
         std::cout << "\n";
         std::cout << "\t" << *(players[i].getHand()) <<"\n\n";
     }
@@ -322,7 +326,7 @@ void GameEngine::issueOrdersPhase() {
     std::cout << "B - ISSUE ORDERS PHASE\n";
 
     for (auto& player : players) {
-        player.issueOrder(); 
+        player.issueOrder(gameDeck);
     }
 }
 

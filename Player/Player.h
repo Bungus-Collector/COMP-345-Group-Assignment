@@ -12,6 +12,7 @@
 
 // Forward declaration
 class Territory;
+class Deck;
 class Hand;
 class OrdersList;
 class Order;
@@ -53,7 +54,7 @@ public:
      * creates and adds an order to ordersList
      *
      */
-    void issueOrder();
+    void issueOrder(Deck* deck);
 
     // getters and setters for driver
     // ---Name---

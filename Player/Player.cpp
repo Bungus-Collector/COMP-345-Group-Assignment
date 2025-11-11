@@ -192,7 +192,11 @@ std::vector<Territory*> Player::toAttack() const{ //***
 /**
  * issues new orders for the player
  */
-void Player::issueOrder() {
+void Player::issueOrder(Deck* gameDeck) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::shuffle(territories_->begin(), territories_->end(), gen);
     std::vector<Territory *> attackList = toAttack();
     std::vector<Territory *> defendList = toDefend();
 
@@ -224,8 +228,6 @@ void Player::issueOrder() {
     }
 
     // Choose to issue 1-4 Advance orders for defence and attack
-    std::random_device rd;
-    std::mt19937 gen(rd());
     std::uniform_int_distribution<> distrib(4, 10);
 
     // A - ADVANCE ORDERS TO DEFEND
@@ -282,7 +284,6 @@ void Player::issueOrder() {
                     possibleTargets.push_back(territory);
                 }
             }
-            std::cout << "POSSIBLE TARGETS: " << possibleTargets.size() << "\n";
             if (possibleTargets.empty()) continue;
 
             // Randomly select target territory
@@ -425,6 +426,8 @@ void Player::issueOrder() {
             default:
                 break;
         }
+        selectedCard->play(*hand, *gameDeck);
+        gameDeck->draw(*hand);
     }
 }
 

@@ -6,12 +6,13 @@
 #include <string>
 #include "../Map/Map.h"
 #include "../Player/Player.h"
+#include "../GameLogs/LoggingObserver.h"
 
 using namespace std;
 
 // ======================== ORDER ======================== //
 
-class Order
+class Order : public Subject, public ILoggable
 {
 private:
     // Initiating Player
@@ -33,6 +34,9 @@ public:
 
     // Overloading assignment operator
     Order &operator=(const Order &);
+
+    // Helper function for logs
+    virtual std::string stringToLog() override;
 
     // Method for polymorphically copying objects
     virtual Order *clone() const = 0;

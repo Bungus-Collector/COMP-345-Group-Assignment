@@ -11,6 +11,7 @@
 #include <iosfwd>
 #include <fstream>
 #include <string>
+#include "../GameLogs/LoggingObserver.h"
 
  // forward declaration
 enum class State {
@@ -29,7 +30,7 @@ enum class State {
  * @class Command
  * @brief Represents a single command and its corresponding effect.
  */
-class Command{
+class Command : public Subject, ILoggable {
 public:
     // --- Constructor and Destructor --- 
     Command(); // Default constructor
@@ -48,6 +49,9 @@ public:
     // Stream insertion operator
     friend std::ostream& operator<<(std::ostream& os, const Command& c);
 
+    // Helper function for logs
+    std::string stringToLog() override;
+
 private:
     std::string* commandStr_;
     std::string* effect_;
@@ -63,7 +67,7 @@ private:
  * @brief Handles command input and stores all executed commands.
  * @details Implements the basic Command pattern by maintaining a list of Command objects entered by the user or read from a file.
  */
-class CommandProcessor{
+class CommandProcessor : public Subject, ILoggable {
 public:
     // --- Constructor and Destructor --- 
     CommandProcessor(); // Default constructor
@@ -74,8 +78,10 @@ public:
     Command* getCommand(State state); // validates +saves command
     std::vector<Command*> getHistory() const; // returns all saved commands that are stored in the list
 
-
     friend std::ostream& operator<<(std::ostream& os, const CommandProcessor& cp);
+
+    // Helper function for logs
+    std::string stringToLog() override;
 
 protected:
     virtual std::string readCommand();

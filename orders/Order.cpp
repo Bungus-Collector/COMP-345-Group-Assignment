@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
+#include <sstream>
 #include "Order.h"
 #include "OrdersErrorCodes.h"
 #include "../Map/Map.h"
@@ -50,6 +51,14 @@ Order::~Order()
 void Order::print(std::ostream &os) const
 {
   os << "id: " << *id << " | issuer: " << issuer->getName();
+}
+
+std::string Order::stringToLog() {
+    std::ostringstream oss;
+
+    oss << "Order executed with effect: " << *this;;
+
+    return oss.str();
 }
 
 Order &Order::operator=(const Order &other)
@@ -121,7 +130,7 @@ Deploy::~Deploy()
 void Deploy::print(std::ostream &os) const
 {
   Order::print(os);
-  os << " | numTroops: " << *numTroops << " | targetTerritory: " << targetTerritory->getName();
+  os << " | Deploy Effect | numTroops: " << *numTroops << " | targetTerritory: " << targetTerritory->getName();
 }
 
 Deploy &Deploy::operator=(const Deploy &other)
@@ -180,6 +189,7 @@ int Deploy::execute()
     return FAILURE;
   }
 
+  notify(this);
   // Add numTroops to targetTerritory
   targetTerritory->setArmies(targetTerritory->getArmies() + *numTroops);
   return SUCCESS;
@@ -223,7 +233,7 @@ Advance::~Advance()
 void Advance::print(std::ostream &os) const
 {
   Order::print(os);
-  os << " | numTroops: " << *numTroops
+  os << "| Advance Effect | numTroops: " << *numTroops
      << " | sourceTerritory: " << sourceTerritory->getName()
      << " | targetTerritory: " << targetTerritory->getName();
 }
@@ -382,6 +392,7 @@ int Advance::execute()
       targetTerritory->changeNumArmies(-defenderCasualties);
     }
   }
+  notify(this);
   return SUCCESS;
 }
 
@@ -412,7 +423,7 @@ Bomb::~Bomb()
 void Bomb::print(std::ostream &os) const
 {
   Order::print(os);
-  os << " | targetTerritory: " << targetTerritory->getName();
+  os << " | Bomb Effect | targetTerritory: " << targetTerritory->getName();
 }
 
 Bomb &Bomb::operator=(const Bomb &other)
@@ -485,7 +496,7 @@ int Bomb::execute()
     std::cout << "[Bomb Order]: " << getIssuer()->getName() << "'s order is invalid!" << std::endl;
     return FAILURE;
   }
-
+  notify(this);
   // Halve the number of troops in targetTerritory
   targetTerritory->changeNumArmies(-targetTerritory->getArmies() / 2);
   return SUCCESS;
@@ -518,7 +529,7 @@ Blockade::~Blockade()
 void Blockade::print(std::ostream &os) const
 {
   Order::print(os);
-  os << " | targetTerritory: " << targetTerritory->getName();
+  os << " | Blockade Effect | | targetTerritory: " << targetTerritory->getName();
 }
 
 Blockade &Blockade::operator=(const Blockade &other)
@@ -569,6 +580,8 @@ int Blockade::execute()
     return FAILURE;
   }
 
+  notify(this);
+
   // Triple the number of troops in targetTerritory
   targetTerritory->setArmies(targetTerritory->getArmies() * 3);
 
@@ -616,7 +629,7 @@ Airlift::~Airlift()
 void Airlift::print(std::ostream &os) const
 {
   Order::print(os);
-  os << " | numTroops: " << *numTroops
+  os << " | Airlift Effect | | numTroops: " << *numTroops
      << " | sourceTerritory: " << sourceTerritory->getName()
      << " | targetTerritory: " << targetTerritory->getName();
 }
@@ -692,6 +705,8 @@ int Airlift::execute()
     return FAILURE;
   }
 
+  notify(this);
+
   // Move numTroops from sourceTerritory to targetTerritory
   sourceTerritory->changeNumArmies(-(*numTroops));
   targetTerritory->changeNumArmies(*numTroops);
@@ -725,7 +740,7 @@ Negotiate::~Negotiate()
 void Negotiate::print(std::ostream &os) const
 {
   Order::print(os);
-  os << " | targetPlayer: " << targetPlayer->getName();
+  os << " | Negotiate Effect | | targetPlayer: " << targetPlayer->getName();
 }
 
 Negotiate &Negotiate::operator=(const Negotiate &other)
@@ -770,6 +785,8 @@ int Negotiate::execute()
     std::cout << "[Negotiate Order]: " << getIssuer()->getName() << "'s order is invalid!" << std::endl;
     return FAILURE;
   }
+
+  notify(this);
 
   // Impose Negotiation state between the current player and targetPlayer for one turn
   getIssuer()->addNegotiatingPartner(targetPlayer->getName());

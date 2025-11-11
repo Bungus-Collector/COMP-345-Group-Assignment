@@ -5,8 +5,9 @@
 
 #include <list>
 #include "Order.h"
+#include "../GameLogs/LoggingObserver.h"
 
-class OrdersList
+class OrdersList : public Subject, ILoggable
 {
 private:
     list<Order *> *Orders;
@@ -22,6 +23,9 @@ public:
 
     // Overloading assignment operator
     OrdersList &operator=(const OrdersList &);
+    
+    // Helper function for logs
+    virtual std::string stringToLog() override;
 
     // Getter method
     list<Order *> *getOrders();

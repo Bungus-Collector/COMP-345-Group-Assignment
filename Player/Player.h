@@ -13,6 +13,7 @@
 // Forward declaration
 class Territory;
 class Hand;
+class Deck;
 class OrdersList;
 class Order;
 
@@ -53,7 +54,7 @@ public:
      * creates and adds an order to ordersList
      *
      */
-    void issueOrder();
+    void issueOrder(Deck* deck);
 
     // getters and setters for driver
     // ---Name---
@@ -62,6 +63,7 @@ public:
 
     // ---Territories---
     void addTerritory(Territory *t); // Player does Not own territory lifetime
+    void removeTerritory(Territory *t);
     std::vector<Territory *> *getTerritories() const;
 
     // ---Hand---

@@ -6,6 +6,9 @@
 #include <random>
 #include <algorithm>
 #include <cmath>
+#include <chrono>
+#include <thread>
+
 
 GameEngine::GameEngine() {
     currentState = new State(State::START);
@@ -184,6 +187,7 @@ void GameEngine::InitialPlayerAssignment() {
         Territory* currentTerritory = territories[rand];
         currentPlayer.addTerritory(currentTerritory);
         currentTerritory->setOwner(&currentPlayer);
+        currentTerritory->setArmies(2);
         territories.erase(territories.begin() + rand);
     }
 
@@ -197,7 +201,7 @@ void GameEngine::InitialPlayerAssignment() {
 
     //Each Player gets initial armies of size 50
     for (auto& player : players) {
-        player.addReinforcements(50);
+        player.addReinforcements(initialArmySize);
     }
 
     std::cout << "ORDER OF PLAY: \n";
@@ -223,10 +227,14 @@ void GameEngine::printPlayerStats(int roundnum) {
     for(int i = 0; i < players.size(); i++){
         std::cout << i << " - Player " << players[i].getName() << "\n";
         std::cout << "\tReinforcement Pool: " << players[i].getReinforcements() << "\n\n";
-        std::cout << "\tTerritories: \n";
-        for(auto& territory : *players[i].getTerritories()){
-            std::cout << "\t\t" << territory->getName() << " (Armies: " << *(territory->getArmies()) << "),\n";
+        std::cout << "\tTerritories (" << players[i].getTerritories()->size() << "): \n";
+
+        auto ts = *players[i].getTerritories();
+        std::sort(ts.begin(), ts.end(), [](Territory* a, Territory* b){ return a->getArmies() > b->getArmies();});
+        for(auto& territory : ts) {
+            std::cout << "\t\t" << territory->getName() << " (Armies: " << territory->getArmies() << "),\n";
         }
+
         std::cout << "\n";
         std::cout << "\t" << *(players[i].getHand()) <<"\n\n";
     }
@@ -245,10 +253,6 @@ void GameEngine::mainGameLoop() {
         reinforcementPhase();
         issueOrdersPhase();
         executeOrdersPhase();
-        // if (tempCount == 9) {
-        //     isGameRunning = false;
-        // }
-        // tempCount++;
 
         printPlayerStats(roundNum++);
 
@@ -275,6 +279,7 @@ void GameEngine::mainGameLoop() {
             std::cout << "PLAYER " << winner->getName() << " HAS WON THE GAME!";
             isGameRunning = false;
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
     }
 
     std::cout << "In mainGameLoop() - end\n";
@@ -321,7 +326,7 @@ void GameEngine::issueOrdersPhase() {
     std::cout << "B - ISSUE ORDERS PHASE\n";
 
     for (auto& player : players) {
-        player.issueOrder(); 
+        player.issueOrder(gameDeck);
     }
 }
 

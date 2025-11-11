@@ -84,12 +84,12 @@ std::ostream& operator<<(std::ostream& os, const Continent& continent) {
 //                                  Territory Class                                 //
 //==================================================================================//
 
-Territory::Territory(int id, const std::string& name, Continent* continent, int* armies, Player* owner) {
+Territory::Territory(int id, const std::string& name, Continent* continent, int armies, Player* owner) {
     this->id = new int(id);
     this->name = new std::string(name);
     this->continent = continent;
     this->adjacentTerritories = new std::vector<Territory*>();
-    this->armies = new int(*armies);
+    this->armies = armies;
     this->owner = owner;
 }
 
@@ -98,7 +98,7 @@ Territory::Territory() {
     this->name = new std::string();
     this->continent = new Continent();
     this->adjacentTerritories = new std::vector<Territory*>();
-    this->armies = new int(*armies);
+    this->armies = 0;
     this->owner = nullptr;
 }
 
@@ -106,13 +106,11 @@ Territory::~Territory() {
     delete id;
     delete name;
     delete adjacentTerritories;
-    delete armies;
     delete owner;
     id = nullptr;
     name = nullptr;
     adjacentTerritories = nullptr;
     continent = nullptr;
-    armies = nullptr;
     owner = nullptr;
 }
 
@@ -121,7 +119,7 @@ Territory::Territory(const Territory& other) {
     this->name = new std::string(*other.name);
     this->continent = other.continent;
     this->adjacentTerritories = new std::vector<Territory*>(*other.adjacentTerritories);
-    this->armies = new int(*other.armies);
+    this->armies = other.armies;
     if (other.owner != nullptr) {
         this->owner = new Player(*other.owner);
     } else {
@@ -136,14 +134,13 @@ Territory& Territory::operator=(const Territory& other) {
     delete id;
     delete name;
     delete adjacentTerritories;
-    delete armies;
     delete owner;
 
     this->id = new int(*other.id);
     this->name = new std::string(*other.name);
     this->continent = other.continent;
     this->adjacentTerritories = new std::vector<Territory*>(*other.adjacentTerritories);
-    this->armies = new int(*other.armies);
+    this->armies = other.armies;
     this->owner = new Player(*other.owner);
     return *this;
 }
@@ -157,21 +154,19 @@ int Territory::getId() const { return *id; }
 Continent* Territory::getContinent() const { return continent; }
 std::vector<Territory*>* Territory::getAdjacentTerritories() const { return adjacentTerritories; }
 
-int *Territory::getArmies() const { return armies; }
+int Territory::getArmies() const { return armies; }
 
-void Territory::setArmies(int *armies){
-    delete armies;
-    this->armies = new int(*armies);
+void Territory::setArmies(int armies){
+    this->armies = armies;
 }
 
 Player* Territory::getOwner() const { return owner; }
 
 void Territory::setOwner(Player* o){
-    delete owner;
     owner = o;
 }
 
-void Territory::changeNumArmies(int c) { *armies += c; }
+void Territory::changeNumArmies(int c) { armies += c; }
 
 std::ostream& operator<<(std::ostream& os, const Territory& territory) {
     os << "Territory " << *territory.id << ": " << *territory.name
@@ -413,7 +408,7 @@ Map* MapLoader::loadMap(const std::string& filename) {
                 delete map; return nullptr;
             }
             Continent* parentContinent = nameToContinentMap[continentName];
-            Territory* t = new Territory(territoryIdCounter++, territoryName, parentContinent, new int(0), nullptr);
+            Territory* t = new Territory(territoryIdCounter++, territoryName, parentContinent, 0, nullptr);
 
             map->addTerritory(t);
             parentContinent->addTerritory(t);

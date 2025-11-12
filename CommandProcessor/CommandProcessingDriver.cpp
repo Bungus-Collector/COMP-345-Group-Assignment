@@ -10,37 +10,43 @@
 #include <memory>
 #include <string>
 
-
 /**
  * @param hist list of commands history
  * @brief prints the history of commands and size of list of commands
  */
-static void printHistory(const std::vector<Command*>& hist) {
+static void printHistory(const std::vector<Command *> &hist)
+{
     std::cout << "\n--- Command History (" << hist.size() << ") ---\n";
-    for (const Command* c : hist) {
-        if (c) std::cout << *c;
+    for (const Command *c : hist)
+    {
+        if (c)
+            std::cout << *c;
     }
     std::cout << "-------------------------------\n";
 }
 
-
 /**
  * @brief Runs the full Part 1 demo
  */
-void test(int argc, char* argv[]) {
+void testCommandProcessor(int argc, char *argv[])
+{
     std::unique_ptr<CommandProcessor> cp;
     bool fromFile = (argc >= 2);
 
-    if (fromFile) {
+    if (fromFile)
+    {
         // 1.2.1 + 1.2.3: Adapter route (file input)
         cp = std::make_unique<FCPAdapter>(std::string(argv[1]));
         std::cout << "[Driver] Using FCPAdapter with file: " << argv[1] << "\n";
 
         // 1.2.8: stream operator for adapter
-        if (auto* adapter = dynamic_cast<FCPAdapter*>(cp.get())){
+        if (auto *adapter = dynamic_cast<FCPAdapter *>(cp.get()))
+        {
             std::cout << *adapter << "\n";
         }
-    } else {
+    }
+    else
+    {
         // 1.2.1 + 1.2.2: Console route
         cp = std::make_unique<CommandProcessor>();
         std::cout << "[Driver] Using CommandProcessor. Type 'quit' or EOF to exit.\n";
@@ -49,28 +55,35 @@ void test(int argc, char* argv[]) {
     State current = State::START;
 
     // 1.3.3: getCommand(State) returns a Command* owned by the processor
-    while (true) {
-        Command* cmd = cp->getCommand(current);
-        if (!cmd) { 
-            std::cout << "[Driver] No more commands. Exiting.\n"; 
-            break; 
+    while (true)
+    {
+        Command *cmd = cp->getCommand(current);
+        if (!cmd)
+        {
+            std::cout << "[Driver] No more commands. Exiting.\n";
+            break;
         }
 
-        const std::string& text = cmd->getCommand();
-        const std::string& eff  = cmd->getEffect();
+        const std::string &text = cmd->getCommand();
+        const std::string &eff = cmd->getEffect();
 
-        std::cout << "> "  << text << "\n";
-        std::cout << "  -> " << eff  << "\n";
+        std::cout << "> " << text << "\n";
+        std::cout << "  -> " << eff << "\n";
 
-        if (eff == "Program terminated") {
+        if (eff == "Program terminated")
+        {
             std::cout << "[Driver] Quitting program...\n";
             return;
         }
         // handle state changes
-        if (eff == "Map Loaded" || eff == "Map Reloaded") current = State::MAPLOADED;
-        else if (eff == "Map Validated") current = State::MAPVALIDATED;
-        else if (eff == "Player Added") current = State::PLAYERSADDED;
-        else if (eff == "Game Started") current = State::ASSIGNREINFORCEMENTS;
+        if (eff == "Map Loaded" || eff == "Map Reloaded")
+            current = State::MAPLOADED;
+        else if (eff == "Map Validated")
+            current = State::MAPVALIDATED;
+        else if (eff == "Player Added")
+            current = State::PLAYERSADDED;
+        else if (eff == "Game Started")
+            current = State::ASSIGNREINFORCEMENTS;
 
         // continue reading next command unless terminated
     }
@@ -95,12 +108,10 @@ void test(int argc, char* argv[]) {
 
 /**
  * @brief main method
- * @param argc 
- * @param argv 
+ * @param argc
+ * @param argv
  */
-int main(int argc, char* argv[]) {
-    test(argc,argv);
-    return 0;
-}
-
-
+// int main(int argc, char* argv[]) {
+//     test(argc,argv);
+//     return 0;
+// }

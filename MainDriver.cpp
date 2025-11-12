@@ -5,22 +5,22 @@
 #include "Cards/CardsDriver.cpp"
 #include "GameEngine/GameEngineDriver.cpp"
 #include "GameLogs/LoggingObserverDriver.cpp"
+#include "CommandProcessor/CommandProcessingDriver.cpp"
+#include "GameLogs/LoggingObserverDriver.cpp"
 
 using namespace std;
 
-int main()
+int main(int argc, char *argv[])
 {
-    //testLoadMaps();
-
-    //testPlayers();
-
-    //testOrdersList();
-
-    //testCards();
+    testCommandProcessor(argc, argv);
 
     testGameStartupPhase();
 
-    //testLoggingObserver();
+    // testMainGameLoop() <-- coverd in testCommadnProcessor()
+
+    testOrderExecution();
+
+    testLoggingObserver();
 
     return 0;
 }

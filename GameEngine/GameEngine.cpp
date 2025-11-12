@@ -301,6 +301,7 @@ void GameEngine::mainGameLoop() {
             notify(this);
             std::cout << "PLAYER " << winner->getName() << " HAS WON THE GAME!";
             isGameRunning = false;
+            return;
         }
         }
 

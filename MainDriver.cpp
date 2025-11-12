@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 {
     testCommandProcessor(argc, argv);
 
-    //testGameStartupPhase();
+    //testMainGameLoop();
 
     // testMainGameLoop() <-- coverd in testCommadnProcessor()
 

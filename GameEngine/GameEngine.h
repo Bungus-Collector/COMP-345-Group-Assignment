@@ -20,6 +20,7 @@ public:
     void InitialPlayerAssignment(); //Handles the initial assignment of players
     void printPlayerStats(int roundNum);
     void mainGameLoop(); //Loops the game's play phase
+    void removePlayer(const std::string& playerName);
     void reinforcementPhase();
     void issueOrdersPhase();
     void executeOrdersPhase();

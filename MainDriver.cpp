@@ -18,7 +18,7 @@ int main()
 
     //testCards();
 
-    testGameStartupPhase();
+    //testGameStartupPhase();
 
     //testLoggingObserver();
 

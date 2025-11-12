@@ -264,6 +264,19 @@ void GameEngine::mainGameLoop() {
 
     int tempCount = 0;
     while (isGameRunning) {
+        if (roundNum > 1) {
+            std::vector<std::string> toRemove;
+            for (const auto& player : players) {
+                if (player.getTerritories()->size() < 1) {
+                    toRemove.push_back(player.getName());
+                }
+            }
+            for (const auto& name : toRemove) {
+                std::cout << "Player " << name << " has 0 territories and is OUT OF THE GAME\n";
+                removePlayer(name);
+            }
+        }
+
         reinforcementPhase();
         issueOrdersPhase();
         executeOrdersPhase();
@@ -316,11 +329,6 @@ void GameEngine::reinforcementPhase() {
     std::vector<Continent *> allContinents = *currentMap->getAllContinents();
 
     for (auto& player : players) {
-        if (player.getTerritories()->size() < 1) {
-            std::cout << "Player " << player.getName() << " has 0 territories and is OUT OF THE GAME";
-            removePlayer(player.getName());
-        }
-
         if (players.size() == 1) {
             return;
         }

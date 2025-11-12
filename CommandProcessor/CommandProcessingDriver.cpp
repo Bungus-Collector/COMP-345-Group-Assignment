@@ -103,7 +103,7 @@ void testCommandProcessor(int argc, char *argv[])
     std::cout << cpAssign << "\n";
 
     std::cout << "[Driver] Done.\n";
-    exit(0);
+    return;
 }
 
 /**

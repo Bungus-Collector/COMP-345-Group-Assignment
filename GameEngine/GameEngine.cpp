@@ -1,6 +1,6 @@
 #include "GameEngine.h"
-#include "..\orders\Order.h"
-#include "..\orders\OrdersList.h"
+#include "../orders/Order.h"
+#include "../orders/OrdersList.h"
 #include <iostream>
 #include <cstdlib>
 #include <random>

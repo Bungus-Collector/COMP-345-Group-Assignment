@@ -242,6 +242,17 @@ void GameEngine::printPlayerStats(int roundnum) {
     std::cout << "========================================================================\n\n";
 }
 
+void GameEngine::removePlayer(const std::string& playerName) {
+    auto it = std::find_if(players.begin(), players.end(), [&](const Player& p) {return p.getName() == playerName; });
+
+    if (it != players.end()) {
+        players.erase(it);
+    }
+    else {
+        std::cout << "[Player Removal] Player " << playerName << " not found";
+    }
+}
+
 void GameEngine::mainGameLoop() {
     auto* allTerritories = currentMap->getAllTerritories();
     int totalTerritoryNum = allTerritories->size();
@@ -261,7 +272,15 @@ void GameEngine::mainGameLoop() {
         bool hasWinner = true;
         Player* winner = nullptr;
 
-        for (auto* territory : *allTerritories) {
+        if (players.size() == 1) {
+            winner = &players[0];
+            *currentState = State::WIN;
+            notify(this);
+            std::cout << "PLAYER " << winner->getName() << " HAS WON THE GAME!";
+            isGameRunning = false;
+        }
+        else {
+            for (auto* territory : *allTerritories) {
             Player* owner = territory->getOwner();
             if (owner == nullptr) {
                 hasWinner = false;
@@ -282,10 +301,10 @@ void GameEngine::mainGameLoop() {
             std::cout << "PLAYER " << winner->getName() << " HAS WON THE GAME!";
             isGameRunning = false;
         }
+        }
+
         std::this_thread::sleep_for(std::chrono::milliseconds(250));
     }
-
-    std::cout << "In mainGameLoop() - end\n";
 }
 
 void GameEngine::reinforcementPhase() {
@@ -295,6 +314,15 @@ void GameEngine::reinforcementPhase() {
     std::vector<Continent *> allContinents = *currentMap->getAllContinents();
 
     for (auto& player : players) {
+        if (player.getTerritories()->size() < 1) {
+            std::cout << "Player " << player.getName() << " has 0 territories and is OUT OF THE GAME";
+            removePlayer(player.getName());
+        }
+
+        if (players.size() == 1) {
+            return;
+        }
+
         int numOfTerritories = player.getTerritories()->size();
         int reinforcementCount = std::max(3, static_cast<int>(numOfTerritories / 3));
         int numOfContinents = 0;

@@ -202,8 +202,15 @@ void Player::issueOrder(Deck* gameDeck) {
 
     // DEPLOY REINFORCEMENTS TO OWNED TERRITORIES
     int totalReinforcements = getReinforcements();
-    int armiesPerTerritory = static_cast<int>(totalReinforcements / defendList.size());
-    int remaining = totalReinforcements % defendList.size();
+    int armiesPerTerritory = 0;
+    int remaining = 0;
+    if(territories_->size() > 1) {
+        armiesPerTerritory = static_cast<int>(totalReinforcements / defendList.size());
+        remaining = totalReinforcements % defendList.size();
+    }
+    else if(territories_->size() == 1) {
+        armiesPerTerritory = totalReinforcements;
+    }
 
     OrdersList* list = getOrdersList();
     int nextId = list->getOrders()->empty() ? 1 : list->getOrders()->back()->getId() + 1; // the id for the next order

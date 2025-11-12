@@ -12,7 +12,7 @@ void testGameStates()
     game = nullptr;
 }
 
-void testGameStartupPhase()
+void testMainGameLoop()
 {
     GameEngine *game = new GameEngine();
 
@@ -25,6 +25,6 @@ void testGameStartupPhase()
 
 // int main(int argc, char const *argv[])
 // {
-//     testGameStartupPhase();
+//     testMainGameLoop();
 //     return 0;
 // }

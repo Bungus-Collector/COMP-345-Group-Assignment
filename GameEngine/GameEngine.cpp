@@ -159,6 +159,7 @@ void GameEngine::startUpPhase() {
         }
 
         if (*currentState == State::ASSIGNREINFORCEMENTS) {
+            std::cout << "[3] - testStartupPhase()\n\n";
             mainGameLoop();
         }
     }
@@ -300,6 +301,7 @@ void GameEngine::mainGameLoop() {
             notify(this);
             std::cout << "PLAYER " << winner->getName() << " HAS WON THE GAME!";
             isGameRunning = false;
+            return;
         }
         }
 

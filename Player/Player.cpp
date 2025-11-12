@@ -325,7 +325,7 @@ void Player::issueOrder(Deck* gameDeck) {
         std::vector<Territory*>* ownedTerritories = getTerritories();
         std::uniform_int_distribution<> territoryIndex(0, ownedTerritories->size() - 1);
         switch (orderType) {
-            case CardType::Bomb:
+            case CardType::BombCard:
                 {
                     Territory* target = nullptr;
 
@@ -358,9 +358,9 @@ void Player::issueOrder(Deck* gameDeck) {
                     }
                 }
                 break;
-            // case CardType::Reinforcement:
+            // case CardType::ReinforcementCard:
             //     break;
-            case CardType::Blockade: {
+            case CardType::BlockadeCard: {
                 std::vector<int> indices(ownedTerritories->size());
                 std::iota(indices.begin(), indices.end(), 0);
                 std::shuffle(indices.begin(), indices.end(), gen);
@@ -378,7 +378,7 @@ void Player::issueOrder(Deck* gameDeck) {
                 }
             }
                 break;
-            case CardType::Airlift: {
+            case CardType::AirliftCard: {
                 std::vector<int> indices(ownedTerritories->size());
                 std::iota(indices.begin(), indices.end(), 0);
                 std::shuffle(indices.begin(), indices.end(), gen);
@@ -400,7 +400,7 @@ void Player::issueOrder(Deck* gameDeck) {
             }
             break;
                 
-            case CardType::Diplomacy: {
+            case CardType::DiplomacyCard: {
                 std::set<Player*> otherPlayers;
 
                 for (Territory* territory : *ownedTerritories) {

@@ -95,10 +95,10 @@ void testOrderExecution()
     Continent *c1 = new Continent("Continent 1", 10);
     Player *p1 = new Player("Jensen");
     Player *p2 = new Player("Pritchard");
-    Territory *t1 = new Territory(1, "Territory 1", c1, new int(0), p1);
-    Territory *t2 = new Territory(2, "Territory 2", c1, new int(0), p2);
-    Territory *t3 = new Territory(3, "Territory 3", c1, new int(10), p1);
-    Territory *t4 = new Territory(2, "Territory 4", c1, new int(10), p2);
+    Territory *t1 = new Territory(1, "Territory 1", c1, 0, p1);
+    Territory *t2 = new Territory(2, "Territory 2", c1, 0, p2);
+    Territory *t3 = new Territory(3, "Territory 3", c1, 10, p1);
+    Territory *t4 = new Territory(2, "Territory 4", c1, 10, p2);
     t1->addAdjacentTerritory(t2);
     t2->addAdjacentTerritory(t1);
     t3->addAdjacentTerritory(t4);
@@ -110,8 +110,8 @@ void testOrderExecution()
     cin >> t1Armies;
     cout << "Enter number of armies in player 2 territory (defender): " << endl;
     cin >> t2Armies;
-    t1->setArmies(new int(t1Armies));
-    t2->setArmies(new int(t2Armies));
+    t1->setArmies(t1Armies);
+    t2->setArmies(t2Armies);
 
     cout << "======================== Deploy Order ========================" << endl;
     int reinforcements;
@@ -122,15 +122,15 @@ void testOrderExecution()
     Deploy *deployOrder_invalid = new Deploy(0, p1, reinforcements, t2);
 
     cout << "Executing INVALID deploy order (issuer does not control target territory)..." << endl;
-    cout << "Troops in t2 (before): " << *t2->getArmies() << endl;
+    cout << "Troops in t2 (before): " << t2->getArmies() << endl;
     deployOrder_invalid->execute();
-    cout << "Troops in t2 (after): " << *t2->getArmies() << endl;
+    cout << "Troops in t2 (after): " << t2->getArmies() << endl;
     cout << endl;
 
     cout << "Executing VALID deploy order..." << endl;
-    cout << "Troops in t1 (before): " << *t1->getArmies() << endl;
+    cout << "Troops in t1 (before): " << t1->getArmies() << endl;
     deployOrder_valid->execute();
-    cout << "Troops in t1 (after): " << *t1->getArmies() << endl;
+    cout << "Troops in t1 (after): " << t1->getArmies() << endl;
 
     cout << "======================== Advance Order ========================" << endl;
     int attackers;
@@ -138,25 +138,25 @@ void testOrderExecution()
     cin >> attackers;
 
     Advance *advanceOrder_valid = new Advance(0, p1, attackers, t1, t2);
-    Advance *advanceOrder_invalid = new Advance(0, p1, attackers + *t1->getArmies(), t1, t2);
+    Advance *advanceOrder_invalid = new Advance(0, p1, attackers + t1->getArmies(), t1, t2);
 
     cout << "Executing INVALID advance order (advancing armies exceeds reserves in source territory)..." << endl;
-    cout << "Troops in t1 (before): " << *t1->getArmies() << " (" << *advanceOrder_invalid->getNumTroops() << " attacking)" << endl;
-    cout << "Troops in t2 (before): " << *t2->getArmies() << endl;
+    cout << "Troops in t1 (before): " << t1->getArmies() << " (" << *advanceOrder_invalid->getNumTroops() << " attacking)" << endl;
+    cout << "Troops in t2 (before): " << t2->getArmies() << endl;
     cout << "t2 owner (before): " << t2->getOwner()->getName() << endl;
     advanceOrder_invalid->execute();
-    cout << "Troops in t1 (after): " << *t1->getArmies() << endl;
-    cout << "Troops in t2 (after): " << *t2->getArmies() << endl;
+    cout << "Troops in t1 (after): " << t1->getArmies() << endl;
+    cout << "Troops in t2 (after): " << t2->getArmies() << endl;
     cout << "t2 owner (after): " << t2->getOwner()->getName() << endl;
     cout << endl;
 
     cout << "Executing VALID advance order..." << endl;
-    cout << "Troops in t1 (before): " << *t1->getArmies() << " (" << *advanceOrder_valid->getNumTroops() << " attacking)" << endl;
-    cout << "Troops in t2 (before): " << *t2->getArmies() << endl;
+    cout << "Troops in t1 (before): " << t1->getArmies() << " (" << *advanceOrder_valid->getNumTroops() << " attacking)" << endl;
+    cout << "Troops in t2 (before): " << t2->getArmies() << endl;
     cout << "t2 owner (before): " << t2->getOwner()->getName() << endl;
     advanceOrder_valid->execute();
-    cout << "Troops in t1 (after): " << *t1->getArmies() << endl;
-    cout << "Troops in t2 (after): " << *t2->getArmies() << endl;
+    cout << "Troops in t1 (after): " << t1->getArmies() << endl;
+    cout << "Troops in t2 (after): " << t2->getArmies() << endl;
     cout << "t2 owner (after): " << t2->getOwner()->getName() << endl;
 
     cout << "======================== Bomb Order ========================" << endl;
@@ -164,15 +164,15 @@ void testOrderExecution()
     Bomb *bombOrder_invalid = new Bomb(0, p1, t1);
 
     cout << "Executing INVALID bomb order (player 1 attempting to bomb one of his own territories)..." << endl;
-    cout << "Troops in t1 (before): " << *t1->getArmies() << endl;
+    cout << "Troops in t1 (before): " << t1->getArmies() << endl;
     bombOrder_invalid->execute();
-    cout << "Troops in t1 (after): " << *t1->getArmies() << endl;
+    cout << "Troops in t1 (after): " << t1->getArmies() << endl;
     cout << endl;
 
     cout << "Executing VALID bomb order..." << endl;
-    cout << "Troops in t4 (before): " << *t4->getArmies() << endl;
+    cout << "Troops in t4 (before): " << t4->getArmies() << endl;
     bombOrder_valid->execute();
-    cout << "Troops in t4 (after): " << *t4->getArmies() << endl;
+    cout << "Troops in t4 (after): " << t4->getArmies() << endl;
 
     cout << "======================== Airlift Order ========================" << endl;
     int airdrop;
@@ -183,33 +183,33 @@ void testOrderExecution()
     Airlift *airliftOrder_invalid = new Airlift(0, p1, airdrop, t1, t4);
 
     cout << "Executing INVALID airlift order (player 1 attempting to airlift into player 2 territory)..." << endl;
-    cout << "Troops in t4 (before): " << *t4->getArmies() << endl;
+    cout << "Troops in t4 (before): " << t4->getArmies() << endl;
     airliftOrder_invalid->execute();
-    cout << "Troops in t4 (after): " << *t4->getArmies() << endl;
+    cout << "Troops in t4 (after): " << t4->getArmies() << endl;
     cout << endl;
 
     cout << "Executing valid airlift order..." << endl;
-    cout << "Troops in t3 (before): " << *t3->getArmies() << endl;
+    cout << "Troops in t3 (before): " << t3->getArmies() << endl;
     airliftOrder_valid->execute();
-    cout << "Troops in t3 (after): " << *t3->getArmies() << endl;
+    cout << "Troops in t3 (after): " << t3->getArmies() << endl;
 
     cout << "======================== Blockade Order ========================" << endl;
     Blockade *blockadeOrder_valid = new Blockade(0, p1, t3);
     Blockade *blockadeOrder_invalid = new Blockade(0, p1, t4);
 
     cout << "Executing INVALID blockade order (player 1 attempting to blockade player 2 territory)..." << endl;
-    cout << "Troops in t4 (before): " << *t4->getArmies() << endl;
+    cout << "Troops in t4 (before): " << t4->getArmies() << endl;
     cout << "t4 owner (before): " << t4->getOwner()->getName() << endl;
     blockadeOrder_invalid->execute();
-    cout << "Troops in t4 (after): " << *t4->getArmies() << endl;
+    cout << "Troops in t4 (after): " << t4->getArmies() << endl;
     cout << "t4 owner (after): " << t4->getOwner()->getName() << endl;
     cout << endl;
 
     cout << "Executing VALID blockade order..." << endl;
-    cout << "Troops in t3 (before): " << *t3->getArmies() << endl;
+    cout << "Troops in t3 (before): " << t3->getArmies() << endl;
     cout << "t3 owner (before): " << t3->getOwner()->getName() << endl;
     blockadeOrder_valid->execute();
-    cout << "Troops in t3 (after): " << *t3->getArmies() << endl;
+    cout << "Troops in t3 (after): " << t3->getArmies() << endl;
     cout << "t3 owner (after): " << t3->getOwner()->getName() << endl;
 
     cout << "======================== Negotiate Order ========================" << endl;
@@ -224,7 +224,7 @@ void testOrderExecution()
     negotiateOrder_valid->execute();
     cout << "Player 1 attempting to attack player 2 during negotiations:" << endl;
     t1->changeNumArmies(attackers);
-    Advance *advanceOrder_negotiating = new Advance(0, p1, *t3->getArmies(), t3, t4);
+    Advance *advanceOrder_negotiating = new Advance(0, p1, t3->getArmies(), t3, t4);
     advanceOrder_negotiating->execute();
 
     cout << "Cleaning up..." << endl;

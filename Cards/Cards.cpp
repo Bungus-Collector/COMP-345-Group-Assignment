@@ -35,11 +35,11 @@ std::ostream& operator<<(std::ostream& os, const Card& card)    // stream insert
 {
     switch (card.type)
     {
-        case CardType::Bomb: os << "[Bomb]"; break;
-        case CardType::Reinforcement: os << "[Reinforcement]"; break;
-        case CardType::Blockade: os << "[Blockade]"; break;
-        case CardType::Airlift: os << "[Airlift]"; break;
-        case CardType::Diplomacy: os << "[Diplomacy]"; break;
+        case CardType::BombCard: os << "[Bomb]"; break;
+        case CardType::ReinforcementCard: os << "[Reinforcement]"; break;
+        case CardType::BlockadeCard: os << "[Blockade]"; break;
+        case CardType::AirliftCard: os << "[Airlift]"; break;
+        case CardType::DiplomacyCard: os << "[Diplomacy]"; break;
     }
     return os;
 }
@@ -75,11 +75,11 @@ Deck::Deck(int size)    // constructor
     int cardsPerType = size / 4;
     for (int i = 0; i < cardsPerType; ++i)
     {
-        cards.push_back(std::make_unique<Card>(CardType::Bomb));
+        cards.push_back(std::make_unique<Card>(CardType::BombCard));
         // cards.push_back(std::make_unique<Card>(CardType::Reinforcement));
-        cards.push_back(std::make_unique<Card>(CardType::Blockade));
-        cards.push_back(std::make_unique<Card>(CardType::Airlift));
-        cards.push_back(std::make_unique<Card>(CardType::Diplomacy));
+        cards.push_back(std::make_unique<Card>(CardType::BlockadeCard));
+        cards.push_back(std::make_unique<Card>(CardType::AirliftCard));
+        cards.push_back(std::make_unique<Card>(CardType::DiplomacyCard));
     }
 
     int remaining = size % 5;

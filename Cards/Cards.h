@@ -13,11 +13,11 @@ class Deck;
 // Card Types enum
 enum CardType
 {
-    Bomb,
-    Reinforcement,
-    Blockade,
-    Airlift,
-    Diplomacy
+    BombCard,
+    ReinforcementCard,
+    BlockadeCard,
+    AirliftCard,
+    DiplomacyCard
 };
 
 

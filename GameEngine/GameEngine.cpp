@@ -159,6 +159,7 @@ void GameEngine::startUpPhase() {
         }
 
         if (*currentState == State::ASSIGNREINFORCEMENTS) {
+            std::cout << "[3] - testStartupPhase()\n\n";
             mainGameLoop();
         }
     }

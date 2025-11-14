@@ -5,13 +5,8 @@
  * @date September 29th, 2025
  */
 
-  /*
-    Todo:
-        - documentation
-        - complete methods
- */
-
 #include "Player.h"
+#include "PlayerStrategy.h"
 
 #include "../Map/Map.h"
 #include "../orders/Order.h"
@@ -35,6 +30,7 @@
  */
 Player::Player():
     name_("Unnamed"),
+    ps_(new HumanPlayerStrategy()),
     territories_(new std::vector<Territory*>()), //empty list of territories
     hand_(new Hand()), // empty hand
     orders_(new OrdersList()), // every player has its own empty list
@@ -57,6 +53,7 @@ Player::Player():
  */
 Player::Player(const std::string& name): 
     name_(name),
+    ps_(new HumanPlayerStrategy()),
     territories_(new std::vector<Territory*>()),
     hand_(new Hand()),
     orders_(new OrdersList()),
@@ -75,12 +72,13 @@ Player::Player(const std::string& name):
  */
 Player::Player(const Player& other):
     name_(other.name_),
+    ps_(nullptr),
     territories_(nullptr),
     hand_(nullptr),
     orders_(nullptr),
     negotiatingPartners_(nullptr),
     reinforcementPool_(0),
-    getsCard_(nullptr)
+    getsCard_(other.getsCard_)
     {
         copyFrom(other);
         std::cout << "[Player] Copy-Constructor call for Player for " << name_ << "\n";
@@ -115,6 +113,12 @@ Player::~Player(){
  * @param other reference to other Player obj
  */
 void Player::copyFrom(const Player& other) {
+    if (other.ps_) {
+        ps_ = other.ps_->clone();
+    } else {
+        ps_ = new HumanPlayerStrategy();
+    }
+
     // shallow copies the territory* entries ***
     territories_ = new std::vector<Territory*>(*other.territories_);
 
@@ -144,6 +148,8 @@ void Player::copyFrom(const Player& other) {
  *  - handles dangling pointers for destructor
  */
 void Player::destroy(){
+    delete ps_;
+    ps_ = nullptr;
     delete territories_;
     territories_ = nullptr;
     delete hand_;
@@ -158,283 +164,33 @@ void Player::destroy(){
 /**
  * sets arbitrary list of territories to be defended
  */
-std::vector<Territory*> Player::toDefend() const{ //***
-    std::vector<Territory*> tDefended;
-
-    // checks if player has territories, return if none;
-    if(!territories_ || territories_->empty()){
-        return tDefended; 
+std::vector<Territory*> Player::toDefend() const{
+    if (ps_) {
+        return ps_->toDefend(this);
     }
-
-    // arbitrary list of territories to be defended (first half)
-    const std::size_t half = territories_->size()/2;
-    tDefended.insert(tDefended.end(), territories_->begin(), territories_->begin()+half);
-    return tDefended;
+    std::cout << "Player " << name_ << " has no strategy!" << std::endl;
+    return std::vector<Territory*>();
 }
 
 /**
  * sets arbitrary list of territories to be attacked.
  */
-std::vector<Territory*> Player::toAttack() const{ //***
-    std::vector<Territory*> tAttack;
-
-    // checks if player has territories, return if empty;
-    if(!territories_ || territories_->empty()){
-        return tAttack;
+std::vector<Territory*> Player::toAttack() const{
+    if (ps_) {
+        return ps_->toAttack(this);
     }
-
-    // arbitrary list of territories to be attack (second half)
-    const std::size_t half = territories_->size()/2;
-    tAttack.insert(tAttack.end(), territories_->begin()+ half, territories_->end());
-    return tAttack;
+    std::cout << "Player " << name_ << " has no strategy!" << std::endl;
+    return std::vector<Territory*>();
 }
 
 /**
  * issues new orders for the player
  */
 void Player::issueOrder(Deck* gameDeck) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-
-    std::shuffle(territories_->begin(), territories_->end(), gen);
-    std::vector<Territory *> attackList = toAttack();
-    std::vector<Territory *> defendList = toDefend();
-
-    // DEPLOY REINFORCEMENTS TO OWNED TERRITORIES
-    int totalReinforcements = getReinforcements();
-    int armiesPerTerritory = 0;
-    int remaining = 0;
-    if(territories_->size() > 1) {
-        armiesPerTerritory = static_cast<int>(totalReinforcements / defendList.size());
-        remaining = totalReinforcements % defendList.size();
-    }
-    else if(territories_->size() == 1) {
-        armiesPerTerritory = totalReinforcements;
-    }
-
-    OrdersList* list = getOrdersList();
-    int nextId = list->getOrders()->empty() ? 1 : list->getOrders()->back()->getId() + 1; // the id for the next order
-
-    for (auto* territory : defendList) {
-        int totalArmies = armiesPerTerritory;
-        if (remaining-- > 0) {
-            totalArmies += 1;
-        }
-
-        // Issue Deploy orders
-        Deploy* deploy = new Deploy(nextId++, this, totalArmies, territory);
-        int result = list->add(deploy);
-        if (result != 0) {
-            std::cerr << "Failed to add Deploy order for " << territory->getName() << "\n";
-            delete deploy;
-        }
-        else {
-            std::cout << "\t" << getName() << " - Issue Deploy order of " << totalArmies << " armies to territory " << territory->getName() << "\n";
-            takeReinforcements(totalArmies);
-        }
-    }
-
-    // Choose to issue 1-4 Advance orders for defence and attack
-    std::uniform_int_distribution<> distrib(4, 10);
-
-    // A - ADVANCE ORDERS TO DEFEND
-    int numOfDefenseOrders = distrib(gen);
-    if (!defendList.empty()) {
-        for (int i = 0; i < numOfDefenseOrders; i++) {
-            std::uniform_int_distribution<int> targetIndices(0, defendList.size() - 1);
-            Territory* target = defendList[targetIndices(gen)];
-
-            // Finding possible territories to take armies from
-            std::vector<Territory*> possibleSources;
-            for (Territory* territory : *target->getAdjacentTerritories()) {
-                auto check3 = territory->getArmies();
-                if (territory->getOwner() == this && territory->getArmies() >= 2) {
-                    possibleSources.push_back(territory);
-                }
-            }
-            if (possibleSources.empty()) continue;
-
-            // Randomly pick source territory
-            std::uniform_int_distribution<int> sourceIndices(0, possibleSources.size() - 1);
-            Territory* source = possibleSources[sourceIndices(gen)];
-
-            // Randomly choose number of armies to advance
-            int maxArmies = source->getArmies() - 1;
-            std::uniform_int_distribution<int> transferQty(1, maxArmies);
-            int armiesToMove = transferQty(gen);
-
-            // Issue Advance orders
-            Advance* advance = new Advance(nextId++, this, armiesToMove, source, target);
-            int result = list->add(advance);
-            if (result != 0) {
-                std::cerr << "Failed to add Advance order to " << target->getName() << "\n";
-                delete advance;
-            }
-            else {
-                std::cout << "\t" << getName() << " - Issue Advance order (Defend) of " << armiesToMove << " armies from territory " << source->getName() << " territory " << target->getName() << "\n";
-            }
-        }
-    }
-
-    // B - ADVANCE ORDERS TO ATTACK
-    int numOfAttackOrders = distrib(gen);
-    if (!attackList.empty()) {
-        for (int i = 0; i < numOfAttackOrders; i++) {
-            std::uniform_int_distribution<int> sourceIndices(0, attackList.size() - 1);
-            Territory* source = attackList[sourceIndices(gen)];
-            if (source->getArmies() < 2) continue;
-
-            // Finding adjacent enemy territories
-            std::vector<Territory*> possibleTargets;
-            for (auto* territory : *source->getAdjacentTerritories()) {
-                if (territory->getOwner() != this) {
-                    possibleTargets.push_back(territory);
-                }
-            }
-            if (possibleTargets.empty()) continue;
-
-            // Randomly select target territory
-            std::uniform_int_distribution<int> targetIndices(0, possibleTargets.size() - 1);
-            Territory* target = possibleTargets[targetIndices(gen)];
-
-            // Randomly choose armies to move to target
-            int maxArmies = source->getArmies() - 1;
-            std::uniform_int_distribution<int> transferQty(1, maxArmies);
-            int armiesToMove = transferQty(gen);
-
-            // Issue Advance orders
-            Advance* advance = new Advance(nextId++, this, armiesToMove, source, target);
-            int result = list->add(advance);
-            if (result != 0) {
-                std::cerr << "Failed to add Advance order to " << target->getName() << "\n";
-                delete advance;
-            }
-            else {
-                std::cout << "\t" << getName() << " - Issue Advance order (Attack) of " << armiesToMove << " armies from territory " << source->getName() << " to territory " << target->getName() << "\n";
-            }
-        }
-    }
-
-    // C - ISSUE CARD ORDER
-    Hand* hand = getHand();
-    const std::vector<std::unique_ptr<Card>>& availableCards = hand->getCards();
-    if (!availableCards.empty()) {
-        Card* selectedCard = availableCards[0].get();
-        CardType orderType = selectedCard->getType();
-        
-        std::vector<Territory*>* ownedTerritories = getTerritories();
-        std::uniform_int_distribution<> territoryIndex(0, ownedTerritories->size() - 1);
-        switch (orderType) {
-            case CardType::BombCard:
-                {
-                    Territory* target = nullptr;
-
-                    // shuffle indices of ownedTerritories so we don't change the actual territories_ variable
-                    std::vector<int> indices(ownedTerritories->size());
-                    std::iota(indices.begin(), indices.end(), 0);
-                    std::shuffle(indices.begin(), indices.end(), gen);
-
-                    for (int i : indices) {
-                        Territory* source = (*ownedTerritories)[i];
-                        for (Territory* adjacent : *source->getAdjacentTerritories()) {
-                            if (adjacent->getOwner() != this && adjacent->getOwner() != nullptr) {
-                                target = adjacent;
-                                break;
-                            }
-                        }
-                        if (target != nullptr) break;
-                    }
-
-                    if (target != nullptr) {
-                        class Bomb* bomb = new class Bomb(nextId++, this, target);
-                        int result = list->add(bomb);
-                        if (result != 0) {
-                            std::cerr << "Failed to add Bomb order for target territory " << target->getName() << "\n";
-                            delete bomb;
-                        }
-                        else {
-                            std::cout << "\t" << getName() << " - Issue Bomb order on player " << target->getOwner()->getName() << "'s territory " << target->getName() << "\n";
-                        }
-                    }
-                }
-                break;
-            // case CardType::ReinforcementCard:
-            //     break;
-            case CardType::BlockadeCard: {
-                std::vector<int> indices(ownedTerritories->size());
-                std::iota(indices.begin(), indices.end(), 0);
-                std::shuffle(indices.begin(), indices.end(), gen);
-
-                Territory* target = (*ownedTerritories)[indices[0]];
-
-                class Blockade* blockade = new class Blockade(nextId++, this, target);
-                int result = list->add(blockade);
-                if (result != 0) {
-                    std::cerr << "Failed to add Blockade order for target territory " << target->getName() << "\n";
-                    delete blockade;
-                }
-                else {
-                    std::cout << "\t" << getName() << " - Issue Blockade order on owned territory " << target->getName() << "\n";
-                }
-            }
-                break;
-            case CardType::AirliftCard: {
-                std::vector<int> indices(ownedTerritories->size());
-                std::iota(indices.begin(), indices.end(), 0);
-                std::shuffle(indices.begin(), indices.end(), gen);
-
-                Territory* source = (*ownedTerritories)[indices[0]];
-                Territory* target = (*ownedTerritories)[indices[indices.size() - 1]];
-
-                int numOfTroops = source->getArmies() - 1;
-
-                class Airlift* airlift = new class Airlift(nextId++, this, numOfTroops, source, target);
-                int result = list->add(airlift);
-                if (result != 0) {
-                    std::cerr << "Failed to add Airlift order from territory " << source->getName() << " to territory " << target->getName() << "\n";
-                    delete airlift;
-                }
-                else {
-                    std::cout << "\t" << getName() << " - Issue Airlift order from territory " << source->getName() << " to territory " << target->getName() << "\n";
-                }
-            }
-            break;
-                
-            case CardType::DiplomacyCard: {
-                std::set<Player*> otherPlayers;
-
-                for (Territory* territory : *ownedTerritories) {
-                    for (Territory* adjacent : *territory->getAdjacentTerritories()) {
-                        Player* owner = adjacent->getOwner();
-                        if (owner != nullptr && owner != this) {
-                            otherPlayers.insert(owner);
-                        }
-                    }
-                }
-
-                if (!otherPlayers.empty()) {
-                    std::vector<Player*> others(otherPlayers.begin(), otherPlayers.end());
-                    std::uniform_int_distribution<int> dis(0, others.size() - 1);
-
-                    Player* target = others[dis(gen)];
-
-                    class Negotiate* negotiate = new class Negotiate(nextId++, this, target);
-                    int result = list->add(negotiate);
-                    if (result != 0) {
-                        std::cerr << "Failed to add Negotiate order from player " << getName() << " to player " << target->getName() << "\n";
-                        delete negotiate;
-                    }
-                    else {
-                        std::cout << "\t" << getName() << " - Issue Negotiate order from player " << getName() << " to player " << target->getName() << "\n";
-                    }
-                }
-            }
-                break;
-            default:
-                break;
-        }
-        selectedCard->play(*hand, *gameDeck);
-        gameDeck->draw(*hand);
+    if (ps_) {
+        ps_->issueOrder(this, gameDeck);
+    } else {
+        std::cout << "Player " << name_ << " has no strategy and cannot issue orders." << std::endl;
     }
 }
 
@@ -453,6 +209,23 @@ const std::string& Player::getName() const{
  */
 void Player::setName(const std::string& n){
     name_ = n;
+}
+
+/**
+ * Strategy setter
+ */
+void Player::setStrategy(PlayerStrategy* newStrategy) {
+    if (ps_ != newStrategy) {
+        delete ps_;
+        ps_ = newStrategy;
+    }
+}
+
+/**
+ * Strategy getter
+ */
+PlayerStrategy* Player::getStrategy() const {
+    return ps_;
 }
 
 /**

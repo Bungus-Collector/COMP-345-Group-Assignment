@@ -16,6 +16,7 @@ class Hand;
 class Deck;
 class OrdersList;
 class Order;
+class PlayerStrategy;
 
 /**
  * @class Player
@@ -84,12 +85,17 @@ public:
     void takeReinforcements(int);
     int getReinforcements();
 
+    // ---Strategy related---
+    void setStrategy(PlayerStrategy* newStrategy);
+    PlayerStrategy* getStrategy() const;
+
     // Stream insertion
     friend std::ostream &operator<<(std::ostream &os, const Player &p);
 
 private:
     // all data members of user-defined class needs to be pointer type
     std::string name_;                              // player name
+    PlayerStrategy* ps_;                            // strategy of the player
     std::vector<Territory *> *territories_;         // owned territories
     Hand *hand_;                                    // hand of cards
     OrdersList *orders_;                            // list of orders.

@@ -76,7 +76,7 @@ Deck::Deck(int size)    // constructor
     for (int i = 0; i < cardsPerType; ++i)
     {
         cards.push_back(std::make_unique<Card>(CardType::BombCard));
-        // cards.push_back(std::make_unique<Card>(CardType::Reinforcement));
+        // cards.push_back(std::make_unique<Card>(CardType::ReinforcementCard));
         cards.push_back(std::make_unique<Card>(CardType::BlockadeCard));
         cards.push_back(std::make_unique<Card>(CardType::AirliftCard));
         cards.push_back(std::make_unique<Card>(CardType::DiplomacyCard));

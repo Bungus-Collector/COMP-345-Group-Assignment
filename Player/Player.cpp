@@ -5,13 +5,8 @@
  * @date September 29th, 2025
  */
 
-  /*
-    Todo:
-        - documentation
-        - complete methods
- */
-
 #include "Player.h"
+#include "PlayerStrategy.h"
 
 #include "../Map/Map.h"
 #include "../orders/Order.h"
@@ -35,6 +30,7 @@
  */
 Player::Player():
     name_("Unnamed"),
+    ps_(new HumanPlayerStrategy()),
     territories_(new std::vector<Territory*>()), //empty list of territories
     hand_(new Hand()), // empty hand
     orders_(new OrdersList()), // every player has its own empty list
@@ -57,6 +53,7 @@ Player::Player():
  */
 Player::Player(const std::string& name): 
     name_(name),
+    ps_(new HumanPlayerStrategy()),
     territories_(new std::vector<Territory*>()),
     hand_(new Hand()),
     orders_(new OrdersList()),
@@ -75,12 +72,13 @@ Player::Player(const std::string& name):
  */
 Player::Player(const Player& other):
     name_(other.name_),
+    ps_(nullptr),
     territories_(nullptr),
     hand_(nullptr),
     orders_(nullptr),
     negotiatingPartners_(nullptr),
     reinforcementPool_(0),
-    getsCard_(nullptr)
+    getsCard_(other.getsCard_)
     {
         copyFrom(other);
         std::cout << "[Player] Copy-Constructor call for Player for " << name_ << "\n";
@@ -115,6 +113,12 @@ Player::~Player(){
  * @param other reference to other Player obj
  */
 void Player::copyFrom(const Player& other) {
+    if (other.ps_) {
+        ps_ = other.ps_->clone();
+    } else {
+        ps_ = new HumanPlayerStrategy();
+    }
+
     // shallow copies the territory* entries ***
     territories_ = new std::vector<Territory*>(*other.territories_);
 
@@ -144,6 +148,8 @@ void Player::copyFrom(const Player& other) {
  *  - handles dangling pointers for destructor
  */
 void Player::destroy(){
+    delete ps_;
+    ps_ = nullptr;
     delete territories_;
     territories_ = nullptr;
     delete hand_;
@@ -158,41 +164,37 @@ void Player::destroy(){
 /**
  * sets arbitrary list of territories to be defended
  */
-std::vector<Territory*> Player::toDefend() const{ //***
-    std::vector<Territory*> tDefended;
-
-    // checks if player has territories, return if none;
-    if(!territories_ || territories_->empty()){
-        return tDefended; 
+std::vector<Territory*> Player::toDefend() const{
+    if (ps_) {
+        return ps_->toDefend(this);
     }
-
-    // arbitrary list of territories to be defended (first half)
-    const std::size_t half = territories_->size()/2;
-    tDefended.insert(tDefended.end(), territories_->begin(), territories_->begin()+half);
-    return tDefended;
+    std::cout << "Player " << name_ << " has no strategy!" << std::endl;
+    return std::vector<Territory*>();
 }
 
 /**
  * sets arbitrary list of territories to be attacked.
  */
-std::vector<Territory*> Player::toAttack() const{ //***
-    std::vector<Territory*> tAttack;
-
-    // checks if player has territories, return if empty;
-    if(!territories_ || territories_->empty()){
-        return tAttack;
+std::vector<Territory*> Player::toAttack() const{
+    if (ps_) {
+        return ps_->toAttack(this);
     }
-
-    // arbitrary list of territories to be attack (second half)
-    const std::size_t half = territories_->size()/2;
-    tAttack.insert(tAttack.end(), territories_->begin()+ half, territories_->end());
-    return tAttack;
+    std::cout << "Player " << name_ << " has no strategy!" << std::endl;
+    return std::vector<Territory*>();
 }
 
 /**
  * issues new orders for the player
  */
 void Player::issueOrder(Deck* gameDeck) {
+    if (ps_) {
+        ps_->issueOrder(this, gameDeck);
+    } else {
+        std::cout << "Player " << name_ << " has no strategy and cannot issue orders." << std::endl;
+    }
+}
+
+void Player::issueOrder_old(Deck* gameDeck) {
     std::random_device rd;
     std::mt19937 gen(rd());
 
@@ -453,6 +455,23 @@ const std::string& Player::getName() const{
  */
 void Player::setName(const std::string& n){
     name_ = n;
+}
+
+/**
+ * Strategy setter
+ */
+void Player::setStrategy(PlayerStrategy* newStrategy) {
+    if (ps_ != newStrategy) {
+        delete ps_;
+        ps_ = newStrategy;
+    }
+}
+
+/**
+ * Strategy getter
+ */
+PlayerStrategy* Player::getStrategy() const {
+    return ps_;
 }
 
 /**

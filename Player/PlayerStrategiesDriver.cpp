@@ -13,7 +13,7 @@ void testPlayerStrategies()
 
     // Create players
     Player *p_human = new Player("Elian (Human)");
-    // Player *p_aggressive = new Player("Gabe (Aggressive)");
+    Player *p_aggressive = new Player("Gabe (Aggressive)");
     // Player *p_neutral = new Player("Gorden (Neutral)");
 
     // creating new map
@@ -27,16 +27,14 @@ void testPlayerStrategies()
     t2->addAdjacentTerritory(t3);
     t3->addAdjacentTerritory(t1);
 
-
-
     // Assign strategies
     p_human->setStrategy(new HumanPlayerStrategy());
-    // p_aggressive->setStrategy(new AggressivePlayerStrategy());
+    p_aggressive->setStrategy(new AggressivePlayerStrategy());
     // p_neutral->setStrategy(new NeutralPlayerStrategy());
 
     // Assign reinforcements
     p_human->addReinforcements(5);
-    // p_aggressive->addReinforcements(5);
+    p_aggressive->addReinforcements(5);
     // p_neutral->addReinforcements(5);
 
     // Assign territories and armies
@@ -44,9 +42,9 @@ void testPlayerStrategies()
     p_human->addTerritory(t2);
     p_human->addTerritory(t3);
 
-    // t2->setOwner(p_aggressive);
-    // t2->setArmies(10);
-    // p_aggressive->addTerritory(t2);
+    t2->setOwner(p_aggressive);
+    t2->setArmies(10);
+    p_aggressive->addTerritory(t2);
 
     // t3->setOwner(p_neutral);
     // t3->setArmies(3);
@@ -63,10 +61,10 @@ void testPlayerStrategies()
     std::cout << "\nHuman player has finished issuing orders." << std::endl;
 
     // (B) Aggressive Player (Automatic)
-    // std::cout << "\n--- Issuing orders for: " << p_aggressive->getName()
-    //           << " (" << p_aggressive->getStrategy()->getType() << ") ---" << std::endl;
-    // std::cout << "(This should be automatic, focusing on attacking...)" << std::endl;
-    // p_aggressive->issueOrder(gameDeck);
+    std::cout << "\n--- Issuing orders for: " << p_aggressive->getName()
+              << " (" << p_aggressive->getStrategy()->getType() << ") ---" << std::endl;
+    std::cout << "(This should be automatic, focusing on attacking...)" << std::endl;
+    p_aggressive->issueOrder(gameDeck);
 
     // (C) Neutral Player (Automatic)
     // std::cout << "\n--- Issuing orders for: " << p_neutral->getName()
@@ -75,7 +73,7 @@ void testPlayerStrategies()
     // p_neutral->issueOrder(gameDeck);
 
     delete p_human;
-    // delete p_aggressive;
+    delete p_aggressive;
     // delete p_neutral;
 
     // delete the territories we created

@@ -25,7 +25,6 @@ public:
     PlayerStrategy() = default;          // default constructor
     virtual ~PlayerStrategy() = default; // virtual destructor
 
-
     /**
      * Determines territories to defend
      * @param p The player executing the strategy
@@ -57,7 +56,7 @@ public:
      * Virtual-constructor (cloning) for deep copying
      * @return deep cloned PlayerStrategy
      */
-    virtual PlayerStrategy* clone() const = 0;
+    virtual PlayerStrategy *clone() const = 0;
 
     // Stream insertion
     friend std::ostream &operator<<(std::ostream &os, const PlayerStrategy &ps);
@@ -86,5 +85,48 @@ public:
     std::vector<Territory *> toAttack(const Player *p) const override;
     void issueOrder(Player *p, Deck *deck) override;
     std::string getType() const override;
-    PlayerStrategy* clone() const override;
+    PlayerStrategy *clone() const override;
+};
+
+/**
+ * @class AggressivePlayerStrategy
+ * @brief Always reinforces its strongest territory then attacks if able.
+ */
+class AggressivePlayerStrategy : public PlayerStrategy
+{
+public:
+    AggressivePlayerStrategy() = default;
+    ~AggressivePlayerStrategy() override = default;
+
+    // ---- Overridden Strategy Methods ----
+    std::vector<Territory *> toDefend(const Player *p) const override;
+    std::vector<Territory *> toAttack(const Player *p) const override;
+
+    /**
+     * ------------- Agressive Player Strategy Overview -------------
+     *
+     *     1. Always dumps every available reinforcement into
+     *        its strongest territory (highest numArmies).
+     *
+     *     2. Always advances all available troops in controlled
+     *        territories adjacent to strongest territory into
+     *        strongest territory.
+     *
+     *     3. If available, always bombs an adjacent player's
+     *        strongest territory.
+     *
+     *     4. If available, airlifts all troops from a territory
+     *        not adjacent to any enemy controlled territories
+     *        into its strongest territory.
+     *
+     *     5. Does not use blockade or negotiate cards.
+     *
+     *     6. Attacks any adjacent enemy controlled territories
+     *        with all territories containing at least one troop.
+     *
+     *     7. Repeat.
+     */
+    void issueOrder(Player *p, Deck *deck) override;
+    std::string getType() const override;
+    PlayerStrategy *clone() const override;
 };

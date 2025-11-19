@@ -148,3 +148,21 @@ public:
     std::string getType() const override;
     PlayerStrategy *clone() const override;
 };
+
+/**
+ * @class CheaterPlayerStrategy
+ * @brief Automatically conquers all adjacent territories each turn.
+ */
+class CheaterPlayerStrategy : public PlayerStrategy
+{
+public:
+    CheaterPlayerStrategy() = default;
+    ~CheaterPlayerStrategy() override = default;
+
+    // ---- Overridden Strategy Methods ----
+    std::vector<Territory *> toDefend(const Player *p) const override;
+    std::vector<Territory *> toAttack(const Player *p) const override;
+    void issueOrder(Player *p, Deck *deck) override;
+    std::string getType() const override;
+    PlayerStrategy *clone() const override;
+};

@@ -565,10 +565,6 @@ PlayerStrategy *AggressivePlayerStrategy::clone() const
     return new AggressivePlayerStrategy(*this);
 }
 
-
-
-
-
 //==================================================================================//
 //                     BenevolentPlayerStrategy Class                               //
 //==================================================================================//
@@ -830,4 +826,62 @@ std::string BenevolentPlayerStrategy::getType() const
 PlayerStrategy *BenevolentPlayerStrategy::clone() const
 {
     return new BenevolentPlayerStrategy(*this);
+}
+
+//==================================================================================//
+//                        CheaterPlayerStrategy Class                               //
+//==================================================================================//
+
+std::vector<Territory *> CheaterPlayerStrategy::toDefend(const Player *p) const
+{
+    return *p->getTerritories();
+}
+
+std::vector<Territory *> CheaterPlayerStrategy::toAttack(const Player *p) const
+{
+    std::set<Territory *> attackableSet;
+
+    for (Territory *myTerritory : *p->getTerritories())
+    {
+        for (Territory *adjacent : *(myTerritory->getAdjacentTerritories()))
+        {
+            if (adjacent->getOwner() != p)
+            {
+                attackableSet.insert(adjacent);
+            }
+        }
+    }
+
+    return std::vector<Territory *>(attackableSet.begin(), attackableSet.end());
+}
+
+void CheaterPlayerStrategy::issueOrder(Player *p, Deck *deck)
+{
+    std::vector<Territory *> attackList = toAttack(p);
+
+    // Automatically conquer all adjacent enemy territories
+    for (Territory *target : attackList)
+    {
+        Player *defender = target->getOwner();
+        target->setOwner(p);
+        p->addTerritory(target);
+        if(defender != nullptr) {
+            defender->removeTerritory(target);
+        }
+
+        std::cout << p->getName() << " has magically conquered " << target->getName()
+                  << "!" << std::endl;
+    }
+
+    std::cout << "\n--- " << p->getName() << "'s orders are complete. ---" << std::endl;
+}
+
+std::string CheaterPlayerStrategy::getType() const
+{
+    return "Cheater Player";
+}
+
+PlayerStrategy *CheaterPlayerStrategy::clone() const
+{
+    return new CheaterPlayerStrategy(*this);
 }

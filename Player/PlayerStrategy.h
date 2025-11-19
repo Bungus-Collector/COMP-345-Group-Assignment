@@ -126,7 +126,25 @@ public:
      *
      *     7. Repeat.
      */
-    void issueOrder(Player *p, Deck *deck) override;
+    void issueOrder(Player *p, Deck *d) override;
+    std::string getType() const override;
+    PlayerStrategy *clone() const override;
+};
+
+
+/**
+ * ==================================================
+ * Benevolent Player Strategy
+ * ==================================================
+ */
+class BenevolentPlayerStrategy : public PlayerStrategy{
+public:
+    BenevolentPlayerStrategy() = default; //default constructor
+    ~BenevolentPlayerStrategy() override = default; //destructor
+
+    std::vector<Territory*> toDefend(const Player* player) const override;
+    std::vector<Territory*> toAttack(const Player* player) const override;
+    void issueOrder(Player* player, Deck* deck) override;
     std::string getType() const override;
     PlayerStrategy *clone() const override;
 };

@@ -15,6 +15,7 @@ void testPlayerStrategies()
     Player *p_human = new Player("Elian (Human)");
     Player *p_aggressive = new Player("Gabe (Aggressive)");
     // Player *p_neutral = new Player("Gorden (Neutral)");
+    Player *p_cheater = new Player("Matthew (Cheater)");
 
     // creating new map
     auto *c1 = new Continent("Cont1", 5);
@@ -31,10 +32,12 @@ void testPlayerStrategies()
     p_human->setStrategy(new HumanPlayerStrategy());
     p_aggressive->setStrategy(new AggressivePlayerStrategy());
     // p_neutral->setStrategy(new NeutralPlayerStrategy());
+    p_cheater->setStrategy(new CheaterPlayerStrategy());
 
     // Assign reinforcements
     p_human->addReinforcements(5);
     p_aggressive->addReinforcements(5);
+    p_cheater->addReinforcements(5);
     // p_neutral->addReinforcements(5);
 
     // Assign territories and armies
@@ -45,6 +48,10 @@ void testPlayerStrategies()
     t2->setOwner(p_aggressive);
     t2->setArmies(10);
     p_aggressive->addTerritory(t2);
+
+    t3->setOwner(p_cheater);
+    t3->setArmies(15);
+    p_cheater->addTerritory(t3);
 
     // t3->setOwner(p_neutral);
     // t3->setArmies(3);
@@ -72,9 +79,16 @@ void testPlayerStrategies()
     // std::cout << "(This should be automatic and do nothing...)" << std::endl;
     // p_neutral->issueOrder(gameDeck);
 
+    // (D) Cheater Player (Automatic)
+    std::cout << "\n--- Issuing orders for: " << p_cheater->getName()
+              << " (" << p_cheater->getStrategy()->getType() << ") ---" << std::endl;
+    std::cout << "(This should be automatic, simply getting territories)" << std::endl;
+    p_cheater->issueOrder(gameDeck);
+
     delete p_human;
     delete p_aggressive;
     // delete p_neutral;
+    delete p_cheater;
 
     // delete the territories we created
     delete t1;

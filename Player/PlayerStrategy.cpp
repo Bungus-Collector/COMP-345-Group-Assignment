@@ -10,6 +10,7 @@
 #include <vector>
 #include <limits>
 #include <set>
+#include <algorithm>
 
 //==================================================================================//
 //                       PlayerStrategy Class (Base)                                //
@@ -562,4 +563,271 @@ std::string AggressivePlayerStrategy::getType() const
 PlayerStrategy *AggressivePlayerStrategy::clone() const
 {
     return new AggressivePlayerStrategy(*this);
+}
+
+
+
+
+
+//==================================================================================//
+//                     BenevolentPlayerStrategy Class                               //
+//==================================================================================//
+
+/**
+ * @param p const player
+ * @return list of territories
+ * @brief will sort the list of territories from weakest to strongest.
+ */
+std::vector<Territory *> BenevolentPlayerStrategy::toDefend(const Player *p) const
+{
+    // Copy owned territories
+    std::vector<Territory *> territories = *p->getTerritories();
+
+    // Sort by ascending number of armies, weakest first
+    std::sort(territories.begin(),territories.end(),[](Territory *a, Territory *b)
+        {
+            return a->getArmies() < b->getArmies();
+        });
+
+    return territories;
+}
+
+/** 
+ * @param p player const
+ * @return list of territories
+ * @brief only returns because it doesn't attack
+ */
+std::vector<Territory *> BenevolentPlayerStrategy::toAttack(const Player* p) const
+{
+    // Benevolent player never plans to attack
+    return {};
+}
+
+/**
+ * @param p, d player and deck
+ * @brief checks if list of territories are empty, then
+ * - deploys the reinforcements to its weakest territories
+ * - only use defensive cards
+ */
+void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
+{
+    if (p->getTerritories()->empty())
+        return;
+
+    // Get territories to defend from weakest to strongest
+    std::vector<Territory *> defendList = toDefend(p);
+
+    // Use all reinforcements on the weakest territories
+    int reinforcements = p->getReinforcements();
+
+    if (reinforcements > 0)
+    {
+        // Distribute over up to 3 weakest territories
+        int numTargets = static_cast<int>(std::min<size_t>(3, defendList.size()));
+        int baseAmount = reinforcements / numTargets;
+        int extra = reinforcements % numTargets;
+
+        for (int i = 0; i < numTargets; ++i)
+        {
+            int amount = baseAmount + (i == 0 ? extra : 0); // put remainder on very weakest
+            if (amount <= 0){
+                continue;
+            }
+
+            Deploy *deployOrder = new Deploy();
+            deployOrder->setIssuer(p);
+            deployOrder->setNumTroops(new int(amount));
+            deployOrder->setTargetTerritory(defendList[i]);
+            p->getOrdersList()->add(deployOrder);
+
+            std::cout << "[Benevolent] Deploying " << amount << " armies to " << defendList[i]->getName() << ".\n";
+        }
+
+        // Mark reinforcements as spent
+        p->takeReinforcements(reinforcements);
+    }
+
+    // Defensively move troops: from stronger owned territories to weaker ones
+    OrdersList *orders = p->getOrdersList();
+
+    for (Territory *weak : defendList)
+    {
+        // Find a strong friendly neighbor
+        Territory *donor = nullptr;
+        int donorArmies = 0;
+
+        for (Territory *adj : *weak->getAdjacentTerritories())
+        {
+            if (adj->getOwner() == p && adj->getArmies() > donorArmies)
+            {
+                donor = adj;
+                donorArmies = adj->getArmies();
+            }
+        }
+
+        if (donor && donorArmies > weak->getArmies() + 1)
+        {
+            int moveAmount = donorArmies / 2;
+            if (moveAmount <= 0){
+                continue;
+            }
+
+            Advance *advanceOrder = new Advance();
+            advanceOrder->setIssuer(p);
+            advanceOrder->setNumTroops(new int(moveAmount));
+            advanceOrder->setSourceTerritory(donor);
+            advanceOrder->setTargetTerritory(weak);
+            orders->add(advanceOrder);
+
+            std::cout << "[Benevolent] Advancing " << moveAmount
+                      << " armies from " << donor->getName()
+                      << " to " << weak->getName() << ".\n";
+        }
+    }
+
+    // card options here, only use defensive cards
+    Hand* hand = p->getHand();
+    auto& cards = hand->getCards();   // same pattern as Human
+
+    if (!cards.empty())
+    {
+        for (size_t i = 0; i < cards.size(); ++i)
+        {
+            Card* card = cards[i].get();
+            CardType type = card->getType();
+            Order* newOrder = nullptr;
+
+            switch (type){
+
+                case CardType::AirliftCard:
+                {
+                    // Move armies between own territories: from strong to weak
+                    if (p->getTerritories()->empty())
+                        break;
+
+                    // weakest (first in defendList)
+                    Territory* weakest = defendList.front();
+
+                    // find strongest owned territory
+                    Territory* strongest = nullptr;
+                    int maxArmies = 0;
+                    for (Territory* t : *p->getTerritories())
+                    {
+                        if (t->getArmies() > maxArmies)
+                        {
+                            strongest = t;
+                            maxArmies = t->getArmies();
+                        }
+                    }
+
+                    if (strongest && strongest != weakest && maxArmies > 1)
+                    {
+                        int move = maxArmies / 2;
+
+                        Airlift* airlift = new Airlift();
+                        airlift->setIssuer(p);
+                        airlift->setNumTroops(new int(move));
+                        airlift->setSourceTerritory(strongest);
+                        airlift->setTargetTerritory(weakest);
+
+                        newOrder = airlift;
+                    }
+                    break;
+                }
+                case CardType::BlockadeCard:
+                {
+                    // Blockade the weakest frontline territory (adjacent to enemies)
+                    Territory* target = nullptr;
+
+                    for (Territory* t : defendList)
+                    {
+                        bool adjacentEnemy = false;
+                        for (Territory* adj : *t->getAdjacentTerritories())
+                        {
+                            if (adj->getOwner() != p)
+                            {
+                                adjacentEnemy = true;
+                                break;
+                            }
+                        }
+                        if (adjacentEnemy)
+                        {
+                            target = t;
+                            break; // first weak frontline we find
+                        }
+                    }
+
+                    if (target)
+                    {
+                        Blockade* blockade = new Blockade();
+                        blockade->setIssuer(p);
+                        blockade->setTargetTerritory(target);
+                        newOrder = blockade;
+                    }
+                    break;
+                }
+                case CardType::DiplomacyCard:
+                {
+                    // Negotiate with the owner of an adjacent enemy territory
+                    Player* targetPlayer = nullptr;
+
+                    for (Territory* myT : *p->getTerritories())
+                    {
+                        for (Territory* adj : *myT->getAdjacentTerritories())
+                        {
+                            if (adj->getOwner() != p)
+                            {
+                                targetPlayer = adj->getOwner();
+                                break;
+                            }
+                        }
+                        if (targetPlayer)
+                            break;
+                    }
+
+                    if (targetPlayer)
+                    {
+                        Negotiate* negotiate = new Negotiate();
+                        negotiate->setIssuer(p);
+                        negotiate->setTargetPlayer(targetPlayer);
+                        newOrder = negotiate;
+                    }
+                    break;
+                }
+                case CardType::BombCard:
+                    // Benevolent NEVER bombs (offensive)
+                    break;
+
+                default:
+                    break;
+            }
+
+            if (newOrder)
+            {
+                p->getOrdersList()->add(newOrder);
+                // this is where Deck actually gets used:
+                card->play(*hand, *deck);
+
+                std::cout << "[Benevolent] Played card: " << *card << std::endl;
+            }
+        }
+    }
+
+    std::cout << "\n--- " << p->getName() << " (Benevolent) orders are complete. ---\n";
+}
+
+/**
+ * @return string that shows its type
+ */
+std::string BenevolentPlayerStrategy::getType() const
+{
+    return "Benevolent Player";
+}
+
+/**
+ * @return PlayerStrategy clone object
+ */
+PlayerStrategy *BenevolentPlayerStrategy::clone() const
+{
+    return new BenevolentPlayerStrategy(*this);
 }

@@ -14,6 +14,7 @@ void testPlayerStrategies()
     // Create players
     Player *p_human = new Player("Elian (Human)");
     Player *p_aggressive = new Player("Gabe (Aggressive)");
+    Player *p_benevolent = new Player("Gorden (Benevolent)");
     // Player *p_neutral = new Player("Gorden (Neutral)");
     Player *p_cheater = new Player("Matthew (Cheater)");
 

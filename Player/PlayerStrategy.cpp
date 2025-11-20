@@ -802,7 +802,7 @@ void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
             {
                 p->getOrdersList()->add(newOrder);
                 // this is where Deck actually gets used:
-                card->play(*hand, *deck);
+                card->play(*hand, *d);
 
                 std::cout << "[Benevolent] Played card: " << *card << std::endl;
             }

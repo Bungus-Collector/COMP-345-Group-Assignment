@@ -10,6 +10,7 @@
 #include "OrdersErrorCodes.h"
 #include "../Map/Map.h"
 #include "../Player/Player.h"
+#include "../Player/PlayerStrategy.h"
 
 #define ATTACK_KILL_CHANCE 0.6f
 #define DEFEND_KILL_CHANCE 0.7f
@@ -24,8 +25,8 @@ std::ostream &operator<<(ostream &os, const Order &order)
 // ======================== ORDER ======================== //
 
 Order::Order()
-    : id{new int()},
-      issuer{new Player()}
+    : id(new int(0)),
+      issuer(nullptr)
 {
 }
 
@@ -392,6 +393,16 @@ int Advance::execute()
       targetTerritory->changeNumArmies(-defenderCasualties);
     }
   }
+
+  // notifies neutral player that they have been attacked
+  if (auto* ownerPlayer = targetTerritory->getOwner())
+  {
+    if (auto* neutral = dynamic_cast<NeutralPlayerStrategy*>(ownerPlayer->getStrategy()))
+    {
+      neutral->notifyAttacked();
+    }
+  }
+
   notify(this);
   return SUCCESS;
 }
@@ -497,6 +508,16 @@ int Bomb::execute()
     return FAILURE;
   }
   notify(this);
+
+   // notifies neutral player that they have been attacked
+  if (auto* ownerPlayer = targetTerritory->getOwner())
+  {
+    if (auto* neutral = dynamic_cast<NeutralPlayerStrategy*>(ownerPlayer->getStrategy()))
+    {
+      neutral->notifyAttacked();
+    }
+  }
+  
   // Halve the number of troops in targetTerritory
   targetTerritory->changeNumArmies(-targetTerritory->getArmies() / 2);
   return SUCCESS;

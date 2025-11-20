@@ -20,6 +20,8 @@ class Deck;
  */
 class PlayerStrategy
 {
+protected:
+    Player* owner = nullptr;
 public:
     // ---- Constructor and Destructor ----
     PlayerStrategy() = default;          // default constructor
@@ -57,6 +59,9 @@ public:
      * @return deep cloned PlayerStrategy
      */
     virtual PlayerStrategy *clone() const = 0;
+
+    void setOwner(Player* p) { owner = p; }
+    Player* getOwner() const { return owner; }
 
     // Stream insertion
     friend std::ostream &operator<<(std::ostream &os, const PlayerStrategy &ps);
@@ -177,6 +182,8 @@ class NeutralPlayerStrategy : public PlayerStrategy
 public:
     NeutralPlayerStrategy() = default;
     ~NeutralPlayerStrategy() override = default;
+
+    void notifyAttacked();
 
     // ---- Overridden Strategy Methods ----
     std::vector<Territory *> toDefend(const Player *p) const override;

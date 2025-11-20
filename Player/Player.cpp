@@ -465,6 +465,7 @@ void Player::setStrategy(PlayerStrategy* newStrategy) {
         delete ps_;
         ps_ = newStrategy;
     }
+    if (ps_) ps_->setOwner(this);
 }
 
 /**

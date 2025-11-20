@@ -166,3 +166,22 @@ public:
     std::string getType() const override;
     PlayerStrategy *clone() const override;
 };
+
+
+/**
+ * @class NeutralPlayerStrategy
+ * @brief Does nothing unless attacked, then becomes an Aggressive player.
+ */
+class NeutralPlayerStrategy : public PlayerStrategy
+{
+public:
+    NeutralPlayerStrategy() = default;
+    ~NeutralPlayerStrategy() override = default;
+
+    // ---- Overridden Strategy Methods ----
+    std::vector<Territory *> toDefend(const Player *p) const override;
+    std::vector<Territory *> toAttack(const Player *p) const override;
+    void issueOrder(Player *p, Deck *deck) override;
+    std::string getType() const override;
+    PlayerStrategy *clone() const override;
+};

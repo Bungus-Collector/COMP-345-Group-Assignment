@@ -12,11 +12,11 @@ void testPlayerStrategies()
     Deck *gameDeck = new Deck(20);
 
     // Create players
-    Player *p_human = new Player("Elian (Human)");
-    Player *p_aggressive = new Player("Gabe (Aggressive)");
-    Player *p_benevolent = new Player("Gorden (Benevolent)");
-    // Player *p_neutral = new Player("Gorden (Neutral)");
-    Player *p_cheater = new Player("Matthew (Cheater)");
+    Player *p_human = new Player("Elian");
+    Player *p_aggressive = new Player("Gabe");
+    Player *p_benevolent = new Player("Gorden");
+    Player *p_neutral = new Player("Paul");
+    Player *p_cheater = new Player("Matthew");
 
     // creating new map
     auto *c1 = new Continent("Cont1", 5);
@@ -46,7 +46,7 @@ void testPlayerStrategies()
     // Assign strategies
     p_human->setStrategy(new HumanPlayerStrategy());
     p_aggressive->setStrategy(new AggressivePlayerStrategy());
-    // p_neutral->setStrategy(new NeutralPlayerStrategy());
+    p_neutral->setStrategy(new NeutralPlayerStrategy());
     p_benevolent->setStrategy(new BenevolentPlayerStrategy());
 
 
@@ -74,9 +74,9 @@ void testPlayerStrategies()
     t3->setArmies(15);
     p_cheater->addTerritory(t3);
 
-    // t3->setOwner(p_neutral);
-    // t3->setArmies(3);
-    // p_neutral->addTerritory(t3);
+    t3->setOwner(p_neutral);
+    t3->setArmies(3);
+    p_neutral->addTerritory(t3);
 
     // t4->setOwner(p_aggressive);
     // t4->setArmies(8);
@@ -88,43 +88,44 @@ void testPlayerStrategies()
     p_benevolent->addTerritory(b2);
     p_benevolent->addTerritory(b3);
 
+    for (int i = 0; i < 2; i++) {
+        std::cout << "ROUND " << (i + 1) << std::endl;
+        // (A) Human Player (Interactive)
+        std::cout << "\n--- Issuing orders for: " << p_human->getName()
+                << " (" << p_human->getStrategy()->getType() << ") ---" << std::endl;
+        p_human->issueOrder(gameDeck);
+        std::cout << "\nHuman player has finished issuing orders." << std::endl;
 
+        // (B) Aggressive Player (Automatic)
+        std::cout << "\n--- Issuing orders for: " << p_aggressive->getName()
+                << " (" << p_aggressive->getStrategy()->getType() << ") ---" << std::endl;
+        std::cout << "(This should be automatic, focusing on attacking...)" << std::endl;
+        p_aggressive->issueOrder(gameDeck);
 
-    // (A) Human Player (Interactive)
-    std::cout << "\n--- Issuing orders for: " << p_human->getName()
-              << " (" << p_human->getStrategy()->getType() << ") ---" << std::endl;
-    p_human->issueOrder(gameDeck);
-    std::cout << "\nHuman player has finished issuing orders." << std::endl;
+        // (C) Neutral Player (Automatic)
+        std::cout << "\n--- Issuing orders for: " << p_neutral->getName()
+                << " (" << p_neutral->getStrategy()->getType() << ") ---" << std::endl;
+        std::cout << "(This should be automatic and do nothing...)" << std::endl;
+        p_neutral->issueOrder(gameDeck);
 
-    // (B) Aggressive Player (Automatic)
-    std::cout << "\n--- Issuing orders for: " << p_aggressive->getName()
-              << " (" << p_aggressive->getStrategy()->getType() << ") ---" << std::endl;
-    std::cout << "(This should be automatic, focusing on attacking...)" << std::endl;
-    p_aggressive->issueOrder(gameDeck);
-
-    // (C) Neutral Player (Automatic)
-    // std::cout << "\n--- Issuing orders for: " << p_neutral->getName()
-    //           << " (" << p_neutral->getStrategy()->getType() << ") ---" << std::endl;
-    // std::cout << "(This should be automatic and do nothing...)" << std::endl;
-    // p_neutral->issueOrder(gameDeck);
-
-    // =========================
-    // (D) Benevolent Player (Automatic)
-    // =========================
-    std::cout << "\n--- Issuing orders for: " << p_benevolent->getName()
-              << " (" << p_benevolent->getStrategy()->getType() << ") ---\n";
-    std::cout << "(This should be automatic, reinforcing weakest territories and never attacking.)\n";
-    p_benevolent->issueOrder(gameDeck);
-  
-    // (D) Cheater Player (Automatic)
-    std::cout << "\n--- Issuing orders for: " << p_cheater->getName()
-              << " (" << p_cheater->getStrategy()->getType() << ") ---" << std::endl;
-    std::cout << "(This should be automatic, simply getting territories)" << std::endl;
-    p_cheater->issueOrder(gameDeck);
+        // =========================
+        // (D) Benevolent Player (Automatic)
+        // =========================
+        std::cout << "\n--- Issuing orders for: " << p_benevolent->getName()
+                << " (" << p_benevolent->getStrategy()->getType() << ") ---\n";
+        std::cout << "(This should be automatic, reinforcing weakest territories and never attacking.)\n";
+        p_benevolent->issueOrder(gameDeck);
+    
+        // (D) Cheater Player (Automatic)
+        std::cout << "\n--- Issuing orders for: " << p_cheater->getName()
+                << " (" << p_cheater->getStrategy()->getType() << ") ---" << std::endl;
+        std::cout << "(This should be automatic, simply getting territories)" << std::endl;
+        p_cheater->issueOrder(gameDeck);
+    }
 
     delete p_human;
     delete p_aggressive;
-    // delete p_neutral;
+    delete p_neutral;
     delete p_benevolent;
 
     delete p_cheater;

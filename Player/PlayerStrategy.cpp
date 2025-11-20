@@ -885,3 +885,44 @@ PlayerStrategy *CheaterPlayerStrategy::clone() const
 {
     return new CheaterPlayerStrategy(*this);
 }
+
+//==================================================================================//
+//                     NeutralPlayerStrategy Class                               //
+//==================================================================================//
+
+std::vector<Territory *> NeutralPlayerStrategy::toDefend(const Player *p) const
+{
+    return *p->getTerritories();
+}
+
+std::vector<Territory *> NeutralPlayerStrategy::toAttack(const Player *p) const
+{
+    std::set<Territory *> targets;
+
+    for (Territory *ownedTerritory : *p->getTerritories())
+    {
+        for (Territory *adjacent : *(ownedTerritory->getAdjacentTerritories()))
+        {
+            if (adjacent->getOwner() != p)
+                targets.insert(adjacent);
+        }
+    }
+
+    return std::vector<Territory *>(targets.begin(), targets.end());
+}
+
+void NeutralPlayerStrategy::issueOrder(Player *p, Deck *d)
+{
+    
+    std::cout << "\n--- " << p->getName() << "'s orders are complete. ---" << std::endl;
+}
+
+std::string NeutralPlayerStrategy::getType() const
+{
+    return "Neutral Player";
+}
+
+PlayerStrategy *NeutralPlayerStrategy::clone() const
+{
+    return new NeutralPlayerStrategy(*this);
+}

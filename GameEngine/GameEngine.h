@@ -19,11 +19,18 @@ public:
     void startUpPhase(); //Controls the initialization before gameplay (includes loading and validating the map, and adding players).
     void InitialPlayerAssignment(); //Handles the initial assignment of players
     void printPlayerStats(int roundNum);
-    void mainGameLoop(); //Loops the game's play phase
+    void mainGameLoop(int maxTurns = -1); //Loops the game's play phase
     void removePlayer(const std::string& playerName);
+    void prepareTournamentPlayers();
+    void setupTournament(std::vector<std::string> mapFiles, std::vector<std::string> playerStrategies, int numOfGames, int maxTurns);
+    void runTournament();
     void reinforcementPhase();
     void issueOrdersPhase();
     void executeOrdersPhase();
+    void endTurn();
+    void cleanupGame();
+    void printTournamentResults();
+    Player* getWinner();
 
     std::string stringToLog() override;
 
@@ -61,10 +68,17 @@ private:
     State* currentState; // Pointer to the current state
     bool isSetupRunning; // Flag to control the game setup
     bool isGameRunning; // Flag to control the play loop
+    bool isTournament;
     std::vector<Player> players;
     Map* currentMap;
     Deck* gameDeck;
     std::string currentMapName;
+    std::vector<std::string> tournamentMaps;
+    std::vector<std::string> tournamentStrategies;
+    int tournamentGames;
+    int tournamentMaxTurns;
+    std::vector<std::vector<std::string>> tournamentResults;
+    std::string tournamentLog;
 };
 
 #endif

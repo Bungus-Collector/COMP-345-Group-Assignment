@@ -1,7 +1,10 @@
 #include "GameEngine.h"
 #include "../orders/Order.h"
 #include "../orders/OrdersList.h"
+#include "../Player/PlayerStrategy.h"
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <cstdlib>
 #include <random>
 #include <algorithm>
@@ -16,7 +19,13 @@ GameEngine::GameEngine() {
     gameDeck = new Deck(30);
     isSetupRunning = true;
     isGameRunning = false;
+    isTournament = false;
     currentMapName = "";
+    tournamentMaps.clear();
+    tournamentStrategies.clear();
+    tournamentGames = 0;
+    tournamentMaxTurns = 0;
+    tournamentResults.clear();
 }
 
 GameEngine::~GameEngine() {
@@ -254,16 +263,19 @@ void GameEngine::removePlayer(const std::string& playerName) {
     }
 }
 
-void GameEngine::mainGameLoop() {
+void GameEngine::mainGameLoop(int maxTurns) {
     auto* allTerritories = currentMap->getAllTerritories();
     int totalTerritoryNum = allTerritories->size();
     int roundNum = 1;
-    std::cout << "In mainGameLoop() - start - TOTAL TERRITORIES (" << totalTerritoryNum << ")\n";
     isGameRunning = true;
     notify(this);
 
     int tempCount = 0;
-    while (isGameRunning) {
+    while (isGameRunning && (maxTurns == -1 || roundNum <= maxTurns)) {
+        std::cout << "========================\n";
+        std::cout << "        TURN " << roundNum << "\n";
+        std::cout << "========================\n";
+
         if (roundNum > 1) {
             std::vector<std::string> toRemove;
             for (const auto& player : players) {
@@ -280,44 +292,23 @@ void GameEngine::mainGameLoop() {
         reinforcementPhase();
         issueOrdersPhase();
         executeOrdersPhase();
+        endTurn();
 
-        printPlayerStats(roundNum++);
-
-        bool hasWinner = true;
-        Player* winner = nullptr;
-
-        if (players.size() == 1) {
-            winner = &players[0];
-            *currentState = State::WIN;
-            notify(this);
-            std::cout << "PLAYER " << winner->getName() << " HAS WON THE GAME!";
-            isGameRunning = false;
+        if (!isTournament) {
+            printPlayerStats(roundNum++);
         }
         else {
-            for (auto* territory : *allTerritories) {
-            Player* owner = territory->getOwner();
-            if (owner == nullptr) {
-                hasWinner = false;
-                break;
-            }
-            if (winner == nullptr) {
-                winner = owner;
-            }
-            else if (owner != winner) {
-                hasWinner = false;
-                break;
-            }
+            roundNum++;
         }
 
-        if (hasWinner && winner != nullptr) {
+        Player* winner = getWinner();
+        if (winner) {
             *currentState = State::WIN;
             notify(this);
             std::cout << "PLAYER " << winner->getName() << " HAS WON THE GAME!";
             isGameRunning = false;
-            return;
         }
-        }
-
+        
         std::this_thread::sleep_for(std::chrono::milliseconds(250));
     }
 }
@@ -405,6 +396,9 @@ void GameEngine::executeOrdersPhase() {
                 if (removeResult != 0) {
                     std::cerr << "Failed to remove order ID: " << orderId;
                 }
+
+                delete order;
+                order = nullptr;
             }
         }
     }
@@ -412,7 +406,181 @@ void GameEngine::executeOrdersPhase() {
     std::cout << "\tALL ORDERS EXECUTED\n\n";
 }
 
+void GameEngine::endTurn() {
+    for (auto& player : players) {
+        if (player.getGetsCard()) {
+            gameDeck->draw(*player.getHand());
+            player.setGetsCard(false);
+        }
+
+        player.resetNegotatingPlayers();
+    }
+}
+
+Player* GameEngine::getWinner() {
+    if (players.size() == 1) {
+        return &players[0];
+    }
+
+    bool hasWinner = true;
+    Player* winner = nullptr;
+    auto* allTerritories = currentMap->getAllTerritories();
+
+    for (auto* territory : *allTerritories) {
+        Player* owner = territory->getOwner();
+        if (owner == nullptr) {
+            hasWinner = false;
+            break;
+        }
+        if (winner == nullptr) {
+            winner = owner;
+        }
+        else if (owner != winner) {
+            hasWinner = false;
+            break;
+        }
+    }
+
+    if (hasWinner) return winner;
+    return nullptr;
+    
+}
+
+void GameEngine::prepareTournamentPlayers() {
+    players.clear();
+
+    int playerNum = 1;
+    for (std::string playerName : tournamentStrategies) {
+        std::string lowerName = playerName;
+        std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), [](unsigned char c){ return std::tolower(c); });
+        
+        std::string fullName = playerName + "_" + std::to_string(playerNum++);
+
+        Player newPlayer(fullName);
+
+        if (playerName == "aggressive") {newPlayer.setStrategy(new AggressivePlayerStrategy());}
+        else if (playerName == "benevolent") {newPlayer.setStrategy(new BenevolentPlayerStrategy());}
+        else if (playerName == "neutral") {newPlayer.setStrategy(new NeutralPlayerStrategy());}
+        else if (playerName == "cheater") {newPlayer.setStrategy(new CheaterPlayerStrategy());}
+        else { newPlayer.setStrategy(new AggressivePlayerStrategy()); }
+        players.push_back(newPlayer);
+    }
+}
+
+void GameEngine::setupTournament(std::vector<std::string> mapFiles, std::vector<std::string> playerStrategies, int numOfGames, int maxTurns) {
+    isTournament = true;
+    tournamentResults.clear();
+    tournamentMaps = mapFiles;
+    tournamentStrategies = playerStrategies;
+    tournamentGames = numOfGames;
+    tournamentMaxTurns = maxTurns;
+}
+
+void GameEngine::runTournament() {
+    MapLoader loader;
+    for (std::string mapFile : tournamentMaps) {
+        std::vector<std::string> currentMapResults;
+        for (int gameNum = 1; gameNum <= tournamentGames; gameNum++) {
+            std::cout << "========================\n";
+            std::cout << "        GAME " << gameNum << "\n";
+            std::cout << "========================\n";
+            currentMap = loader.loadMap(mapFile);
+            if (currentMap == nullptr || !currentMap->validate()) continue;
+
+            prepareTournamentPlayers();
+
+            delete gameDeck;
+            gameDeck = new Deck(30);
+
+            InitialPlayerAssignment();
+
+            mainGameLoop(tournamentMaxTurns);
+
+            Player* winner = getWinner();
+            if (winner) {
+                currentMapResults.push_back((winner->getName() + " (" + winner->getStrategy()->getType() + ")"));
+                std::cout << "Player " << winner->getName() << "HAS WON THE GAME\n";
+            }
+            else {
+                std::cout << "DRAW - NO ONE HAS WON THE GAME!\n";
+                currentMapResults.push_back("DRAW");
+            }
+
+            cleanupGame();
+        }
+
+        tournamentResults.push_back(currentMapResults);
+    }
+}
+
+void GameEngine::cleanupGame() {
+    for (auto& p : players) {
+        // Clear orders to avoid double-delete
+        auto* orders = p.getOrdersList()->getOrders();
+        for (auto* o : *orders) delete o;
+        orders->clear();
+    }
+    players.clear();
+
+    delete gameDeck;
+    gameDeck = nullptr;
+
+    delete currentMap;
+    currentMap = nullptr;
+}
+
+void GameEngine::printTournamentResults() {
+    std::ostringstream table;
+
+    table << "Tournament mode:\n";
+    
+    table << "M: ";
+    for (size_t i = 0; i < tournamentMaps.size(); i++) {
+        table << tournamentMaps[i];
+        if (i < tournamentMaps.size() - 1) table << ", ";
+    }
+
+    table << "\nP: ";
+    for (size_t i = 0; i < players.size(); i++) {
+        table << players[i].getName();
+        if (i < players.size() - 1) table << ", ";
+    }
+
+    table << "\nG: " << tournamentGames;
+    table << "\nD: " << tournamentMaxTurns;
+
+    table << "\n\nResults:\n";
+    table << "| Map |";
+    for (int g = 1; g <= tournamentGames; g++) {
+        table << " Game " << g << " |";
+    }
+    table << "\n";
+
+    table << "|-----|";
+    for (int g = 1; g <= tournamentGames; ++g) table << "------------|";
+    table << "\n";
+
+    for (size_t map = 0; map < tournamentMaps.size(); map++) {
+        table << "| " << std::left << std::setw(3) << (map+1) << " |";
+        for (const auto& result : tournamentResults[map]) {
+            table << " " << std::left << std::setw(10) << result << " |";
+        }
+        table << "\n";
+    }
+
+    tournamentLog = table.str();
+    notify(this);
+
+    std::cout << tournamentLog;
+}
+
 std::string GameEngine::stringToLog() {
+    if(!tournamentLog.empty()) {
+        std::string copy = tournamentLog;
+        tournamentLog.clear();
+        return copy;
+    }
+    
     return "Game Engine new state: " + GameEngine::stateToString(*currentState);
 }
 

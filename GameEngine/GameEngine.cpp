@@ -405,8 +405,6 @@ void GameEngine::executeOrdersPhase() {
                 if (removeResult != 0) {
                     std::cerr << "Failed to remove order ID: " << orderId;
                 }
-
-                delete order;
             }
         }
     }

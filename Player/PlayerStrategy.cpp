@@ -5,6 +5,7 @@
 #include "../orders/OrdersList.h"
 #include "../Cards/Cards.h"
 #include <iostream>
+#include <random>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -802,7 +803,7 @@ void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
             {
                 p->getOrdersList()->add(newOrder);
                 // this is where Deck actually gets used:
-                card->play(*hand, *deck);
+                card->play(*hand, *d);
 
                 std::cout << "[Benevolent] Played card: " << *card << std::endl;
             }
@@ -859,14 +860,27 @@ void CheaterPlayerStrategy::issueOrder(Player *p, Deck *deck)
 {
     std::vector<Territory *> attackList = toAttack(p);
 
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(attackList.begin(), attackList.end(), g);
+
     // Automatically conquer all adjacent enemy territories
+    int count = 0;
     for (Territory *target : attackList)
     {
+        if (count++ >= 0) break;
         Player *defender = target->getOwner();
         target->setOwner(p);
         p->addTerritory(target);
         if(defender != nullptr) {
             defender->removeTerritory(target);
+            if (auto* ownerPlayer = target->getOwner())
+            {
+                if (auto* neutral = dynamic_cast<NeutralPlayerStrategy*>(ownerPlayer->getStrategy()))
+                {
+                neutral->notifyAttacked();
+                }
+            }
         }
 
         std::cout << p->getName() << " has magically conquered " << target->getName()
@@ -884,4 +898,54 @@ std::string CheaterPlayerStrategy::getType() const
 PlayerStrategy *CheaterPlayerStrategy::clone() const
 {
     return new CheaterPlayerStrategy(*this);
+}
+
+//==================================================================================//
+//                     NeutralPlayerStrategy Class                               //
+//==================================================================================//
+
+void NeutralPlayerStrategy::notifyAttacked()
+{
+    if (!owner) return;
+
+    std::cout << "Neutral player " << owner->getName() << " has been attacked. Switching strategy from Neutral to Aggressive.\n";
+
+    owner->setStrategy(new AggressivePlayerStrategy());
+}
+
+std::vector<Territory *> NeutralPlayerStrategy::toDefend(const Player *p) const
+{
+    return *p->getTerritories();
+}
+
+std::vector<Territory *> NeutralPlayerStrategy::toAttack(const Player *p) const
+{
+    std::set<Territory *> targets;
+
+    for (Territory *ownedTerritory : *p->getTerritories())
+    {
+        for (Territory *adjacent : *(ownedTerritory->getAdjacentTerritories()))
+        {
+            if (adjacent->getOwner() != p)
+                targets.insert(adjacent);
+        }
+    }
+
+    return std::vector<Territory *>(targets.begin(), targets.end());
+}
+
+void NeutralPlayerStrategy::issueOrder(Player *p, Deck *d)
+{
+    
+    std::cout << "\n--- " << p->getName() << "'s orders are complete. ---" << std::endl;
+}
+
+std::string NeutralPlayerStrategy::getType() const
+{
+    return "Neutral Player";
+}
+
+PlayerStrategy *NeutralPlayerStrategy::clone() const
+{
+    return new NeutralPlayerStrategy(*this);
 }

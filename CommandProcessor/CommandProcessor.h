@@ -24,6 +24,13 @@ enum class State {
     EXECUTEORDERS,
     WIN
 };
+// === Tournament parameters ===
+struct TournamentParams{
+    std::vector<std::string> mapFiles;
+    std::vector<std::string> playerStrategies;
+    int numGames = 0;
+    int maxTurns = 0;
+};
 
 // === COMMAND CLASS ===
 /**
@@ -83,6 +90,11 @@ public:
     // Helper function for logs
     std::string stringToLog() override;
 
+    // [Tournament] access last parsed tournament parameters
+    const TournamentParams& getTournamentParams() const {
+        return tournamentParams_;
+    }
+
 protected:
     virtual std::string readCommand();
     void saveCommand(Command* cmd);
@@ -90,6 +102,12 @@ protected:
 
 private:
     std::vector<Command*>* commands_{};
+
+    // [Tournament] store last valid tournament command's params
+    TournamentParams tournamentParams_;
+
+    // [Tournament] helper to parse/validate the tournament command
+    bool parseTournamentCommand(const std::string& s, TournamentParams& tp, std::string& errorMsg);
 };
 
 // ======== FileLineReader ==========

@@ -112,6 +112,6 @@ void testCommandProcessor(int argc, char *argv[])
  * @param argv
  */
 // int main(int argc, char* argv[]) {
-//     test(argc,argv);
+//     testCommandProcessor(argc,argv);
 //     return 0;
 // }

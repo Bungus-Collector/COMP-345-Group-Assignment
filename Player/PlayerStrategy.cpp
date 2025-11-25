@@ -1,6 +1,6 @@
 #include "PlayerStrategy.h"
 #include "Player.h"
-#include "../map/Map.h"
+#include "../Map/Map.h"
 #include "../orders/Order.h"
 #include "../orders/OrdersList.h"
 #include "../Cards/Cards.h"

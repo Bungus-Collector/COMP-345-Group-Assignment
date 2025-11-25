@@ -78,6 +78,24 @@ void GameEngine::handleSetUp(std::string input) {
                 // Call new CommandProcessor
                 std::unique_ptr<CommandProcessor> cp = std::make_unique<CommandProcessor>();
                 Command *cmd = cp->getCommand(*currentState);
+
+                //[Tournament implementation for command] uncomment when tournament code is pulled.
+                // if (!cmd) {
+                //     std::cout << "No command entered. Not entering Tournament mode."
+                //     break;
+                // }
+
+                // if (cmd->getEffect() == "Tournament Mode"){
+                //     //parse tournament params
+                //     const TournamentParams&tp = cp.getTournamentParams();
+
+                //     // pass them into game engine tournament setup
+                //     setupTournament(tp.mapfiles, tp.playerStragies, tp.numGames, tp.maxTurns);
+                //     // run tournament
+                //     runTournament();
+                //     printTournamentResults();
+                // }
+
             }
             else
             {

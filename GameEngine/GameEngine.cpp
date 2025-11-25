@@ -2,6 +2,7 @@
 #include "../orders/Order.h"
 #include "../orders/OrdersList.h"
 #include "../Player/PlayerStrategy.h"
+#include "../CommandProcessor/CommandProcessor.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -68,8 +69,19 @@ void GameEngine::handleSetUp(std::string input) {
                 } else {
                     std::cout << "Failed to load map " << tempName << ".\n";
                 }
-            } else {
-                std::cout << "Invalid command. Please enter loading map phase using 'loadmap'.\n";
+            } 
+
+            // [TOURNAMENT] added tournament input
+            else if (input == "tournament"){
+                std::cout <<"Input the parameters for the tournament: tournament -M <listofmapfiles>(1 to 5) -P <listofplayerstrategies>(2 to 4)" << 
+                            "-G <numberofgames>(1 to 5) -D <maxnumberofturns>(10 to 50)\n";
+                // Call new CommandProcessor
+                std::unique_ptr<CommandProcessor> cp = std::make_unique<CommandProcessor>();
+                Command *cmd = cp->getCommand(*currentState);
+            }
+            else
+            {
+                std::cout << "Invalid command. Please enter loading map phase using 'loadmap'/Please enter valid parameters for the tournament mode \n";
             }
         break;
     case State::MAPLOADED:
@@ -138,7 +150,7 @@ void GameEngine::startUpPhase() {
         switch (*currentState) {
             case State::START:
                 std::cout << "START\n";
-                std::cout << "Commands:\n 'loadmap'\n";
+                std::cout << "Commands:\n 'loadmap'\n 'tournament'\n" ;
                 break;
             case State::MAPLOADED:
                 std::cout << "MAPLOADED\n" << "Current Map Loaded: " << currentMapName << "\n";

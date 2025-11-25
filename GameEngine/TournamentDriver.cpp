@@ -22,8 +22,9 @@ void testTournament() {
 
     GameEngine *game = new GameEngine();
 
-    game->setupTournament(tournamentMaps, tournamentStrategies, tournamentGames, tournamentMaxTurns);
-    game->runTournament();
+    game->startUpPhase();
+    // game->setupTournament(tournamentMaps, tournamentStrategies, tournamentGames, tournamentMaxTurns);
+    // game->runTournament();
 
     std::cout << "\nTournament finished.";
 

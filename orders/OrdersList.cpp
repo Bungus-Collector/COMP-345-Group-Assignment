@@ -33,6 +33,7 @@ OrdersList::~OrdersList()
     for (Order *o : *Orders)
     {
         delete o;
+        o = nullptr;
     }
     Orders->clear();
 
@@ -63,6 +64,7 @@ OrdersList &OrdersList::operator=(const OrdersList &other)
     for (Order *o : *Orders)
     {
         delete o;
+        o = nullptr;
     }
     Orders->clear();
 
@@ -158,6 +160,7 @@ int OrdersList::remove(Order *o)
     if (it != Orders->end())
     {
         delete *it;
+        *it = nullptr;
         Orders->erase(it);
         return SUCCESS;
     }

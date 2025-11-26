@@ -12,8 +12,9 @@
 #include <fstream>
 #include <string>
 #include "../GameLogs/LoggingObserver.h"
-
+#include "../GameEngine/GameEngine.h"
  // forward declaration
+using State = GameEngine::State;
 enum class State {
     START,
     MAPLOADED,

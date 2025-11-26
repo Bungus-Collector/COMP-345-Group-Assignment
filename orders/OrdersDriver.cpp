@@ -141,7 +141,7 @@ void testOrderExecution()
     Advance *advanceOrder_invalid = new Advance(0, p1, attackers + t1->getArmies(), t1, t2);
 
     cout << "Executing INVALID advance order (advancing armies exceeds reserves in source territory)..." << endl;
-    cout << "Troops in t1 (before): " << t1->getArmies() << " (" << *advanceOrder_invalid->getNumTroops() << " attacking)" << endl;
+    cout << "Troops in t1 (before): " << t1->getArmies() << " (" << advanceOrder_invalid->getNumTroops() << " attacking)" << endl;
     cout << "Troops in t2 (before): " << t2->getArmies() << endl;
     cout << "t2 owner (before): " << t2->getOwner()->getName() << endl;
     advanceOrder_invalid->execute();
@@ -151,7 +151,7 @@ void testOrderExecution()
     cout << endl;
 
     cout << "Executing VALID advance order..." << endl;
-    cout << "Troops in t1 (before): " << t1->getArmies() << " (" << *advanceOrder_valid->getNumTroops() << " attacking)" << endl;
+    cout << "Troops in t1 (before): " << t1->getArmies() << " (" << advanceOrder_valid->getNumTroops() << " attacking)" << endl;
     cout << "Troops in t2 (before): " << t2->getArmies() << endl;
     cout << "t2 owner (before): " << t2->getOwner()->getName() << endl;
     advanceOrder_valid->execute();

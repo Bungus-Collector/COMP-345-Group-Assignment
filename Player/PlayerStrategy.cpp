@@ -1,6 +1,6 @@
 #include "PlayerStrategy.h"
 #include "Player.h"
-#include "../map/Map.h"
+#include "../Map/Map.h"
 #include "../orders/Order.h"
 #include "../orders/OrdersList.h"
 #include "../Cards/Cards.h"
@@ -12,6 +12,10 @@
 #include <limits>
 #include <set>
 #include <algorithm>
+
+std::random_device rd;     // Only used once to initialise (seed) engine
+std::mt19937 rng(rd());    // Random-number engine used (Mersenne-Twister in this case)
+std::uniform_int_distribution<int> get_int(0,10000); // Guaranteed unbiased
 
 //==================================================================================//
 //                       PlayerStrategy Class (Base)                                //
@@ -123,10 +127,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
             }
             int numToDeploy = getIntegerInput("How many armies to deploy? (1-" + std::to_string(remainingReinforcements) + "): ", 1, remainingReinforcements);
 
-            Deploy *order = new Deploy();
-            order->setIssuer(p);
-            order->setNumTroops(new int(numToDeploy));
-            order->setTargetTerritory(target);
+            Deploy *order = new Deploy(get_int(rng), p, numToDeploy, target);
 
             p->getOrdersList()->add(order);
             remainingReinforcements -= numToDeploy;
@@ -175,11 +176,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
             int maxArmies = source->getArmies();
             int numArmies = getIntegerInput("Enter number of armies to move (0-" + std::to_string(maxArmies) + "): ", 0, maxArmies);
 
-            Advance *order = new Advance();
-            order->setIssuer(p);
-            order->setNumTroops(new int(numArmies));
-            order->setSourceTerritory(source);
-            order->setTargetTerritory(target);
+            Advance *order = new Advance(get_int(rng), p, numArmies, source, target);
 
             p->getOrdersList()->add(order);
             std::cout << "Issuing ADVANCE (Defend) from " << source->getName() << " to " << target->getName() << "." << std::endl;
@@ -197,11 +194,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
             int maxArmies = source->getArmies();
             int numArmies = getIntegerInput("Enter number of armies to attack with (0-" + std::to_string(maxArmies) + "): ", 0, maxArmies);
 
-            Advance *order = new Advance();
-            order->setIssuer(p);
-            order->setNumTroops(new int(numArmies));
-            order->setSourceTerritory(source);
-            order->setTargetTerritory(target);
+            Advance *order = new Advance(get_int(rng), p, numArmies, source, target);
 
             p->getOrdersList()->add(order);
             std::cout << "Issuing ADVANCE (Attack) from " << source->getName() << " to " << target->getName() << "." << std::endl;
@@ -242,9 +235,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
                 Territory *target = selectTerritory(attackList, "Target territory: ");
                 if (target)
                 {
-                    Bomb *order = new Bomb();
-                    order->setIssuer(p);
-                    order->setTargetTerritory(target);
+                    Bomb *order = new Bomb(get_int(rng), p, target);
                     newOrder = order;
                 }
                 break;
@@ -261,11 +252,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
                     break;
                 int numArmies = getIntegerInput("Armies to airlift (max " + std::to_string(source->getArmies()) + "): ", 0, source->getArmies());
 
-                Airlift *order = new Airlift();
-                order->setIssuer(p);
-                order->setNumTroops(new int(numArmies));
-                order->setSourceTerritory(source);
-                order->setTargetTerritory(target);
+                Airlift *order = new Airlift(get_int(rng), p, numArmies, source, target);
                 newOrder = order;
                 break;
             }
@@ -275,9 +262,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
                 Territory *target = selectTerritory(defendList, "Target territory: ");
                 if (target)
                 {
-                    Blockade *order = new Blockade();
-                    order->setIssuer(p);
-                    order->setTargetTerritory(target);
+                    Blockade *order = new Blockade(get_int(rng), p, target);
                     newOrder = order;
                 }
                 break;
@@ -295,9 +280,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
                     }
                     else
                     {
-                        Negotiate *order = new Negotiate();
-                        order->setIssuer(p);
-                        order->setTargetPlayer(targetPlayer);
+                        Negotiate *order = new Negotiate(get_int(rng), p, targetPlayer);
                         newOrder = order;
                     }
                 }
@@ -388,10 +371,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
 
     int reinforcements = p->getReinforcements();
 
-    Deploy *reinforcementOrder = new Deploy();
-    reinforcementOrder->setIssuer(p);
-    reinforcementOrder->setNumTroops(new int(reinforcements));
-    reinforcementOrder->setTargetTerritory(strongestTerritory);
+    Deploy *reinforcementOrder = new Deploy(get_int(rng), p, reinforcements, strongestTerritory);
     p->getOrdersList()->add(reinforcementOrder);
 
     // Advance troops into strongest adjacent territory if adjacent
@@ -399,11 +379,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
     {
         if (t->getOwner() == p)
         {
-            Advance *advanceOrder = new Advance();
-            advanceOrder->setIssuer(p);
-            advanceOrder->setNumTroops(new int(t->getArmies()));
-            advanceOrder->setSourceTerritory(t);
-            advanceOrder->setTargetTerritory(strongestTerritory);
+            Advance *advanceOrder = new Advance(get_int(rng), p, t->getArmies(), t, strongestTerritory);
             p->getOrdersList()->add(advanceOrder);
 
             // Remove from active territories
@@ -457,9 +433,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
                 // Only case where target is null is if p controls the whole map, but check anyway
                 if (target)
                 {
-                    Bomb *bombOrder = new Bomb();
-                    bombOrder->setIssuer(p);
-                    bombOrder->setTargetTerritory(target);
+                    Bomb *bombOrder = new Bomb(get_int(rng), p, target);
                     p->getOrdersList()->add(bombOrder);
                 }
                 break;
@@ -467,6 +441,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
             case CardType::AirliftCard:
             {
                 Territory *source;
+                source = nullptr;
                 bool suitable;
 
                 // Searches for any territories not adjacent to an enemy territory
@@ -498,11 +473,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
                 // Saves card if no suitable territories
                 if (source)
                 {
-                    Airlift *airliftOrder = new Airlift();
-                    airliftOrder->setIssuer(p);
-                    airliftOrder->setNumTroops(new int(source->getArmies()));
-                    airliftOrder->setSourceTerritory(source);
-                    airliftOrder->setTargetTerritory(strongestTerritory);
+                    Airlift *airliftOrder = new Airlift(get_int(rng), p, source->getArmies(), source, strongestTerritory);
                     p->getOrdersList()->add(airliftOrder);
 
                     // Remove source from active territories
@@ -544,16 +515,12 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
         // If has target: obliterate it
         if (victim)
         {
-            Advance *advanceOrder = new Advance();
-            advanceOrder->setIssuer(p);
-            advanceOrder->setNumTroops(new int(currentTerritory->getArmies()));
-            advanceOrder->setSourceTerritory(currentTerritory);
-            advanceOrder->setIssuer(p);
+            Advance *advanceOrder = new Advance(get_int(rng), p, currentTerritory->getArmies(), currentTerritory, victim);
             p->getOrdersList()->add(advanceOrder);
         }
     }
 
-    std::cout << "\n--- " << p->getName() << "'s orders are complete. ---" << std::endl;
+    // std::cout << "\n--- " << p->getName() << "'s orders are complete. ---" << std::endl;
 }
 
 std::string AggressivePlayerStrategy::getType() const
@@ -631,10 +598,7 @@ void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
                 continue;
             }
 
-            Deploy *deployOrder = new Deploy();
-            deployOrder->setIssuer(p);
-            deployOrder->setNumTroops(new int(amount));
-            deployOrder->setTargetTerritory(defendList[i]);
+            Deploy *deployOrder = new Deploy(get_int(rng), p, amount, defendList[i]);
             p->getOrdersList()->add(deployOrder);
 
             std::cout << "[Benevolent] Deploying " << amount << " armies to " << defendList[i]->getName() << ".\n";
@@ -669,11 +633,7 @@ void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
                 continue;
             }
 
-            Advance *advanceOrder = new Advance();
-            advanceOrder->setIssuer(p);
-            advanceOrder->setNumTroops(new int(moveAmount));
-            advanceOrder->setSourceTerritory(donor);
-            advanceOrder->setTargetTerritory(weak);
+            Advance *advanceOrder = new Advance(get_int(rng), p, moveAmount, donor, weak);
             orders->add(advanceOrder);
 
             std::cout << "[Benevolent] Advancing " << moveAmount
@@ -721,11 +681,7 @@ void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
                     {
                         int move = maxArmies / 2;
 
-                        Airlift* airlift = new Airlift();
-                        airlift->setIssuer(p);
-                        airlift->setNumTroops(new int(move));
-                        airlift->setSourceTerritory(strongest);
-                        airlift->setTargetTerritory(weakest);
+                        Airlift* airlift = new Airlift(get_int(rng), p, move, strongest, weakest);
 
                         newOrder = airlift;
                     }
@@ -756,9 +712,7 @@ void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
 
                     if (target)
                     {
-                        Blockade* blockade = new Blockade();
-                        blockade->setIssuer(p);
-                        blockade->setTargetTerritory(target);
+                        Blockade* blockade = new Blockade(get_int(rng), p, target);
                         newOrder = blockade;
                     }
                     break;
@@ -784,9 +738,7 @@ void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
 
                     if (targetPlayer)
                     {
-                        Negotiate* negotiate = new Negotiate();
-                        negotiate->setIssuer(p);
-                        negotiate->setTargetPlayer(targetPlayer);
+                        Negotiate* negotiate = new Negotiate(get_int(rng), p, targetPlayer);
                         newOrder = negotiate;
                     }
                     break;
@@ -810,7 +762,7 @@ void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
         }
     }
 
-    std::cout << "\n--- " << p->getName() << " (Benevolent) orders are complete. ---\n";
+    // std::cout << "\n--- " << p->getName() << " (Benevolent) orders are complete. ---\n";
 }
 
 /**
@@ -887,7 +839,7 @@ void CheaterPlayerStrategy::issueOrder(Player *p, Deck *deck)
                   << "!" << std::endl;
     }
 
-    std::cout << "\n--- " << p->getName() << "'s orders are complete. ---" << std::endl;
+    // std::cout << "\n--- " << p->getName() << "'s orders are complete. ---" << std::endl;
 }
 
 std::string CheaterPlayerStrategy::getType() const
@@ -937,7 +889,7 @@ std::vector<Territory *> NeutralPlayerStrategy::toAttack(const Player *p) const
 void NeutralPlayerStrategy::issueOrder(Player *p, Deck *d)
 {
     
-    std::cout << "\n--- " << p->getName() << "'s orders are complete. ---" << std::endl;
+    // std::cout << "\n--- " << p->getName() << "'s orders are complete. ---" << std::endl;
 }
 
 std::string NeutralPlayerStrategy::getType() const

@@ -153,7 +153,7 @@ std::ostream& operator<<(std::ostream& os, const Command& cmd){
 CommandProcessor::CommandProcessor():
     commands_(new std::vector<Command*>())
     {
-        std::cout << "[CmdProcessor] default constructor called."<< std::endl;
+        // std::cout << "[CmdProcessor] default constructor called."<< std::endl;
     }
 
 /**

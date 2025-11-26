@@ -19,7 +19,7 @@ private:
     Player *issuer;
 
     // Unique int identifier
-    int *id;
+    int id;
 
 public:
     // Constructors and destructor
@@ -70,7 +70,7 @@ public:
 class Deploy : public Order
 {
 private:
-    int *numTroops;
+    int numTroops;
     Territory *targetTerritory;
 
 public:
@@ -90,11 +90,11 @@ public:
     Order *clone() const override;
 
     // Getter methods
-    int *getNumTroops();
+    int getNumTroops();
     Territory *getTargetTerritory();
 
     // Setter methods
-    void setNumTroops(int *);
+    void setNumTroops(int );
     void setTargetTerritory(Territory *);
 
     /**
@@ -121,7 +121,7 @@ public:
 class Advance : public Order
 {
 private:
-    int *numTroops;
+    int numTroops;
     Territory *sourceTerritory;
     Territory *targetTerritory;
 
@@ -142,12 +142,12 @@ public:
     Order *clone() const override;
 
     // Getter methods
-    int *getNumTroops();
+    int getNumTroops();
     Territory *getSourceTerritory();
     Territory *getTargetTerritory();
 
     // Setter methods
-    void setNumTroops(int *);
+    void setNumTroops(int);
     void setSourceTerritory(Territory *);
     void setTargetTerritory(Territory *);
 
@@ -274,7 +274,7 @@ public:
 class Airlift : public Order
 {
 private:
-    int *numTroops;
+    int numTroops;
     Territory *sourceTerritory;
     Territory *targetTerritory;
 
@@ -295,12 +295,12 @@ public:
     Order *clone() const override;
 
     // Getter methods
-    int *getNumTroops();
+    int getNumTroops();
     Territory *getSourceTerritory();
     Territory *getTargetTerritory();
 
     // Setter methods
-    void setNumTroops(int *);
+    void setNumTroops(int);
     void setSourceTerritory(Territory *);
     void setTargetTerritory(Territory *);
 

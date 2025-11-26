@@ -229,6 +229,7 @@ void Player::issueOrder_old(Deck* gameDeck) {
         if (result != 0) {
             std::cerr << "Failed to add Deploy order for " << territory->getName() << "\n";
             delete deploy;
+            deploy = nullptr;
         }
         else {
             std::cout << "\t" << getName() << " - Issue Deploy order of " << totalArmies << " armies to territory " << territory->getName() << "\n";
@@ -271,6 +272,7 @@ void Player::issueOrder_old(Deck* gameDeck) {
             if (result != 0) {
                 std::cerr << "Failed to add Advance order to " << target->getName() << "\n";
                 delete advance;
+                advance = nullptr;
             }
             else {
                 std::cout << "\t" << getName() << " - Issue Advance order (Defend) of " << armiesToMove << " armies from territory " << source->getName() << " territory " << target->getName() << "\n";
@@ -310,6 +312,7 @@ void Player::issueOrder_old(Deck* gameDeck) {
             if (result != 0) {
                 std::cerr << "Failed to add Advance order to " << target->getName() << "\n";
                 delete advance;
+                advance = nullptr;
             }
             else {
                 std::cout << "\t" << getName() << " - Issue Advance order (Attack) of " << armiesToMove << " armies from territory " << source->getName() << " to territory " << target->getName() << "\n";
@@ -353,6 +356,7 @@ void Player::issueOrder_old(Deck* gameDeck) {
                         if (result != 0) {
                             std::cerr << "Failed to add Bomb order for target territory " << target->getName() << "\n";
                             delete bomb;
+                            bomb = nullptr;
                         }
                         else {
                             std::cout << "\t" << getName() << " - Issue Bomb order on player " << target->getOwner()->getName() << "'s territory " << target->getName() << "\n";
@@ -374,6 +378,7 @@ void Player::issueOrder_old(Deck* gameDeck) {
                 if (result != 0) {
                     std::cerr << "Failed to add Blockade order for target territory " << target->getName() << "\n";
                     delete blockade;
+                    blockade = nullptr;
                 }
                 else {
                     std::cout << "\t" << getName() << " - Issue Blockade order on owned territory " << target->getName() << "\n";
@@ -395,6 +400,7 @@ void Player::issueOrder_old(Deck* gameDeck) {
                 if (result != 0) {
                     std::cerr << "Failed to add Airlift order from territory " << source->getName() << " to territory " << target->getName() << "\n";
                     delete airlift;
+                    airlift = nullptr;
                 }
                 else {
                     std::cout << "\t" << getName() << " - Issue Airlift order from territory " << source->getName() << " to territory " << target->getName() << "\n";
@@ -425,6 +431,7 @@ void Player::issueOrder_old(Deck* gameDeck) {
                     if (result != 0) {
                         std::cerr << "Failed to add Negotiate order from player " << getName() << " to player " << target->getName() << "\n";
                         delete negotiate;
+                        negotiate = nullptr;
                     }
                     else {
                         std::cout << "\t" << getName() << " - Issue Negotiate order from player " << getName() << " to player " << target->getName() << "\n";
@@ -465,7 +472,7 @@ void Player::setStrategy(PlayerStrategy* newStrategy) {
         delete ps_;
         ps_ = newStrategy;
     }
-    if (ps_) ps_->setOwner(this);
+    // if (ps_) ps_->setOwner(this);
 }
 
 /**

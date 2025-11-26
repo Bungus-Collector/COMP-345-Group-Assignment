@@ -8,6 +8,29 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <set>
+#include <algorithm>
+
+namespace {
+    std::string trim(const std::string& s) {
+        const auto first = s.find_first_not_of(" \t\r\n");
+        if (first == std::string::npos) return "";
+        const auto last = s.find_last_not_of(" \t\r\n");
+        return s.substr(first, last - first + 1);
+    }
+
+    std::vector<std::string> splitCommaList(const std::string& token) {
+        std::vector<std::string> out;
+        std::string current;
+        std::stringstream ss(token);
+        while (std::getline(ss, current, ',')) {
+            current = trim(current);
+            if (!current.empty()) out.push_back(current);
+        }
+        return out;
+    }
+}
+
 
 // ==== COMMAND CLASS ====
 /**
@@ -284,11 +307,29 @@ bool CommandProcessor::validate(Command* cmd, State state) {
 
     switch (state) {
         case State::START:
+
+            //[Tournament] added new commands check
+            if(starts_with("tournament")){
+                TournamentParams params;
+                std::string error;
+                if(parseTournamentCommand(s, params, error)){
+                    tournamentParams_ = params;   // store for GameEngine
+                    cmd->saveEffect("Tournament Mode");
+                    return true;
+                } else {
+                    std::cout << "Invalid tournament command: " << error << "\n";
+                    cmd->saveEffect("Invalid Tournament");
+                    return false;
+                }
+            }
+        
             // Valid: loadmap <name>
             if (starts_with("loadmap")) {
                 cmd->saveEffect("Map Loaded");
                 return true;
-            } if (s == "quit") {
+            } 
+            
+            if (s == "quit") {
                 cmd->saveEffect("Program Terminated");
                 return true;
             }break;
@@ -350,6 +391,111 @@ bool CommandProcessor::validate(Command* cmd, State state) {
     }
 
     return false;
+}
+
+
+
+//[Tournament] helper function
+bool CommandProcessor::parseTournamentCommand(const std::string& s, TournamentParams& tp, std::string& errorMsg)
+{
+    std::istringstream iss(s);
+    std::string word;
+
+    // Must start with "tournament"
+    if (!(iss >> word) || word != "tournament") {
+        errorMsg = "Command must start with 'tournament'.";
+        return false;
+    }
+
+    // checks for parameters
+    bool hasM = false, hasP = false, hasG = false, hasD = false;
+    std::string flag;
+
+    // Allowed player strategies as per assignment
+    const std::set<std::string> allowedStrategies = {"Aggressive", "Benevolent", "Neutral", "Cheater"};
+
+    while (iss >> flag) {
+        // check maps
+        if (flag == "-M") {
+            std::string mapsToken;
+            if (!(iss >> mapsToken)) {
+                errorMsg = "Missing list of map files after -M.";
+                return false;
+            }
+            auto maps = splitCommaList(mapsToken);
+            if (maps.size() < 1 || maps.size() > 5) {
+                errorMsg = "M must have between 1 and 5 maps.";
+                return false;
+            }
+            tp.mapFiles = std::move(maps);
+            hasM = true;
+        }
+        // check players
+        else if (flag == "-P") {
+            std::string stratToken;
+            if (!(iss >> stratToken)) {
+                errorMsg = "Missing list of strategies after -P.";
+                return false;
+            }
+            auto strategies = splitCommaList(stratToken);
+            if (strategies.size() < 2 || strategies.size() > 4) {
+                errorMsg = "P must have between 2 and 4 strategies.";
+                return false;
+            }
+
+            // Optional: check they are among the known strategy names
+            for (const auto& s : strategies) {
+                if (!allowedStrategies.count(s)) {
+                    errorMsg = "Unknown player strategy: " + s;
+                    return false;
+                }
+            }
+
+            tp.playerStrategies = std::move(strategies);
+            hasP = true;
+        }
+        // check number of games
+        else if (flag == "-G") {
+            int g;
+            if (!(iss >> g)) {
+                errorMsg = "G must be an integer.";
+                return false;
+            }
+            if (g < 1 || g > 5) {
+                errorMsg = "G must be between 1 and 5.";
+                return false;
+            }
+            tp.numGames = g;
+            hasG = true;
+        }
+
+        // check # of rounds
+        else if (flag == "-D") {
+            int d;
+            if (!(iss >> d)) {
+                errorMsg = "D must be an integer.";
+                return false;
+            }
+            if (d < 10 || d > 50) {
+                errorMsg = "D must be between 10 and 50.";
+                return false;
+            }
+            tp.maxTurns = d;
+            hasD = true;
+        }
+        else {
+            errorMsg = "Unknown flag in tournament command: " + flag;
+            return false;
+        }
+    }
+
+    // if any of the checks are false return error message
+    if (!hasM || !hasP || !hasG || !hasD) {
+        errorMsg = "Tournament command must contain -M, -P, -G and -D.";
+        return false;
+    }
+
+    return true;
 }
 
 

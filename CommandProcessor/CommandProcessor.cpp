@@ -412,7 +412,7 @@ bool CommandProcessor::parseTournamentCommand(const std::string& s, TournamentPa
     std::string flag;
 
     // Allowed player strategies as per assignment
-    const std::set<std::string> allowedStrategies = {"Aggressive", "Benevolent", "Neutral", "Cheater"};
+    const std::set<std::string> allowedStrategies = {"aggressive", "benevolent", "neutral", "cheater"};
 
     while (iss >> flag) {
         // check maps
@@ -427,6 +427,15 @@ bool CommandProcessor::parseTournamentCommand(const std::string& s, TournamentPa
                 errorMsg = "M must have between 1 and 5 maps.";
                 return false;
             }
+
+            // normalize the path for the maps
+            for (auto& m : maps) {
+                // if it doesn't already start with "Resources/", will add it
+                if (m.rfind("../Resources/", 0) != 0) {
+                    m = "../Resources/" + m;
+                }
+            }
+
             tp.mapFiles = std::move(maps);
             hasM = true;
         }

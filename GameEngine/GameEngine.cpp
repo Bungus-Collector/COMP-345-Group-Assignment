@@ -77,24 +77,25 @@ void GameEngine::handleSetUp(std::string input) {
                             "-G <numberofgames>(1 to 5) -D <maxnumberofturns>(10 to 50)\n";
                 // Call new CommandProcessor
                 std::unique_ptr<CommandProcessor> cp = std::make_unique<CommandProcessor>();
-                Command *cmd = cp->getCommand(*currentState);
+                ::State cpState = static_cast<::State>(static_cast<int>(*currentState));
+                Command* cmd = cp->getCommand(cpState);
 
                 //[Tournament implementation for command] uncomment when tournament code is pulled.
-                // if (!cmd) {
-                //     std::cout << "No command entered. Not entering Tournament mode."
-                //     break;
-                // }
+                if (!cmd) {
+                    std::cout << "No command entered. Not entering Tournament mode.";
+                    break;
+                }
 
-                // if (cmd->getEffect() == "Tournament Mode"){
-                //     //parse tournament params
-                //     const TournamentParams&tp = cp.getTournamentParams();
+                if (cmd->getEffect() == "Tournament Mode"){
+                    //parse tournament params
+                    const TournamentParams& tp = cp->getTournamentParams();
 
-                //     // pass them into game engine tournament setup
-                //     setupTournament(tp.mapfiles, tp.playerStragies, tp.numGames, tp.maxTurns);
-                //     // run tournament
-                //     runTournament();
-                //     printTournamentResults();
-                // }
+                    // pass them into game engine tournament setup
+                    setupTournament(tp.mapFiles, tp.playerStrategies, tp.numGames, tp.maxTurns);
+                    // run tournament
+                    runTournament();
+                    printTournamentResults();
+                }
 
             }
             else
@@ -572,7 +573,7 @@ void GameEngine::printTournamentResults() {
 
     table << "\nP: ";
     for (size_t i = 0; i < players.size(); i++) {
-        table << players[i].getName();
+        table << players[i].getStrategy();
         if (i < players.size() - 1) table << ", ";
     }
 

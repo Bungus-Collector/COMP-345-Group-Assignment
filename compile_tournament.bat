@@ -1,0 +1,1 @@
+cl /EHsc /std:c++17 GameEngine/TournamentDriver.cpp Orders/Order.cpp Orders/OrdersList.cpp Map/Map.cpp Cards/Cards.cpp Player/Player.cpp GameLogs/LoggingObserver.cpp GameEngine/GameEngine.cpp CommandProcessor/CommandProcessor.cpp Player/PlayerStrategy.cpp /Fe:test.exe

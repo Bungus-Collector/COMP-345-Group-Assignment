@@ -3,7 +3,8 @@
 #include <iostream>
 #include <vector>
 
-void testTournament() {
+void testTournament()
+{
     // TODO: add command processing for tournament
 
     // // temporary variables
@@ -32,8 +33,8 @@ void testTournament() {
     game = nullptr;
 }
 
-int main(int argc, char const *argv[])
-{
-    testTournament();
-    return 0;
-}
+// int main(int argc, char const *argv[])
+// {
+//     testTournament();
+//     return 0;
+// }

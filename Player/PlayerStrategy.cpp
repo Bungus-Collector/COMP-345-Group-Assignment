@@ -359,7 +359,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
 
     // Get strongest territory
     int topTroopCount = 0;
-    Territory *strongestTerritory;
+    Territory *strongestTerritory = nullptr;
     for (Territory *t : *p->getTerritories())
     {
         if (t->getArmies() >= topTroopCount)
@@ -402,7 +402,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
             {
             case CardType::BombCard:
             {
-                Territory *target;
+                Territory *target = nullptr;
 
                 // Search for an enemy player controlled territory adjacent to strongest
                 for (Territory *t : *strongestTerritory->getAdjacentTerritories())
@@ -440,7 +440,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
             }
             case CardType::AirliftCard:
             {
-                Territory *source;
+                Territory *source = nullptr;
                 source = nullptr;
                 bool suitable;
 
@@ -502,7 +502,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
     {
         // Attempts to invade the weakest enemy controlled adjacent territory
         int weakestTroopCount = std::numeric_limits<int>::max();
-        Territory *victim;
+        Territory *victim = nullptr;
         for (Territory *t : *currentTerritory->getAdjacentTerritories())
         {
             if (t->getArmies() <= weakestTroopCount && t->getOwner() != p)
@@ -815,12 +815,13 @@ void CheaterPlayerStrategy::issueOrder(Player *p, Deck *deck)
     std::random_device rd;
     std::mt19937 g(rd());
     std::shuffle(attackList.begin(), attackList.end(), g);
+    std::uniform_int_distribution<std::mt19937::result_type> dist(0,5);
 
     // Automatically conquer all adjacent enemy territories
-    int count = 0;
+    int count = 0; int max = dist(g);
     for (Territory *target : attackList)
     {
-        if (count++ >= 0) break;
+        if (count++ >= max) break;
         Player *defender = target->getOwner();
         target->setOwner(p);
         p->addTerritory(target);
@@ -830,7 +831,11 @@ void CheaterPlayerStrategy::issueOrder(Player *p, Deck *deck)
             {
                 if (auto* neutral = dynamic_cast<NeutralPlayerStrategy*>(ownerPlayer->getStrategy()))
                 {
-                neutral->notifyAttacked();
+                neutral->notifyAttacked(ownerPlayer->getName());
+
+                AggressivePlayerStrategy * strategy = new AggressivePlayerStrategy();
+                strategy->setOwner(ownerPlayer);
+                ownerPlayer->setStrategy(strategy);
                 }
             }
         }
@@ -856,13 +861,11 @@ PlayerStrategy *CheaterPlayerStrategy::clone() const
 //                     NeutralPlayerStrategy Class                               //
 //==================================================================================//
 
-void NeutralPlayerStrategy::notifyAttacked()
+void NeutralPlayerStrategy::notifyAttacked(std::string name)
 {
     if (!owner) return;
 
-    std::cout << "Neutral player " << owner->getName() << " has been attacked. Switching strategy from Neutral to Aggressive.\n";
-
-    owner->setStrategy(new AggressivePlayerStrategy());
+    std::cout << "Neutral player " << name << " has been attacked. Switching strategy from Neutral to Aggressive.\n";
 }
 
 std::vector<Territory *> NeutralPlayerStrategy::toDefend(const Player *p) const

@@ -183,7 +183,7 @@ public:
     NeutralPlayerStrategy() = default;
     ~NeutralPlayerStrategy() override = default;
 
-    void notifyAttacked();
+    void notifyAttacked(std::string name);
 
     // ---- Overridden Strategy Methods ----
     std::vector<Territory *> toDefend(const Player *p) const override;

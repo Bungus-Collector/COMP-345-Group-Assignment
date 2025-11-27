@@ -391,7 +391,11 @@ int Advance::execute()
   {
     if (auto* neutral = dynamic_cast<NeutralPlayerStrategy*>(ownerPlayer->getStrategy()))
     {
-      neutral->notifyAttacked();
+      neutral->notifyAttacked(ownerPlayer->getName());
+
+      AggressivePlayerStrategy * strategy = new AggressivePlayerStrategy();
+      strategy->setOwner(ownerPlayer);
+      ownerPlayer->setStrategy(strategy);
     }
   }
 
@@ -509,7 +513,11 @@ int Bomb::execute()
   {
     if (auto* neutral = dynamic_cast<NeutralPlayerStrategy*>(ownerPlayer->getStrategy()))
     {
-      neutral->notifyAttacked();
+      neutral->notifyAttacked(ownerPlayer->getName());
+
+      AggressivePlayerStrategy * strategy = new AggressivePlayerStrategy();
+      strategy->setOwner(ownerPlayer);
+      ownerPlayer->setStrategy(strategy);
     }
   }
   

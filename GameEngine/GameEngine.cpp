@@ -261,9 +261,11 @@ void GameEngine::InitialPlayerAssignment()
 
     int rand = 0;
 
-    for (int i = 0; i < territoriestodistribute; ++i)
+    std::uniform_int_distribution<size_t> dist_t(0, territories.size() - 1);
+
+    for (int i = 0; i < territoriestodistribute && !territories.empty(); ++i)
     {
-        rand = 0 + (std::rand() % (territories.size() - 0 + 1));
+        rand = dist_t(g);
         Player &currentPlayer = players[i % numPlayers];
         Territory *currentTerritory = territories[rand];
         currentPlayer.addTerritory(currentTerritory);
@@ -582,23 +584,33 @@ void GameEngine::prepareTournamentPlayers()
 
         if (playerName == "aggressive")
         {
-            newPlayer.setStrategy(new AggressivePlayerStrategy());
+            AggressivePlayerStrategy * strategy = new AggressivePlayerStrategy();
+            strategy->setOwner(&newPlayer);
+            newPlayer.setStrategy(strategy);
         }
         else if (playerName == "benevolent")
         {
-            newPlayer.setStrategy(new BenevolentPlayerStrategy());
+            BenevolentPlayerStrategy * strategy = new BenevolentPlayerStrategy();
+            strategy->setOwner(&newPlayer);
+            newPlayer.setStrategy(strategy);
         }
         else if (playerName == "neutral")
         {
-            newPlayer.setStrategy(new NeutralPlayerStrategy());
+            NeutralPlayerStrategy * strategy = new NeutralPlayerStrategy();
+            strategy->setOwner(&newPlayer);
+            newPlayer.setStrategy(strategy);
         }
         else if (playerName == "cheater")
         {
-            newPlayer.setStrategy(new CheaterPlayerStrategy());
+            CheaterPlayerStrategy * strategy = new CheaterPlayerStrategy();
+            strategy->setOwner(&newPlayer);
+            newPlayer.setStrategy(strategy);
         }
         else
         {
-            newPlayer.setStrategy(new AggressivePlayerStrategy());
+            AggressivePlayerStrategy * strategy = new AggressivePlayerStrategy();
+            strategy->setOwner(&newPlayer);
+            newPlayer.setStrategy(strategy);
         }
         players.push_back(newPlayer);
     }
@@ -702,32 +714,35 @@ void GameEngine::printTournamentResults()
     table << "\nD: " << tournamentMaxTurns;
 
     table << "\n\nResults:\n";
+
+    const int WIDTH = 30;
+
+    table << std::left;
     table << "| Map |";
     for (int g = 1; g <= tournamentGames; g++)
     {
-        table << " Game " << g << " |";
+        table << " Game " << g << std::string(WIDTH - 5, ' ') << "|";
     }
     table << "\n";
 
     table << "|-----|";
     for (int g = 1; g <= tournamentGames; ++g)
-        table << "------------|";
+        table << std::string(WIDTH + 2, '-') << "|";
     table << "\n";
 
     for (size_t map = 0; map < tournamentMaps.size(); map++)
     {
-        table << "| " << std::left << std::setw(3) << (map + 1) << " |";
+        table << "| " << std::right << std::setw(3) << (map + 1) << " |";
         for (const auto &result : tournamentResults[map])
         {
-            table << " " << std::left << std::setw(10) << result << " |";
+            table << " " << std::left << std::setw(WIDTH) << result << " |";
         }
         table << "\n";
     }
 
     tournamentLog = table.str();
-    notify(this);
-
     std::cout << tournamentLog;
+    notify(this);
 }
 
 std::string GameEngine::stringToLog()

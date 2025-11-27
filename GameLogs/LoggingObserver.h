@@ -76,8 +76,7 @@ private:
  */
 class LogObserver : public Observer {
 public:
-    LogObserver();
-    ~LogObserver();
+    static LogObserver& getInstance();
 
     /**
     * Update logs
@@ -87,5 +86,11 @@ public:
     void update(ILoggable* subject) override;
 
 private:
+    LogObserver();
+    ~LogObserver();
+
+    LogObserver(const LogObserver&) = delete;
+    LogObserver& operator=(const LogObserver&) = delete;
+
     std::ofstream _logFile;
 };

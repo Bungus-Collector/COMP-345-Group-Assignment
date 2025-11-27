@@ -10,7 +10,7 @@
 void testLoggingObserver() {
     std::cout << "--- Starting Logging Observer Test ---" << std::endl;
 
-    LogObserver* logObserver = new LogObserver();
+    LogObserver& logObserver = LogObserver::getInstance();
 
     GameEngine* engine = new GameEngine();
     OrdersList* ordersList = new OrdersList();
@@ -21,11 +21,11 @@ void testLoggingObserver() {
     CommandProcessor* commandProcessor = new CommandProcessor();
     State state = State::EXECUTEORDERS;
 
-    engine->attach(logObserver);
-    ordersList->attach(logObserver);
-    order->attach(logObserver);
-    command->attach(logObserver);
-    commandProcessor->attach(logObserver);
+    engine->attach(&logObserver);
+    ordersList->attach(&logObserver);
+    order->attach(&logObserver);
+    command->attach(&logObserver);
+    commandProcessor->attach(&logObserver);
 
     std::cout << "\nTriggering GameEngine state change..." << std::endl;
     engine->gameLoop();
@@ -48,7 +48,6 @@ void testLoggingObserver() {
     std::cout << "\n--- Logging Observer Test Finished ---" << std::endl;
     std::cout << "Check the 'gamelog.txt' file for the output." << std::endl;
 
-    delete logObserver;
     delete engine;
     delete ordersList;
 }

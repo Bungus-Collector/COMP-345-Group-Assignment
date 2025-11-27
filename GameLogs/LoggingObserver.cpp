@@ -44,6 +44,11 @@ void Subject::notify(ILoggable* subject) {
 //                                  LogObserver Class                               //
 //==================================================================================//
 
+LogObserver& LogObserver::getInstance() {
+    static LogObserver instance;
+    return instance;
+}
+
 LogObserver::LogObserver() {
     _logFile.open("gamelog.txt", std::ofstream::out | std::ofstream::trunc);
     if (!_logFile.is_open()) {

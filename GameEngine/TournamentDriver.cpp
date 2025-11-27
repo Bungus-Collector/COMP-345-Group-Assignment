@@ -5,10 +5,10 @@
 
 void testTournament()
 {
-    LogObserver* logObserver = new LogObserver();
+    LogObserver& logObserver = LogObserver::getInstance();
     GameEngine *game = new GameEngine();
 
-    game->attach(logObserver);
+    game->attach(&logObserver);
 
     game->startUpPhase();
 

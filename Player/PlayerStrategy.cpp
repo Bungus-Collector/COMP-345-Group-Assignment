@@ -103,6 +103,7 @@ std::vector<Territory *> HumanPlayerStrategy::toAttack(const Player *p) const
 
 void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
 {
+    
     std::vector<Territory *> defendList = toDefend(p);
     std::vector<Territory *> attackList = toAttack(p);
 
@@ -128,6 +129,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
             int numToDeploy = getIntegerInput("How many armies to deploy? (1-" + std::to_string(remainingReinforcements) + "): ", 1, remainingReinforcements);
 
             Deploy *order = new Deploy(get_int(rng), p, numToDeploy, target);
+            order->attach(&LogObserver::getInstance());
 
             p->getOrdersList()->add(order);
             remainingReinforcements -= numToDeploy;
@@ -177,6 +179,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
             int numArmies = getIntegerInput("Enter number of armies to move (0-" + std::to_string(maxArmies) + "): ", 0, maxArmies);
 
             Advance *order = new Advance(get_int(rng), p, numArmies, source, target);
+            order->attach(&LogObserver::getInstance());
 
             p->getOrdersList()->add(order);
             std::cout << "Issuing ADVANCE (Defend) from " << source->getName() << " to " << target->getName() << "." << std::endl;
@@ -195,6 +198,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
             int numArmies = getIntegerInput("Enter number of armies to attack with (0-" + std::to_string(maxArmies) + "): ", 0, maxArmies);
 
             Advance *order = new Advance(get_int(rng), p, numArmies, source, target);
+            order->attach(&LogObserver::getInstance());
 
             p->getOrdersList()->add(order);
             std::cout << "Issuing ADVANCE (Attack) from " << source->getName() << " to " << target->getName() << "." << std::endl;
@@ -236,6 +240,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
                 if (target)
                 {
                     Bomb *order = new Bomb(get_int(rng), p, target);
+                    order->attach(&LogObserver::getInstance());
                     newOrder = order;
                 }
                 break;
@@ -253,6 +258,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
                 int numArmies = getIntegerInput("Armies to airlift (max " + std::to_string(source->getArmies()) + "): ", 0, source->getArmies());
 
                 Airlift *order = new Airlift(get_int(rng), p, numArmies, source, target);
+                order->attach(&LogObserver::getInstance());
                 newOrder = order;
                 break;
             }
@@ -263,6 +269,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
                 if (target)
                 {
                     Blockade *order = new Blockade(get_int(rng), p, target);
+                    order->attach(&LogObserver::getInstance());
                     newOrder = order;
                 }
                 break;
@@ -281,6 +288,7 @@ void HumanPlayerStrategy::issueOrder(Player *p, Deck *deck)
                     else
                     {
                         Negotiate *order = new Negotiate(get_int(rng), p, targetPlayer);
+                        order->attach(&LogObserver::getInstance());
                         newOrder = order;
                     }
                 }
@@ -372,6 +380,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
     int reinforcements = p->getReinforcements();
 
     Deploy *reinforcementOrder = new Deploy(get_int(rng), p, reinforcements, strongestTerritory);
+    reinforcementOrder->attach(&LogObserver::getInstance());
     p->getOrdersList()->add(reinforcementOrder);
 
     // Advance troops into strongest adjacent territory if adjacent
@@ -380,6 +389,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
         if (t->getOwner() == p)
         {
             Advance *advanceOrder = new Advance(get_int(rng), p, t->getArmies(), t, strongestTerritory);
+            advanceOrder->attach(&LogObserver::getInstance());
             p->getOrdersList()->add(advanceOrder);
 
             // Remove from active territories
@@ -434,6 +444,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
                 if (target)
                 {
                     Bomb *bombOrder = new Bomb(get_int(rng), p, target);
+                    bombOrder->attach(&LogObserver::getInstance());
                     p->getOrdersList()->add(bombOrder);
                 }
                 break;
@@ -474,6 +485,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
                 if (source)
                 {
                     Airlift *airliftOrder = new Airlift(get_int(rng), p, source->getArmies(), source, strongestTerritory);
+                    airliftOrder->attach(&LogObserver::getInstance());
                     p->getOrdersList()->add(airliftOrder);
 
                     // Remove source from active territories
@@ -516,6 +528,7 @@ void AggressivePlayerStrategy::issueOrder(Player *p, Deck *d)
         if (victim)
         {
             Advance *advanceOrder = new Advance(get_int(rng), p, currentTerritory->getArmies(), currentTerritory, victim);
+            advanceOrder->attach(&LogObserver::getInstance());
             p->getOrdersList()->add(advanceOrder);
         }
     }
@@ -599,6 +612,7 @@ void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
             }
 
             Deploy *deployOrder = new Deploy(get_int(rng), p, amount, defendList[i]);
+            deployOrder->attach(&LogObserver::getInstance());
             p->getOrdersList()->add(deployOrder);
 
             std::cout << "[Benevolent] Deploying " << amount << " armies to " << defendList[i]->getName() << ".\n";
@@ -634,6 +648,7 @@ void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
             }
 
             Advance *advanceOrder = new Advance(get_int(rng), p, moveAmount, donor, weak);
+            advanceOrder->attach(&LogObserver::getInstance());
             orders->add(advanceOrder);
 
             std::cout << "[Benevolent] Advancing " << moveAmount
@@ -682,7 +697,7 @@ void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
                         int move = maxArmies / 2;
 
                         Airlift* airlift = new Airlift(get_int(rng), p, move, strongest, weakest);
-
+                        airlift->attach(&LogObserver::getInstance());
                         newOrder = airlift;
                     }
                     break;
@@ -713,6 +728,7 @@ void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
                     if (target)
                     {
                         Blockade* blockade = new Blockade(get_int(rng), p, target);
+                        blockade->attach(&LogObserver::getInstance());
                         newOrder = blockade;
                     }
                     break;
@@ -739,6 +755,7 @@ void BenevolentPlayerStrategy::issueOrder(Player *p, Deck *d)
                     if (targetPlayer)
                     {
                         Negotiate* negotiate = new Negotiate(get_int(rng), p, targetPlayer);
+                        negotiate->attach(&LogObserver::getInstance());
                         newOrder = negotiate;
                     }
                     break;

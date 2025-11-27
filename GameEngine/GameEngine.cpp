@@ -261,9 +261,11 @@ void GameEngine::InitialPlayerAssignment()
 
     int rand = 0;
 
-    for (int i = 0; i < territoriestodistribute; ++i)
+    std::uniform_int_distribution<size_t> dist_t(0, territories.size() - 1);
+
+    for (int i = 0; i < territoriestodistribute && !territories.empty(); ++i)
     {
-        rand = 0 + (std::rand() % (territories.size() - 0 + 1));
+        rand = dist_t(g);
         Player &currentPlayer = players[i % numPlayers];
         Territory *currentTerritory = territories[rand];
         currentPlayer.addTerritory(currentTerritory);
@@ -739,9 +741,8 @@ void GameEngine::printTournamentResults()
     }
 
     tournamentLog = table.str();
-    notify(this);
-
     std::cout << tournamentLog;
+    notify(this);
 }
 
 std::string GameEngine::stringToLog()
